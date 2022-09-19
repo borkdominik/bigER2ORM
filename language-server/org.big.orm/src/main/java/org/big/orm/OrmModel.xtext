@@ -1,0 +1,49 @@
+grammar org.big.orm.OrmModel with org.eclipse.xtext.common.Terminals
+
+generate ormModel "http://www.big.org/orm/OrmModel"
+
+OrmModel:
+	'orm_model' name=ID
+	generationOption=GenerationOption
+	(elements+=ModelElement)*;
+	
+	
+GenerationOption:
+	'generate' ':' (HibernateGeneration | SQLAlchemyGeneration | EFcoreGeneration)
+;
+
+EFcoreGeneration:
+	'efcore' '{'
+		
+	'}'
+;
+
+SQLAlchemyGeneration:
+	'sqlalchemy' '{'
+		
+	'}'
+;
+
+HibernateGeneration:
+	'hibernate' '{'
+		
+	'}'
+;
+	
+ModelElement:
+	Entity;
+	
+	
+Entity:
+	'entity' name=ID '{'
+		(attributes += Attribute)*
+	'}';
+
+Attribute:
+	name=ID (datatype=DataType);
+	
+enum DataType:
+	UUID = 'UUID' |
+	STRING = 'String' |
+	INT = 'int'
+	;

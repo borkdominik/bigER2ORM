@@ -1,0 +1,8 @@
+.classpath
+.project
+build/
+bin/
+xtext-gen/
+xtend-gen/
+.gradle/
+org.eclipse.buildship.core.prefs

@@ -1,0 +1,63 @@
+{
+	"name": "bigORM",
+	"scopeName": "source.orm",
+	"fileTypes": [
+        "orm"
+    ],
+	"patterns": [
+		{
+            "include": "#comments"
+        }, {
+			"name": "entity.name.type.ormModel",
+			"match": "\\b(entity)\\b"
+		}, {
+			"name": "constant.language.ormModel",
+			"match": "\\b(orm_model)\\b"
+		}, {
+			"name": "keyword.operator.ormModel",
+			"match": "\\b(->|=|:)\\b"
+		},{
+			"name": "entity.other.attribute-name.ormModel",
+			"match": "\\b(UUID|String|int)\\b"
+		},{
+            "name": "string.quoted.double.ormModel",
+            "begin": "\"",
+            "end": "\""
+        }, {
+            "name": "string.quoted.single.ormModel",
+            "begin": "'",
+            "end": "'"
+        }
+	],
+	"repository": 
+        {
+            "comments": {
+                "patterns": [
+                    {
+                        "name": "comment.block.ormModel",
+                        "begin": "/\\*",
+                        "beginCaptures": {
+                            "0": {
+                                "name": "punctuation.definition.comment.ormModel"
+                            }
+                        },
+                        "end": "\\*/",
+                        "endCaptures": {
+                            "0": {
+                                "name": "punctuation.definition.comment.ormModel"
+                            }
+                        }
+                    }, {
+                        "begin": "(^\\s+)?(?=//)",
+                        "beginCaptures": {
+                            "1": {
+                                "name": "punctuation.whitespace.comment.leading.cs"
+                            }
+                        },
+                        "end": "(?=$)",
+                        "name":"comment.line.ormModel"
+                    }
+                ]
+            }
+        }
+}

@@ -1,0 +1,18 @@
+#Mon Sep 19 15:41:18 CEST 2022
+generateGeneratedAnnotation=false
+includeDateInGenerated=false
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/test/xtext-gen.directory=src/test/xtend-gen
+outlet.DEFAULT_OUTPUT.userOutputPerSourceFolder=true
+outlet.DEFAULT_OUTPUT.installDslAsPrimarySource=false
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/test/java.directory=src/test/xtend-gen
+eclipse.preferences.version=1
+generateSuppressWarnings=true
+BuilderConfiguration.is_project_specific=true
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/main/resources.directory=src/main/xtend-gen
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/main/java.directory=src/main/xtend-gen
+useJavaCompilerCompliance=false
+outlet.DEFAULT_OUTPUT.hideLocalSyntheticVariables=true
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/test/resources.directory=src/test/xtend-gen
+//outlet.DEFAULT_OUTPUT.sourceFolder.src/main/xtext-gen.directory=src/main/xtend-gen
+ValidatorConfiguration.is_project_specific=true
+targetJavaVersion=JAVA11

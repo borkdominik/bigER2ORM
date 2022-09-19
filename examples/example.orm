@@ -1,0 +1,5 @@
+orm_model university
+
+entity someRandom {
+    id UUID
+}

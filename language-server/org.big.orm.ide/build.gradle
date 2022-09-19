@@ -1,0 +1,22 @@
+dependencies {
+	api project(':org.big.orm')
+	api "org.eclipse.xtext:org.eclipse.xtext.ide:${xtextVersion}"
+	api "org.eclipse.xtext:org.eclipse.xtext.xbase.ide:${xtextVersion}"
+	implementation 'org.eclipse.core:org.eclipse.core.resources:3.7.100'
+}
+
+apply plugin: "org.xtext.builder"
+
+apply plugin: 'application'
+mainClassName = "org.eclipse.xtext.ide.server.ServerLauncher"
+applicationName = 'orm-language-server'
+
+task unzipServer(type: Copy, dependsOn: distZip) {
+	def zipFile = file("${buildDir}/distributions/orm-language-server.zip")
+	def outputDir = file("${buildDir}/../../../extension/server")
+
+	from zipTree(zipFile)
+	into outputDir
+}
+
+build.dependsOn unzipServer
