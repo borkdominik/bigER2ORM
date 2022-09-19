@@ -1,9 +1,0 @@
-.vscode/**
-*.vsix
-dist/**
-src/**
-**/*.map
-**/*.ts
-**/webpack.config.js
-**/tsconfig.json
-.vscode-test/**
