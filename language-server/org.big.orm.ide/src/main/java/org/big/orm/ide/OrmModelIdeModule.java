@@ -26,4 +26,5 @@ public class OrmModelIdeModule extends AbstractOrmModelIdeModule {
 	public Class<? extends IExecutableCommandService> bindIExecutableCommandService() {
 		return CommandService.class;
 	}
+	
 }

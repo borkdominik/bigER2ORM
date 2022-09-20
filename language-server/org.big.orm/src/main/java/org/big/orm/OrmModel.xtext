@@ -4,31 +4,7 @@ generate ormModel "http://www.big.org/orm/OrmModel"
 
 OrmModel:
 	'orm_model' name=ID
-	generationOption=GenerationOption
 	(elements+=ModelElement)*;
-	
-	
-GenerationOption:
-	'generate' ':' (HibernateGeneration | SQLAlchemyGeneration | EFcoreGeneration)
-;
-
-EFcoreGeneration:
-	'efcore' '{'
-		
-	'}'
-;
-
-SQLAlchemyGeneration:
-	'sqlalchemy' '{'
-		
-	'}'
-;
-
-HibernateGeneration:
-	'hibernate' '{'
-		
-	'}'
-;
 	
 ModelElement:
 	Entity;

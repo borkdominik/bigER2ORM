@@ -9,8 +9,8 @@ import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import org.big.orm.ormModel.Entity
 import org.eclipse.xtext.naming.IQualifiedNameProvider
-import javax.inject.Inject
 import org.big.orm.ormModel.Attribute
+import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 
 /**
  * Generates code from your model files on save.
@@ -19,12 +19,13 @@ import org.big.orm.ormModel.Attribute
  */
 class OrmModelGenerator extends AbstractGenerator {
 	
-	@Inject extension IQualifiedNameProvider
+	extension IQualifiedNameProvider = new DefaultDeclarativeQualifiedNameProvider();
 	
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("Generator called!");
         for (e : resource.allContents.toIterable.filter(Entity)) {
+        	System.err.println("Entity to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".java");
         	fsa.generateFile(
             	e.fullyQualifiedName.toString("/") + ".java",
             	e.compile)       

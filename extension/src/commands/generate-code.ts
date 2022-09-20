@@ -1,5 +1,12 @@
-import { commands, Selection, Uri, window, workspace } from 'vscode';
+import { commands, OpenDialogOptions, Selection, Uri, window, workspace } from 'vscode';
 export const command = 'bigorm.model.generateCode';
+
+const options: OpenDialogOptions = {
+    canSelectMany: false,
+    openLabel: 'Select',
+    canSelectFiles: false,
+    canSelectFolders: true
+};
 
 export default async function generateCode() {
     const language = await window.showQuickPick(['Hibernate', 'SQLAlchemy', 'Entity Framework'], {
@@ -12,9 +19,17 @@ export default async function generateCode() {
         console.log("Can't execute command");
         return;
     }
+    
+    const folder = await window.showOpenDialog(options);
+
+    if (!(folder && folder[0])) {
+        console.log("No folder selected");
+        return;
+    }
+    console.log('Selected folder: ' + folder[0]);
 
     if (activeEditor.document.uri instanceof Uri) {
-        const args = {"file": activeEditor.document.uri.toString(), "language": language};
+        const args = {"file": activeEditor.document.uri.toString(), "language": language, "output-path": folder[0].toString()};
         commands.executeCommand("big.orm.command.generate", args).then(((answer) => { console.log(answer) }));
     }
 }
