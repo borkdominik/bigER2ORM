@@ -2,7 +2,6 @@ package org.big.orm.ide.diagram
 
 import com.google.inject.Inject
 import org.big.orm.ormModel.Entity
-import org.big.orm.ormModel.ModelElement
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.TextEdit
 import org.eclipse.lsp4j.WorkspaceEdit
@@ -32,12 +31,12 @@ class OrmModelReconnectHandler {
 		server.diagramLanguageServer.languageServerAccess.doRead(server.sourceUri, [ context |
 			val sourceElement = source?.resolveElement(context)
 			val targetElement = target?.resolveElement(context)
-			if (sourceElement instanceof ModelElement && targetElement instanceof ModelElement) {
+			if (sourceElement instanceof Entity && targetElement instanceof Entity) {
 				val textEdits = newArrayList
 				val eventName = 'undefined'
 				val transitionText = '''«'\n\t'»«eventName» => «(targetElement as Entity).name»'''
 				val oldRange = getOldRange(routable)
-				val newRange = getNewRange(sourceElement as ModelElement)
+				val newRange = getNewRange(sourceElement as Entity)
 				if (oldRange !== null) {
 					if ((routable as SEdge).sourceId !== action.newSourceId) {
 						textEdits += new TextEdit(oldRange, '')
@@ -66,7 +65,7 @@ class OrmModelReconnectHandler {
 			null
 	}
 	
-	private def getNewRange(ModelElement sourceElement) {
+	private def getNewRange(Entity sourceElement) {
 		val position = NodeModelUtils.findActualNodeFor(sourceElement).endOffset.toPosition(sourceElement)
 		return new Range(position, position)
 	}

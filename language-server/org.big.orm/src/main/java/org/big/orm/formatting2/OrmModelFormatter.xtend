@@ -25,7 +25,7 @@ class OrmModelFormatter extends AbstractFormatter2 {
 	}
 
 	def dispatch void format(Entity entity, extension IFormattableDocument document) {
-		entity.regionFor.feature(ENTITY__NAME).surround[oneSpace]
+		entity.regionFor.feature(MODEL_ELEMENT__NAME).surround[oneSpace]
 		
 		val open = entity.regionFor.keyword("{")
 		val close = entity.regionFor.keyword("}")

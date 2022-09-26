@@ -5,37 +5,54 @@ generate ormModel "http://www.big.org/orm/OrmModel"
 OrmModel:
 	'orm_model' name=ID
 	(elements+=ModelElement | relationships+=Relationship)*;
-	
+
 ModelElement:
-	Entity;
-	
+	Entity | Embeddable
+;
 	
 Entity:
 	'entity' name=ID '{'
 		(attributes += Attribute)*
 	'}';
+	
+Embeddable:
+	'embeddable' name=ID '{'
+		(attributes += Attribute)*
+	'}';
 
 Relationship:
-	'relationship' name=ID '{'
-		'type' type=RelationshipType
+	type=RelationshipType 'relationship' (unidirectional?='unidirectional')? name=ID '{'
 		'source' source=RelationEntity
 		'target' target=RelationEntity
 		(attributes += Attribute)*
 	'}';
 
 RelationEntity:
-	target=[Entity] ('[' 
+	entity=[ModelElement] ('[' 
 		(targetName=STRING)?
 	']')?;
-
+	
 Attribute:
-	name=ID (datatype=DataType);
+	DataAttribute | EmbeddedAttribute
+;
+
+DataAttribute:
+	name=ID (datatype=DataType) (type=AttributeType)?;
+	
+EmbeddedAttribute:
+	name=ID (embeddedType=[Embeddable]) (type=AttributeType)?;
 	
 enum DataType:
 	UUID = 'UUID' |
 	STRING = 'String' |
-	INT = 'int'
+	INT = 'Integer' |
+	BOOLEAN = 'Boolean' 
 	;
+	
+enum AttributeType:
+	NONE = 'none' |
+	ID = 'key' |
+	OPTIONAL = 'optional';
 	
 enum RelationshipType:
 	OneToOne = 'OneToOne' |

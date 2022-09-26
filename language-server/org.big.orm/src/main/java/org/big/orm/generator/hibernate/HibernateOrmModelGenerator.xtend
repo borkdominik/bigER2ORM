@@ -9,8 +9,19 @@ import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import org.big.orm.ormModel.Entity
 import org.eclipse.xtext.naming.IQualifiedNameProvider
-import org.big.orm.ormModel.Attribute
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
+import org.big.orm.ormModel.Embeddable
+import org.big.orm.ormModel.DataAttribute
+import org.big.orm.ormModel.EmbeddedAttribute
+import org.big.orm.ormModel.AttributeType
+import org.big.orm.ormModel.Relationship
+import org.big.orm.ormModel.DataType
+import java.util.TreeSet
+import org.big.orm.ormModel.ModelElement
+import org.big.orm.ormModel.RelationshipType
+import java.util.ArrayList
+import org.big.orm.ormModel.OrmModel
+import com.google.common.base.CaseFormat
 
 /**
  * Generates code from your model files on save.
@@ -20,35 +31,283 @@ import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 class HibernateOrmModelGenerator extends AbstractGenerator {
 	
 	extension IQualifiedNameProvider = new DefaultDeclarativeQualifiedNameProvider();
+
 	
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("Generator called!");
-        for (e : resource.allContents.toIterable.filter(Entity)) {
+		
+        
+        // Generate Elements
+        for (e : resource.allContents.toIterable.filter(ModelElement)) {
         	System.err.println("Entity to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".java");
         	fsa.generateFile(
             	e.fullyQualifiedName.toString("/") + ".java",
             	e.compile)       
         }
+        
+        // Generate Files for Many-to-many with defined join object
+        for (r : resource.allContents.toIterable.filter(Relationship).filter[type.equals(RelationshipType.MANY_TO_MANY) && !attributes.empty]) {
+        	System.err.println("Relationship to generate additional files: " + r.name + " as " + r.fullyQualifiedName.toString("/") + ".java");
+        	fsa.generateFile(
+            	r.fullyQualifiedName.toString("/") + ".java",
+            	r.compileJoinEntity)
+           	fsa.generateFile(
+            	r.fullyQualifiedName.toString("/") + "Id.java",
+            	r.compileJoinId)          
+        }
+        
 	}
 	
-	private def compile(Entity e) 
+	private def compile(ModelElement e) 
 	'''
     package «e.eContainer.fullyQualifiedName»;
-        
+    
+    «FOR i : e.generateImports»
+    import «i»;
+    «ENDFOR»
+    
+    «IF e instanceof Entity»
     @Entity
+    «ENDIF»
+    «IF e instanceof Embeddable»
+    @Embeddable
+    «ENDIF»
     @Getter
     @Setter
     public class «e.name» {
     	
     	«FOR a : e.attributes»
-    		«a.compile»
+    	«IF a instanceof DataAttribute»
+    	«a.compile»
+    	«ENDIF»
+    	«IF a instanceof EmbeddedAttribute»
+    	«a.compile»
+    	«ENDIF»
+    	«ENDFOR»
+    	«FOR r : (e.eContainer as OrmModel).relationships»
+    	«IF r.source.entity.name.equals(e.name)»
+    	«r.compileSource»
+    	
+    	«ENDIF»
+    	«IF r.target.entity.name.equals(e.name) && !r.unidirectional»
+    	«r.compileTarget»
+    	
+    	«ENDIF»
     	«ENDFOR»
     }
 	'''
 	
-	private def compile(Attribute e)
+	
+	private def compileSource(Relationship r)
 	'''
-    private «e.datatype» «e.name»;
+	«IF r.type.equals(RelationshipType.MANY_TO_ONE)»
+	@ManyToOne
+	@JoinColumn(name = "«r.source.targetName»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.targetName)»"))
+	private «r.target.entity.name» «r.source.targetName»;
+    «ENDIF»
+    «IF (r.type.equals(RelationshipType.MANY_TO_MANY) && r.attributes.empty)»
+	@ManyToMany
+	@JoinTable(
+		name = "«r.source.entity.name.toFirstLower»_«r.target.entity.name.toFirstLower»",
+		joinColumns = @JoinColumn(name = "«r.source.entity.name.toFirstLower»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.entity.name)»")),
+		inverseJoinColumns = @JoinColumn(name = "«r.target.entity.name.toFirstLower»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.target.entity.name)»")))
+	private List<«r.target.entity.name»> «r.source.targetName»;
+    «ENDIF»
+    «IF (r.type.equals(RelationshipType.MANY_TO_MANY) && !r.attributes.empty)»
+	@OneToMany(mappedBy = "«r.source.entity.name.toFirstLower»")
+	private List<«r.name»> «r.source.targetName»;
+    «ENDIF»
 	'''
+	
+	private def compileTarget(Relationship r)
+	'''
+    «IF r.type.equals(RelationshipType.MANY_TO_ONE)»
+	@OneToMany(mappedBy = "«r.source.targetName»")
+	private List<«r.source.entity.name»> «r.target.targetName»;
+    «ENDIF»
+    «IF (r.type.equals(RelationshipType.MANY_TO_MANY) && r.attributes.empty)»
+	@ManyToMany(mappedBy = "«r.source.targetName»")
+	private List<«r.source.entity.name»> «r.target.targetName»;
+	«ENDIF»
+	«IF (r.type.equals(RelationshipType.MANY_TO_MANY) && !r.attributes.empty)»
+	@OneToMany(mappedBy = "«r.target.entity.name.toFirstLower»")
+	private List<«r.name»> «r.target.targetName»;
+	«ENDIF»
+	'''
+	
+	private def compileJoinEntity(Relationship r)
+	'''
+	package «r.eContainer.fullyQualifiedName»;
+	
+	import jakarta.persistence.EmbeddedId;
+	import jakarta.persistence.Entity;
+	import jakarta.persistence.ForeignKey;
+	import jakarta.persistence.JoinColumn;
+	import jakarta.persistence.ManyToOne;
+	import jakarta.persistence.MapsId;
+	import lombok.Getter;
+	import lombok.Setter;
+	
+	@Entity
+	@Getter
+	@Setter
+	public class «r.name» {
+	
+		@EmbeddedId
+		private «r.name»Id id;
+	
+		@ManyToOne
+		@MapsId("«r.source.entity.name.toFirstLower»Id")
+		@JoinColumn(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.entity.name)»"))
+		private «r.source.entity.name» «r.source.entity.name.toFirstLower»;
+	
+		@ManyToOne
+		@MapsId("«r.target.entity.name.toFirstLower»Id")
+		@JoinColumn(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.target.entity.name)»"))
+		private «r.target.entity.name» «r.target.entity.name.toFirstLower»;
+	
+		«FOR a : r.attributes»
+		«IF a instanceof DataAttribute»
+		«a.compile»
+		«ENDIF»
+		«IF a instanceof EmbeddedAttribute»
+		«a.compile»
+		«ENDIF»
+		«ENDFOR»
+	}
+	'''
+	
+	private def compileJoinId(Relationship r)
+	'''
+	package «r.eContainer.fullyQualifiedName»;
+	
+	import jakarta.persistence.Column;
+	import jakarta.persistence.Embeddable;
+	import java.io.Serializable;
+	import java.util.UUID;
+	import lombok.Getter;
+	import lombok.Setter;
+	
+	@Embeddable
+	@Getter
+	@Setter
+	public class «r.name»Id implements Serializable {
+	
+		@Column(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name)»_id")
+		private UUID «r.source.entity.name.toFirstLower»Id;
+	
+		@Column(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)»_id")
+		private UUID «r.target.entity.name.toFirstLower»Id;
+	}
+	'''
+	
+	
+	private def compile(DataAttribute a)
+	'''
+	«IF a.type.equals(AttributeType.ID)»
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	«ENDIF»
+	private «a.datatype» «a.name»;
+	
+	'''
+	
+	private def compile(EmbeddedAttribute a)
+	'''
+	«IF a.type.equals(AttributeType.ID)»
+	@EmbeddedId
+	«ELSE»
+	@Embedded
+	«ENDIF»
+	private «a.embeddedType.name» «a.name»;
+	
+	'''
+	
+	private def generateImports(ModelElement e) {
+		val imports = new TreeSet<String>();
+		
+		if(e instanceof Entity){	
+			imports.add("jakarta.persistence.Entity");
+		} else if (e instanceof Embeddable) {
+			imports.add("jakarta.persistence.Embeddable");
+		}
+		
+		imports.add("lombok.Getter");
+		imports.add("lombok.Setter");
+		
+		if(!e.attributes.filter(DataAttribute).filter[datatype.equals(DataType.UUID)].empty){
+			imports.add("java.util.UUID");
+		}
+		
+		if(!e.attributes.filter(DataAttribute).filter[type.equals(AttributeType.ID)].empty){
+			imports.add("jakarta.persistence.Id");
+			imports.add("jakarta.persistence.GenerationType");
+			imports.add("jakarta.persistence.GeneratedValue");
+		}
+		
+		if(!e.attributes.filter(EmbeddedAttribute).filter[type.equals(AttributeType.ID)].empty){
+			imports.add("jakarta.persistence.EmbeddedId");
+		}
+		
+		if(!e.attributes.filter(EmbeddedAttribute).filter[!type.equals(AttributeType.ID)].empty){
+			imports.add("jakarta.persistence.Embedded");
+		}
+		
+		
+		val elementSourceRelations = new ArrayList<Relationship>();
+		val elementTargetRelations = new ArrayList<Relationship>();
+		
+		for(r : (e.eContainer as OrmModel).relationships){
+			if (r.source.entity.name.equals(e.name)) {
+				elementSourceRelations.add(r)
+			}
+			if (r.target.entity.name.equals(e.name) && !r.unidirectional){
+				elementTargetRelations.add(r)
+			}
+		}
+		
+		//SOURCE
+		
+		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_ONE)].empty){
+			imports.add("jakarta.persistence.ManyToOne");
+			imports.add("jakarta.persistence.JoinColumn");
+			imports.add("jakarta.persistence.ForeignKey");
+		}
+		
+		//MANY-TO-MANY directly defined
+		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[attributes.empty].empty){
+			imports.add("jakarta.persistence.ManyToMany");
+			imports.add("jakarta.persistence.JoinTable");
+			imports.add("jakarta.persistence.JoinColumn");
+			imports.add("jakarta.persistence.ForeignKey");
+			imports.add("java.util.List");
+		}
+		
+		//MANY-TO-MANY using join entity
+		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[!attributes.empty].empty){
+			imports.add("jakarta.persistence.OneToMany");
+			imports.add("java.util.List");
+		}
+		
+		//TARGET
+		
+		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_ONE)].empty){
+			imports.add("jakarta.persistence.OneToMany");		
+			imports.add("java.util.List");
+		}
+		
+		//MANY-TO-MANY directly defined
+		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[attributes.empty].empty){
+			imports.add("jakarta.persistence.ManyToMany");		
+			imports.add("java.util.List");
+		}
+		//MANY-TO-MANY using join entity
+		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[!attributes.empty].empty){
+			imports.add("jakarta.persistence.OneToMany");
+			imports.add("java.util.List");
+		}
+		
+		return imports;
+		}
 }

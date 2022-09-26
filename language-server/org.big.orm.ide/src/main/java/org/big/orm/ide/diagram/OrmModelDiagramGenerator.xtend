@@ -9,13 +9,13 @@ import org.eclipse.sprotty.SGraph
 import org.eclipse.sprotty.SModelElement
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.sprotty.SNode
-import org.big.orm.ormModel.ModelElement
 import org.big.orm.ormModel.Entity
 import org.eclipse.sprotty.SLabel
 import static org.big.orm.ormModel.OrmModelPackage.Literals.*
 import org.eclipse.sprotty.SPort
 import org.eclipse.sprotty.LayoutOptions
 import java.util.ArrayList
+import org.big.orm.ormModel.ModelElement
 
 class OrmModelDiagramGenerator implements IDiagramGenerator {
 	
@@ -54,7 +54,7 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 				(new SLabel [
 					id = idCache.uniqueId(theId + '.label')
 					text = (element as Entity).name 
-				]).trace(element, ENTITY__NAME, -1),
+				]).trace(element, MODEL_ELEMENT__NAME, -1),
 				new SPort [
 					id = idCache.uniqueId(theId + '.newTransition')
 				]				

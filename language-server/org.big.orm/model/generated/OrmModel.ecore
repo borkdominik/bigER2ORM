@@ -8,15 +8,17 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="relationships" upperBound="-1"
         eType="#//Relationship" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ModelElement"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Entity" eSuperTypes="#//ModelElement">
+  <eClassifiers xsi:type="ecore:EClass" name="ModelElement">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
         eType="#//Attribute" containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Entity" eSuperTypes="#//ModelElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Embeddable" eSuperTypes="#//ModelElement"/>
   <eClassifiers xsi:type="ecore:EClass" name="Relationship">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//RelationshipType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="unidirectional" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="#//RelationEntity"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//RelationEntity"
@@ -25,17 +27,29 @@
         eType="#//Attribute" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RelationEntity">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//Entity"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entity" eType="#//ModelElement"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="targetName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Attribute">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//AttributeType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DataAttribute" eSuperTypes="#//Attribute">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="datatype" eType="#//DataType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EmbeddedAttribute" eSuperTypes="#//Attribute">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="embeddedType" eType="#//Embeddable"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="DataType">
     <eLiterals name="UUID" literal="UUID"/>
     <eLiterals name="STRING" value="1" literal="String"/>
-    <eLiterals name="INT" value="2" literal="int"/>
+    <eLiterals name="INT" value="2" literal="Integer"/>
+    <eLiterals name="BOOLEAN" value="3" literal="Boolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="AttributeType">
+    <eLiterals name="NONE" literal="none"/>
+    <eLiterals name="ID" value="1" literal="key"/>
+    <eLiterals name="OPTIONAL" value="2" literal="optional"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="RelationshipType">
     <eLiterals name="OneToOne" literal="OneToOne"/>

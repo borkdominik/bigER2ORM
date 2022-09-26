@@ -1,5 +1,54 @@
 orm_model university
 
-entity someEntity {
-    id UUID
+embeddable Address {
+    street String
+    city String
+    postCode Integer
+    country String
+}
+
+entity Certificate {
+    id UUID key
+}
+
+entity Course {
+    id UUID key
+    name String
+}
+
+entity Lecturer {
+    id UUID key
+    name String
+}
+
+entity Student {
+    id UUID key
+    name String
+    address Address
+}
+
+entity StudyProgram {
+    id UUID key
+    name String
+}
+
+ManyToOne relationship CertificateStudent{
+    source Certificate["student"]
+    target Student["certificates"]
+}
+
+ManyToOne relationship CertificateCourse{
+    source Certificate["course"]
+    target Course["certificates"]
+}
+
+ManyToMany relationship LecturerCourse{
+    source Course["lecturers"]
+    target Lecturer["courses"]
+}
+
+ManyToMany relationship StudentStudyProgram{
+    source Student["studies"]
+    target StudyProgram["students"]
+    finished Boolean
 }
