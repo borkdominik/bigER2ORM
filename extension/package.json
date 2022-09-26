@@ -2,7 +2,6 @@
   "name": "bigorm",
   "displayName": "",
   "description": "ORM modeling for various platforms",
-  "ormLanguageClient.trace.server": "verbose",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.71.0"
@@ -11,27 +10,37 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:bigorm"
+    "onLanguage:bigorm",
+    "onCommand:bigorm.diagram.open"
   ],
+  "files": [
+		"dist",
+		"extension",
+    "pack",
+		"server",
+		"syntaxes",
+		"webview",
+		"media"
+	],
   "main": "./dist/main.js",
   "contributes": {
     "configuration": {
-			"type": "object",
-			"title": "Language Client config",
-			"properties": {
-				"ormLanguageClient.trace.server": {
-					"scope": "window",
-					"type": "string",
-					"enum": [
-						"off",
-						"messages",
-						"verbose"
-					],
-					"default": "verbose",
-					"description": "Traces the communication between VS Code and the language server."
-				}
-			}
-		},
+      "type": "object",
+      "title": "Language Client config",
+      "properties": {
+        "ormLanguageClient.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "verbose",
+          "description": "Traces the communication between VS Code and the language server."
+        }
+      }
+    },
     "languages": [
       {
         "id": "bigorm",
@@ -54,12 +63,65 @@
     ],
     "commands": [
       {
+        "command": "bigorm.diagram.open",
+        "title": "Open in Diagram",
+        "icon": "$(symbol-structure)",
+        "category": "bigORM Diagram"
+      },
+      {
+        "command": "bigorm.diagram.fit",
+        "title": "Fit to Screen",
+        "category": "bigORM Diagram"
+      },
+      {
+        "command": "bigorm.diagram.center",
+        "title": "Center selection",
+        "category": "bigORM Diagram"
+      },
+      {
+        "command": "bigorm.diagram.delete",
+        "title": "Delete selected element",
+        "category": "bigORM Diagram"
+      },
+      {
+        "command": "bigorm.diagram.export",
+        "title": "Export diagram to SVG",
+        "category": "bigORM Diagram"
+      },
+      {
         "command": "bigorm.model.generateCode",
         "title": "Generate Code from Model"
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "bigorm.diagram.open",
+          "when": "editorLangId == 'bigorm'"
+        },
+        {
+          "command": "bigorm.diagram.fit",
+          "when": "bigorm-diagram-focused"
+        },
+        {
+          "command": "bigorm.diagram.center",
+          "when": "bigorm-diagram-focused"
+        },
+        {
+          "command": "bigorm.diagram.delete",
+          "when": "bigorm-diagram-focused"
+        },
+        {
+          "command": "bigorm.diagram.export",
+          "when": "bigorm-diagram-focused"
+        }
+      ],
       "editor/title": [
+        {
+          "command": "bigorm.diagram.open",
+          "when": "editorLangId == 'bigorm'",
+          "group": "navigation"
+        },
         {
           "command": "bigorm.model.generateCode",
           "when": "editorLangId == 'bigorm'",
@@ -68,6 +130,11 @@
       ],
       "editor/context": [
         {
+          "command": "bigorm.diagram.open",
+          "when": "editorLangId == 'bigorm'",
+          "group": "navigation"
+        },
+        {
           "command": "bigorm.model.generateCode",
           "when": "editorLangId == 'bigorm'",
           "group": "navigation"
@@ -75,12 +142,43 @@
       ],
       "explorer/context": [
         {
+          "command": "bigorm.diagram.open",
+          "when": "resourceExtname == '.orm'",
+          "group": "navigation"
+        },
+        {
           "command": "bigorm.model.generateCode",
           "when": "resourceExtname == '.orm'",
           "group": "navigation"
         }
       ]
-    }
+    },
+    "keybindings": [
+      {
+        "key": "alt+f",
+        "mac": "alt+f",
+        "command": "orm.diagram.fit",
+        "when": "orm-diagram-focused"
+      },
+      {
+        "key": "alt+c",
+        "mac": "alt+c",
+        "command": "orm.diagram.center",
+        "when": "orm-diagram-focused"
+      },
+      {
+        "key": "alt+e",
+        "mac": "alt+e",
+        "command": "orm.diagram.export",
+        "when": "orm-diagram-focused"
+      },
+      {
+        "key": "delete",
+        "mac": "delete",
+        "command": "orm.diagram.delete",
+        "when": "orm-diagram-focused"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",
@@ -93,6 +191,12 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
+  "dependencies": {
+    "sprotty-vscode": "^0.2.0",
+		"sprotty-vscode-webview": "^0.2.0",
+    "vscode-languageclient": "^7.0.0",
+		"@vscode/webview-ui-toolkit": "^1.1.0"
+  },
   "devDependencies": {
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.1",
@@ -104,13 +208,11 @@
     "eslint": "^8.20.0",
     "glob": "^8.0.3",
     "mocha": "^10.0.0",
+		"rimraf": "^3.0.2",
+		"source-map-loader": "^4.0.0",
     "ts-loader": "^9.3.1",
     "typescript": "^4.7.4",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
-  },
-  "dependencies": {
-    "sprotty-vscode": "^0.3.1",
-    "vscode-languageclient": "^7.0.0"
   }
 }

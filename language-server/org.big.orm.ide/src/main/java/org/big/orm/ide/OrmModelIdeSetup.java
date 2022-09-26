@@ -7,6 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.big.orm.OrmModelRuntimeModule;
 import org.big.orm.OrmModelStandaloneSetup;
+import org.big.orm.ide.diagram.OrmModelDiagramModule;
 import org.eclipse.xtext.util.Modules2;
 
 /**
@@ -16,7 +17,7 @@ public class OrmModelIdeSetup extends OrmModelStandaloneSetup {
 
 	@Override
 	public Injector createInjector() {
-		return Guice.createInjector(Modules2.mixin(new OrmModelRuntimeModule(), new OrmModelIdeModule()));
+		return Guice.createInjector(Modules2.mixin(new OrmModelRuntimeModule(), new OrmModelIdeModule(), new OrmModelDiagramModule()));
 	}
 	
 }

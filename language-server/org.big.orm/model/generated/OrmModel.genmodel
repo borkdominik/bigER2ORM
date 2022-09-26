@@ -11,14 +11,32 @@
       <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//DataType/STRING"/>
       <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//DataType/INT"/>
     </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="OrmModel.ecore#//RelationshipType">
+      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/OneToOne"/>
+      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/OneToMany"/>
+      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/ManyToOne"/>
+      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/ManyToMany"/>
+    </genEnums>
     <genClasses ecoreClass="OrmModel.ecore#//OrmModel">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//OrmModel/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//OrmModel/elements"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//OrmModel/relationships"/>
     </genClasses>
     <genClasses ecoreClass="OrmModel.ecore#//ModelElement"/>
     <genClasses ecoreClass="OrmModel.ecore#//Entity">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//Entity/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//Entity/attributes"/>
+    </genClasses>
+    <genClasses ecoreClass="OrmModel.ecore#//Relationship">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//Relationship/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//Relationship/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//Relationship/source"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//Relationship/target"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//Relationship/attributes"/>
+    </genClasses>
+    <genClasses ecoreClass="OrmModel.ecore#//RelationEntity">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference OrmModel.ecore#//RelationEntity/target"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//RelationEntity/targetName"/>
     </genClasses>
     <genClasses ecoreClass="OrmModel.ecore#//Attribute">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//Attribute/name"/>

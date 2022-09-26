@@ -4,7 +4,7 @@ generate ormModel "http://www.big.org/orm/OrmModel"
 
 OrmModel:
 	'orm_model' name=ID
-	(elements+=ModelElement)*;
+	(elements+=ModelElement | relationships+=Relationship)*;
 	
 ModelElement:
 	Entity;
@@ -15,6 +15,19 @@ Entity:
 		(attributes += Attribute)*
 	'}';
 
+Relationship:
+	'relationship' name=ID '{'
+		'type' type=RelationshipType
+		'source' source=RelationEntity
+		'target' target=RelationEntity
+		(attributes += Attribute)*
+	'}';
+
+RelationEntity:
+	target=[Entity] ('[' 
+		(targetName=STRING)?
+	']')?;
+
 Attribute:
 	name=ID (datatype=DataType);
 	
@@ -22,4 +35,11 @@ enum DataType:
 	UUID = 'UUID' |
 	STRING = 'String' |
 	INT = 'int'
+	;
+	
+enum RelationshipType:
+	OneToOne = 'OneToOne' |
+	OneToMany = 'OneToMany' |
+	ManyToOne = 'ManyToOne' |
+	ManyToMany = 'ManyToMany'
 	;

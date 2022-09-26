@@ -1,4 +1,4 @@
-import { commands, OpenDialogOptions, Selection, Uri, window, workspace } from 'vscode';
+import { commands, OpenDialogOptions, Uri, window } from 'vscode';
 export const command = 'bigorm.model.generateCode';
 
 const options: OpenDialogOptions = {
@@ -9,6 +9,7 @@ const options: OpenDialogOptions = {
 };
 
 export default async function generateCode() {
+    await commands.executeCommand("workbench.action.files.saveAll");
     const language = await window.showQuickPick(['Hibernate', 'SQLAlchemy', 'Entity Framework'], {
         placeHolder: 'Select language to generate code for.'
     });

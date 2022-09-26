@@ -3,12 +3,18 @@ dependencies {
 	api "org.eclipse.xtext:org.eclipse.xtext.ide:${xtextVersion}"
 	api "org.eclipse.xtext:org.eclipse.xtext.xbase.ide:${xtextVersion}"
 	implementation 'org.eclipse.core:org.eclipse.core.resources:3.7.100'
+	
+	api "org.eclipse.sprotty:org.eclipse.sprotty.server:${sprottyVersion}"
+	api "org.eclipse.sprotty:org.eclipse.sprotty.xtext:${sprottyVersion}"
+	
+	api "org.eclipse.sprotty:org.eclipse.sprotty.layout:${sprottyVersion}"
+	api "org.eclipse.elk:org.eclipse.elk.alg.layered:${elkVersion}"
 }
 
 apply plugin: "org.xtext.builder"
 
 apply plugin: 'application'
-mainClassName = "org.eclipse.xtext.ide.server.ServerLauncher"
+mainClassName = "org.big.orm.ide.launch.OrmModelServerLauncher"
 applicationName = 'orm-language-server'
 
 task unzipServer(type: Copy, dependsOn: distZip) {

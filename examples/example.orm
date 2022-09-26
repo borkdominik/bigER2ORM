@@ -1,5 +1,5 @@
 orm_model university
 
-entity someEntityRandom {
+entity someEntity {
     id UUID
 }

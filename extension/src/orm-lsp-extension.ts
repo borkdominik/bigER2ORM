@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { LspLabelEditActionHandler, SprottyLspEditVscodeExtension, WorkspaceEditActionHandler } from "sprotty-vscode/lib/lsp/editing";
-import { LanguageClient, ServerOptions, LanguageClientOptions, Trace } from "vscode-languageclient/node";
+import { LanguageClient, ServerOptions, LanguageClientOptions, } from "vscode-languageclient/node";
 import { SprottyWebview } from "sprotty-vscode/lib/sprotty-webview";
 import { SprottyDiagramIdentifier, SprottyLspWebview } from "sprotty-vscode/lib/lsp";
 import { OrmDiagramWebview } from './orm-webview';

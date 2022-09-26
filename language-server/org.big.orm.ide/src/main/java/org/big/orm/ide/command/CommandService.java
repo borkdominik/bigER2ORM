@@ -1,15 +1,13 @@
 package org.big.orm.ide.command;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import org.big.orm.generator.OrmModelGenerator;
+import org.big.orm.generator.hibernate.HibernateOrmModelGenerator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -32,7 +30,7 @@ import com.google.gson.reflect.TypeToken;
 public class CommandService implements IExecutableCommandService {
 	
 //	@Inject
-	private IGenerator2 generator = new OrmModelGenerator();
+	private IGenerator2 generator = new HibernateOrmModelGenerator();
 
 	
 	@Override
