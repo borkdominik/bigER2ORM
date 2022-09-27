@@ -9,17 +9,25 @@
             "include": "#comments"
         }, {
 			"name": "entity.name.type.ormModel",
-			"match": "\\b(entity)\\b"
+			"match": "\\b(entity|embeddable|relationship)\\b"
 		}, {
 			"name": "constant.language.ormModel",
 			"match": "\\b(orm_model)\\b"
 		}, {
 			"name": "keyword.operator.ormModel",
 			"match": "\\b(->|=|:)\\b"
-		},{
+		}, {
 			"name": "entity.other.attribute-name.ormModel",
-			"match": "\\b(UUID|String|int)\\b"
-		},{
+			"match": "\\b(UUID|String|Integer|Boolean)\\b"
+		}, {
+			"name": "storage.modifier.ormModel",
+			"match": "\\b(OneToOne|OneToMany|ManyToOne|ManyToMany)\\b"
+		}, {
+			"name": "entity.other.attribute-name.ormModel",
+            "begin": "relationship (([A-Za-z])*(\\s*))?${",
+            "end": "}",
+			"match": "\\b(source|target)\\b"
+		}, {
             "name": "string.quoted.double.ormModel",
             "begin": "\"",
             "end": "\""

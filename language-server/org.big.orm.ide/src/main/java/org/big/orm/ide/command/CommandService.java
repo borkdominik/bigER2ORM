@@ -29,8 +29,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class CommandService implements IExecutableCommandService {
 	
-//	@Inject
-	private IGenerator2 generator = new HibernateOrmModelGenerator();
+	private IGenerator2 hibernateGenerator = new HibernateOrmModelGenerator();
 
 	
 	@Override
@@ -49,8 +48,6 @@ public class CommandService implements IExecutableCommandService {
 			String filePath = URLDecoder.decode(arguments.get("file"), StandardCharsets.UTF_8);
 			String outputPath = URLDecoder.decode(arguments.get("output-path"), StandardCharsets.UTF_8);
 			
-			System.err.println("FILE_PATH: " + filePath);
-			System.err.println("OUTPUT_PATH: " + outputPath);
 			URL fileUrl = null;
 			URL outputUrl = null;
 			try {
@@ -60,9 +57,6 @@ public class CommandService implements IExecutableCommandService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			System.err.println("FILE_URL: " + fileUrl.getPath());
-			System.err.println("OUTPUT_URL: " + outputUrl.getPath());
 
 			final XtextResourceSet rs = new XtextResourceSet();
 			
@@ -74,7 +68,12 @@ public class CommandService implements IExecutableCommandService {
 					new TraceFileNameProvider(), new TraceRegionSerializer());
 			fsa.setOutputPath(outputUrl.getPath());
 
-			generator.doGenerate(r, fsa, null);
+			if(arguments.get("language").equals("Hibernate")) {
+				hibernateGenerator.doGenerate(r, fsa, null);
+			} else {
+				return "Unsupported language";
+			}
+
 
 			return "Generated code!";
 		}

@@ -9,20 +9,14 @@ import { SprottyDiagramIdentifier } from 'sprotty-vscode-webview';
 export class OrmSprottyStarter extends SprottyLspEditStarter {
 
     createContainer(diagramIdentifier: SprottyDiagramIdentifier) {
-        console.log("WEBVIEW CALLED!");
         return createOrmDiagramContainer(diagramIdentifier.clientId);
     }
 
     protected addVscodeBindings(container: Container, diagramIdentifier: SprottyDiagramIdentifier): void {
-        console.log("WEBVIEW CALLED!");
         super.addVscodeBindings(container, diagramIdentifier);
-    // configureModelElement(container, 'button:create', PaletteButton, PaletteButtonView);
     }
 }
 
-console.log("WEBVIEW CALLED!");
-
 loadLibavoidRouter().then(() => {
-    console.log("WEBVIEW CALLED!");
     new OrmSprottyStarter();
 });

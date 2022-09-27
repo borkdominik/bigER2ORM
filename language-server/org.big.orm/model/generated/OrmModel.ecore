@@ -28,7 +28,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RelationEntity">
     <eStructuralFeatures xsi:type="ecore:EReference" name="entity" eType="#//ModelElement"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="targetName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="attributeName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Attribute">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -49,7 +49,7 @@
   <eClassifiers xsi:type="ecore:EEnum" name="AttributeType">
     <eLiterals name="NONE" literal="none"/>
     <eLiterals name="ID" value="1" literal="key"/>
-    <eLiterals name="OPTIONAL" value="2" literal="optional"/>
+    <eLiterals name="REQUIRED" value="2" literal="required"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="RelationshipType">
     <eLiterals name="OneToOne" literal="OneToOne"/>

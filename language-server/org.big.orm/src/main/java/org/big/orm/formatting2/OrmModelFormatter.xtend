@@ -3,12 +3,13 @@
  */
 package org.big.orm.formatting2
 
-import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.OrmModel
 import org.eclipse.xtext.formatting2.AbstractFormatter2
 import org.eclipse.xtext.formatting2.IFormattableDocument
 
 import static org.big.orm.ormModel.OrmModelPackage.Literals.*
+import org.big.orm.ormModel.ModelElement
+import org.big.orm.ormModel.Relationship
 
 class OrmModelFormatter extends AbstractFormatter2 {
 	
@@ -24,17 +25,32 @@ class OrmModelFormatter extends AbstractFormatter2 {
 		}
 	}
 
-	def dispatch void format(Entity entity, extension IFormattableDocument document) {
-		entity.regionFor.feature(MODEL_ELEMENT__NAME).surround[oneSpace]
+	def dispatch void format(ModelElement element, extension IFormattableDocument document) {
+		element.regionFor.feature(MODEL_ELEMENT__NAME).surround[oneSpace]
 		
-		val open = entity.regionFor.keyword("{")
-		val close = entity.regionFor.keyword("}")
-		if (entity.attributes.length > 0) {
+		val open = element.regionFor.keyword("{")
+		val close = element.regionFor.keyword("}")
+		if (element.attributes.length > 0) {
 			open.append[newLine]
 		}
 		interior(open, close)[indent]
 		
-		for (attribute : entity.attributes) {
+		for (attribute : element.attributes) {
+			attribute.append[setNewLines(1, 1, 2)]
+		}
+	}
+	
+	def dispatch void format(Relationship relationship, extension IFormattableDocument document) {
+		relationship.regionFor.feature(MODEL_ELEMENT__NAME).surround[oneSpace]
+		
+		val open = relationship.regionFor.keyword("{")
+		val close = relationship.regionFor.keyword("}")
+		if (relationship.attributes.length > 0) {
+			open.append[newLine]
+		}
+		interior(open, close)[indent]
+		
+		for (attribute : relationship.attributes) {
 			attribute.append[setNewLines(1, 1, 2)]
 		}
 	}

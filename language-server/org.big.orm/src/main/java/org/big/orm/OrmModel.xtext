@@ -29,7 +29,7 @@ Relationship:
 
 RelationEntity:
 	entity=[ModelElement] ('[' 
-		(targetName=STRING)?
+		(attributeName=STRING)?
 	']')?;
 	
 Attribute:
@@ -52,7 +52,7 @@ enum DataType:
 enum AttributeType:
 	NONE = 'none' |
 	ID = 'key' |
-	OPTIONAL = 'optional';
+	REQUIRED = 'required';
 	
 enum RelationshipType:
 	OneToOne = 'OneToOne' |

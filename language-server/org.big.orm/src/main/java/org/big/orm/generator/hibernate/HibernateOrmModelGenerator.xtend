@@ -37,31 +37,40 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("Generator called!");
 		
+		var modelName = resource.allContents.toIterable.filter(OrmModel).head.name;
+		
         
         // Generate Elements
         for (e : resource.allContents.toIterable.filter(ModelElement)) {
         	System.err.println("Entity to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".java");
         	fsa.generateFile(
-            	e.fullyQualifiedName.toString("/") + ".java",
-            	e.compile)       
+            	modelName + "/src/main/java/entity/" + e.name + ".java",
+            	e.compile);
         }
         
         // Generate Files for Many-to-many with defined join object
         for (r : resource.allContents.toIterable.filter(Relationship).filter[type.equals(RelationshipType.MANY_TO_MANY) && !attributes.empty]) {
         	System.err.println("Relationship to generate additional files: " + r.name + " as " + r.fullyQualifiedName.toString("/") + ".java");
         	fsa.generateFile(
-            	r.fullyQualifiedName.toString("/") + ".java",
-            	r.compileJoinEntity)
+            	modelName + "/src/main/java/entity/" + r.name + ".java",
+            	r.compileJoinEntity);
            	fsa.generateFile(
-            	r.fullyQualifiedName.toString("/") + "Id.java",
-            	r.compileJoinId)          
+            	modelName + "/src/main/java/entity/" + r.name + "Id.java",
+            	r.compileJoinId);
         }
+        
+        // Generate persistance file
+        
+        fsa.generateFile(
+        	modelName + "/src/main/resources/META-INF/persistence.java",
+        	compilePersistenceFile
+        );
         
 	}
 	
 	private def compile(ModelElement e) 
 	'''
-    package «e.eContainer.fullyQualifiedName»;
+    package entity;
     
     «FOR i : e.generateImports»
     import «i»;
@@ -103,42 +112,39 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
 	'''
 	«IF r.type.equals(RelationshipType.MANY_TO_ONE)»
 	@ManyToOne
-	@JoinColumn(name = "«r.source.targetName»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.targetName)»"))
-	private «r.target.entity.name» «r.source.targetName»;
-    «ENDIF»
-    «IF (r.type.equals(RelationshipType.MANY_TO_MANY) && r.attributes.empty)»
+	@JoinColumn(name = "«r.source.attributeName»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.attributeName)»"))
+	private «r.target.entity.name» «r.source.attributeName»;
+    «ELSEIF (r.type.equals(RelationshipType.MANY_TO_MANY) && r.attributes.empty)»
 	@ManyToMany
 	@JoinTable(
-		name = "«r.source.entity.name.toFirstLower»_«r.target.entity.name.toFirstLower»",
-		joinColumns = @JoinColumn(name = "«r.source.entity.name.toFirstLower»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.entity.name)»")),
-		inverseJoinColumns = @JoinColumn(name = "«r.target.entity.name.toFirstLower»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.target.entity.name)»")))
-	private List<«r.target.entity.name»> «r.source.targetName»;
-    «ENDIF»
-    «IF (r.type.equals(RelationshipType.MANY_TO_MANY) && !r.attributes.empty)»
+		name = "«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.attributeName)»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.attributeName)»",
+		joinColumns = @JoinColumn(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.entity.name)»")),
+		inverseJoinColumns = @JoinColumn(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.target.entity.name)»")))
+	private List<«r.target.entity.name»> «r.source.attributeName»;
+    «ELSEIF (r.type.equals(RelationshipType.MANY_TO_MANY) && !r.attributes.empty)»
 	@OneToMany(mappedBy = "«r.source.entity.name.toFirstLower»")
-	private List<«r.name»> «r.source.targetName»;
+	private List<«r.name»> «r.source.attributeName»;
     «ENDIF»
 	'''
+	
 	
 	private def compileTarget(Relationship r)
 	'''
     «IF r.type.equals(RelationshipType.MANY_TO_ONE)»
-	@OneToMany(mappedBy = "«r.source.targetName»")
-	private List<«r.source.entity.name»> «r.target.targetName»;
-    «ENDIF»
-    «IF (r.type.equals(RelationshipType.MANY_TO_MANY) && r.attributes.empty)»
-	@ManyToMany(mappedBy = "«r.source.targetName»")
-	private List<«r.source.entity.name»> «r.target.targetName»;
-	«ENDIF»
-	«IF (r.type.equals(RelationshipType.MANY_TO_MANY) && !r.attributes.empty)»
-	@OneToMany(mappedBy = "«r.target.entity.name.toFirstLower»")
-	private List<«r.name»> «r.target.targetName»;
+    @OneToMany(mappedBy = "«r.source.attributeName»")
+    private List<«r.source.entity.name»> «r.target.attributeName»;
+    «ELSEIF (r.type.equals(RelationshipType.MANY_TO_MANY) && r.attributes.empty)»
+    @ManyToMany(mappedBy = "«r.source.attributeName»")
+    private List<«r.source.entity.name»> «r.target.attributeName»;
+	«ELSEIF (r.type.equals(RelationshipType.MANY_TO_MANY) && !r.attributes.empty)»
+    @OneToMany(mappedBy = "«r.target.entity.name.toFirstLower»")
+    private List<«r.name»> «r.target.attributeName»;
 	«ENDIF»
 	'''
 	
 	private def compileJoinEntity(Relationship r)
 	'''
-	package «r.eContainer.fullyQualifiedName»;
+	package entity;
 	
 	import jakarta.persistence.EmbeddedId;
 	import jakarta.persistence.Entity;
@@ -180,7 +186,7 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
 	
 	private def compileJoinId(Relationship r)
 	'''
-	package «r.eContainer.fullyQualifiedName»;
+	package entity;
 	
 	import jakarta.persistence.Column;
 	import jakarta.persistence.Embeddable;
@@ -310,4 +316,25 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
 		
 		return imports;
 		}
+		
+		// TODO: Allow for db connection infos in code generation
+		private def compilePersistenceFile()
+		'''
+		<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+		<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		  xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/orm/orm_3_1.xsd"
+		  version="3.1">
+		  <persistence-unit name="default">
+		    <properties>
+		      <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+		      <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/java"/>
+		      <property name="jakarta.persistence.jdbc.user" value="postgres"/>
+		      <property name="jakarta.persistence.jdbc.password" value="postgres"/>
+		      <property name="hibernate.hbm2ddl.auto" value="create"/>
+		      <property name="hibernate.physical_naming_strategy" value="org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy"/>
+		    </properties>
+		  </persistence-unit>
+		</persistence>
+		'''
 }

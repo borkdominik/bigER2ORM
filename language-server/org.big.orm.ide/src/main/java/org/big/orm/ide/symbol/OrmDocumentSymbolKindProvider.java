@@ -13,7 +13,8 @@ public class OrmDocumentSymbolKindProvider extends DocumentSymbolKindProvider {
 		if (clazz.getEPackage() == OrmModelPackage.eINSTANCE) {
 			switch (clazz.getClassifierID()) {
 				case OrmModelPackage.ORM_MODEL: return SymbolKind.Class;
-				case OrmModelPackage.ENTITY: return SymbolKind.Method;
+				case OrmModelPackage.MODEL_ELEMENT: return SymbolKind.Object;
+				case OrmModelPackage.RELATIONSHIP: return SymbolKind.Object;
 				case OrmModelPackage.ATTRIBUTE: return SymbolKind.TypeParameter;
 				default: return SymbolKind.Property;
 			}

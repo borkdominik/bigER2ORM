@@ -32,22 +32,22 @@ entity StudyProgram {
     name String
 }
 
-ManyToOne relationship CertificateStudent{
+ManyToOne relationship CertificateStudent {
     source Certificate["student"]
     target Student["certificates"]
 }
 
-ManyToOne relationship CertificateCourse{
+ManyToOne relationship CertificateCourse {
     source Certificate["course"]
     target Course["certificates"]
 }
 
-ManyToMany relationship LecturerCourse{
+ManyToMany relationship LecturerCourse {
     source Course["lecturers"]
     target Lecturer["courses"]
 }
 
-ManyToMany relationship StudentStudyProgram{
+ManyToMany relationship StudentStudyProgram {
     source Student["studies"]
     target StudyProgram["students"]
     finished Boolean

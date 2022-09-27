@@ -21,7 +21,7 @@
       "semi-spacing": ["error", { "before": false, "after": true }],
       "semi-style": ["error", "last"],
       "@typescript-eslint/semi": ["error"],
-      "@typescript-eslint/no-unused-vars": ["error", { "args": "none" }],
+      "@typescript-eslint/no-unused-vars": ["warn", { "args": "none" }],
       "template-curly-spacing": ["error", "never"],
       "switch-colon-spacing": ["error", {"after": true, "before": false}],
       "space-unary-ops": ["error", {"words": true, "nonwords": false}],

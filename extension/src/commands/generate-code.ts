@@ -16,6 +16,12 @@ export default async function generateCode() {
     window.showInformationMessage(`Got: ${language}`);
     let activeEditor = window.activeTextEditor;
 
+    // TODO implement other code generators
+    if (language != 'Hibernate') {
+        console.log("Only hibernate supported currently");
+        return;
+    }
+
     if (!activeEditor || !activeEditor.document || activeEditor.document.languageId !== 'bigorm') {
         console.log("Can't execute command");
         return;

@@ -1,0 +1,33 @@
+/** @jsx svg */
+import { injectable } from "inversify";
+import { VNode } from "snabbdom";
+import { RenderingContext, svg, PolylineEdgeView, SEdge } from "sprotty";
+import { Point, toDegrees } from "sprotty-protocol";
+import { OrmModelRelationshipEdge } from "./model";
+
+@injectable()
+export class RelationshipEdgeView extends PolylineEdgeView {
+    protected renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+        const firstPoint = segments[0];
+        const secondPoint = segments[1];
+        const secondToLastPoint = segments[segments.length - 2];
+        const lastPoint = segments[segments.length - 1];
+
+        const arrows = [];
+
+        arrows.push(<path class-sprotty-edge-arrow={true} d="M 6,-3 L 0,0 L 6,3 Z"
+            transform={`rotate(${angle(lastPoint, secondToLastPoint)} ${lastPoint.x} ${lastPoint.y}) translate(${lastPoint.x} ${lastPoint.y})`}/>);
+
+        if(edge instanceof OrmModelRelationshipEdge) {
+            if(!edge.unidirectional) {
+                arrows.push(<path class-sprotty-edge-arrow={true} d="M 6,-3 L 0,0 L 6,3 Z"
+                    transform={`rotate(${angle(firstPoint, secondPoint)} ${firstPoint.x} ${firstPoint.y}) translate(${firstPoint.x} ${firstPoint.y})`}/>);
+            }
+        }
+        return arrows;
+    }
+}
+
+export function angle(x0: Point, x1: Point): number {
+    return toDegrees(Math.atan2(x1.y - x0.y, x1.x - x0.x));
+}
