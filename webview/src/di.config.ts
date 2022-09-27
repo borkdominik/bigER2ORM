@@ -9,10 +9,10 @@ import {
     configureModelElement, ConsoleLogger, DiamondNodeView, editFeature, editLabelFeature, ExpandButtonHandler, ExpandButtonView,
     expandFeature, HtmlRoot, HtmlRootView, labelEditUiModule, loadDefaultModules, LogLevel, overrideViewerOptions,
     PreRenderedElement, PreRenderedView, RectangularNodeView, SButton, SCompartment, SCompartmentView,
-    SGraphView, SLabel, SLabelView, SModelRoot, TYPES
+    SLabel, SLabelView, SModelRoot, TYPES
 } from "sprotty";
 import { OrmModelGraph, OrmModelNode, OrmModelRelationshipEdge } from "./model";
-import { RelationshipEdgeView } from "./views";
+import { OrmModelView, RelationshipEdgeView } from "./views";
 
 const ormDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
@@ -31,7 +31,7 @@ const ormDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
     });
     // Model element bindings
     const context = { bind, unbind, isBound, rebind };
-    configureModelElement(context, 'graph', OrmModelGraph, SGraphView);
+    configureModelElement(context, 'graph', OrmModelGraph, OrmModelView);
 
     // Nodes
     configureModelElement(context, 'node:entity', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });

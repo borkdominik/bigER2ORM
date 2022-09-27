@@ -1,9 +1,31 @@
 /** @jsx svg */
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { VNode } from "snabbdom";
-import { RenderingContext, svg, PolylineEdgeView, SEdge } from "sprotty";
+import { RenderingContext, svg, PolylineEdgeView, SEdge, EdgeRouterRegistry, SGraphView } from "sprotty";
 import { Point, toDegrees } from "sprotty-protocol";
-import { OrmModelRelationshipEdge } from "./model";
+import { OrmModelGraph, OrmModelRelationshipEdge } from "./model";
+
+
+@injectable()
+export class OrmModelView<IRenderingArgs> extends SGraphView<IRenderingArgs> {
+
+    @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
+
+    render(model: Readonly<OrmModelGraph>, context: RenderingContext, args?: IRenderingArgs): VNode {
+        // set model name in toolbar
+        const menuModelName = document.getElementById('toolbar-modelName');
+        if (menuModelName) {
+            menuModelName.innerText = model.name;
+        }
+        const edgeRouting = this.edgeRouterRegistry.routeAllChildren(model);
+        const transform = `scale(${model.zoom}) translate(${-model.scroll.x},${-model.scroll.y})`;
+        return <svg class-sprotty-graph={true}>
+            <g transform={transform}>
+                {context.renderChildren(model, { edgeRouting })}
+            </g>
+        </svg>;
+    }
+}
 
 @injectable()
 export class RelationshipEdgeView extends PolylineEdgeView {
@@ -18,8 +40,8 @@ export class RelationshipEdgeView extends PolylineEdgeView {
         arrows.push(<path class-sprotty-edge-arrow={true} d="M 6,-3 L 0,0 L 6,3 Z"
             transform={`rotate(${angle(lastPoint, secondToLastPoint)} ${lastPoint.x} ${lastPoint.y}) translate(${lastPoint.x} ${lastPoint.y})`}/>);
 
-        if(edge instanceof OrmModelRelationshipEdge) {
-            if(!edge.unidirectional) {
+        if (edge instanceof OrmModelRelationshipEdge) {
+            if (!edge.unidirectional) {
                 arrows.push(<path class-sprotty-edge-arrow={true} d="M 6,-3 L 0,0 L 6,3 Z"
                     transform={`rotate(${angle(firstPoint, secondPoint)} ${firstPoint.x} ${firstPoint.y}) translate(${firstPoint.x} ${firstPoint.y})`}/>);
             }
