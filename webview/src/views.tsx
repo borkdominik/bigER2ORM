@@ -1,8 +1,8 @@
 /** @jsx svg */
 import { inject, injectable } from "inversify";
 import { VNode } from "snabbdom";
-import { RenderingContext, svg, PolylineEdgeView, SEdge, EdgeRouterRegistry, SGraphView } from "sprotty";
-import { Point, toDegrees } from "sprotty-protocol";
+import { RenderingContext, svg, PolylineEdgeView, SEdge, EdgeRouterRegistry, SGraphView, IView } from "sprotty";
+import { Point, SPort, toDegrees } from "sprotty-protocol";
 import { OrmModelGraph, OrmModelRelationshipEdge } from "./model";
 
 
@@ -52,4 +52,11 @@ export class RelationshipEdgeView extends PolylineEdgeView {
 
 export function angle(x0: Point, x1: Point): number {
     return toDegrees(Math.atan2(x1.y - x0.y, x1.x - x0.x));
+}
+
+@injectable()
+export class TriangleButtonView implements IView {
+    render(model: SPort, context: RenderingContext): VNode {
+        return <path class-sprotty-button={true} d="M 0,0 L 8,4 L 0,8 Z" />;
+    }
 }

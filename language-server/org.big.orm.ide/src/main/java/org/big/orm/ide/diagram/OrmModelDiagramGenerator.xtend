@@ -49,6 +49,7 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 	static val ATTRIBUTE_LABEL_REQUIRED = 'label:required'
 	static val EDGE_RELATIONSHIP = 'edge:relationship'
 	
+	
 	OrmModel model
 	SGraph graph
 	IDiagramState state
@@ -189,7 +190,18 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 				children = new ArrayList<SModelElement>
 			]
 			comp.children.addAll(element.attributes.map[createAttributeLabels(elementId, context)])
+			
+			model.relationships.filter[source.entity.name.equals(element.name)].forEach[ r |
+				comp.children.add(r.createPortForRelationshipSource(elementId, context));
+			]
+			
+			model.relationships.filter[target.entity.name.equals(element.name)].filter[!unidirectional].forEach[ r |
+				comp.children.add(r.createPortForRelationshipTarget(elementId, context));
+			]
 			node.children.add(comp)
+			
+
+			
 			state.expandedElements.add(elementId)
 			node.expanded = true
 		} else {
@@ -198,6 +210,61 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		
 		node.traceAndMark(element, context)
 		return node
+	}
+	
+	
+	def SCompartment createPortForRelationshipSource(Relationship relationship, String elementId, extension Context context) {
+		val sourceId = idCache.uniqueId(relationship.source, elementId + '.' + relationship.source.attributeName)
+		val comp = new SCompartment => [
+			id = sourceId
+			type = COMP_ATTRIBUTE_ROW
+			layout = 'hbox'
+			layoutOptions = new LayoutOptions [
+				VAlign = 'middle'
+				HGap = 5.0
+			]
+			children = #[
+				(new SLabel [
+					id = sourceId + '.name'
+					text = relationship.source.attributeName
+					type = ATTRIBUTE_LABEL_TEXT
+				]).trace(relationship.source, ATTRIBUTE__NAME, -1),
+				(new SLabel [
+					id = sourceId + ".datatype"
+					text = relationship.target.entity.name + (relationship.type.equals(RelationshipType.ONE_TO_MANY) || relationship.type.equals(RelationshipType.MANY_TO_MANY) ? "[]" : "")
+					type = ATTRIBUTE_LABEL_TEXT
+				])
+			]
+		]
+		comp.traceAndMark(relationship.source, context)
+		return comp
+	}
+	
+	def SCompartment createPortForRelationshipTarget(Relationship relationship, String elementId, extension Context context) {
+		val targetId = idCache.uniqueId(relationship.target, elementId + '.' + relationship.target.attributeName)
+		val comp = new SCompartment => [
+			id = targetId
+			type = COMP_ATTRIBUTE_ROW
+			layout = 'hbox'
+			layoutOptions = new LayoutOptions [
+				VAlign = 'middle'
+				HGap = 5.0
+			]
+			children = #[
+				(new SLabel [
+					id = targetId + '.name'
+					text = relationship.target.attributeName
+					type = ATTRIBUTE_LABEL_TEXT
+				]).trace(relationship.target, ATTRIBUTE__NAME, -1),
+				(new SLabel [
+					id = targetId + ".datatype"
+					text = relationship.source.entity.name + (relationship.type.equals(RelationshipType.MANY_TO_ONE) || relationship.type.equals(RelationshipType.MANY_TO_MANY) ? "[]" : "")
+					type = ATTRIBUTE_LABEL_TEXT
+				])
+			]
+		]
+		comp.traceAndMark(relationship.source, context)
+		return comp
 	}
 	
 	def SCompartment createAttributeLabels(Attribute attribute, String elementId, extension Context context) {
