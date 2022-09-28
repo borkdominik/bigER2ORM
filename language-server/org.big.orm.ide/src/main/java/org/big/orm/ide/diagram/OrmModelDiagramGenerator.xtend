@@ -123,23 +123,6 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		return edges
 	}
 	
-	def OrmModelRelationshipEdge toSEdge(Relationship relationship, extension Context context) {
-		val relationshipId = idCache.uniqueId(relationship, relationship.name)
-		if(relationship.type.equals(RelationshipType.MANY_TO_MANY) && !relationship.attributes.empty){
-			
-		} else {
-			
-		}
-		
-		val node = new OrmModelRelationshipEdge [
-			id = relationshipId
-			type = EDGE_RELATIONSHIP
-		]
-		
-		node.traceAndMark(relationship, context)
-		return node
-	}
-	
 	def SNode toSNode(Relationship relationship, extension Context context) {
 		val relationshipId = idCache.uniqueId(relationship, relationship.name + ".node")
 		val node = new SNode [
