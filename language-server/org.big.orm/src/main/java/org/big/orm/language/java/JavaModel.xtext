@@ -1,0 +1,67 @@
+grammar org.big.orm.language.JavaModel with org.eclipse.xtext.common.Terminals
+
+generate javaModel "http://www.big.org/orm/language/java/JavaModel"
+
+JavaModel:
+	"package" package=DOT_ID";"
+	(imports+=Import)*
+	(elements+=JavaElement)*
+;
+
+Import:
+	"import" identifier=DOT_ID";"
+;
+
+JavaElement:
+	(annotations+=Annotation)*
+	element=Annotatable
+;
+
+Annotatable:
+	Statement | JavaClass | Method
+;
+
+Annotation:
+	"@" name=DOT_ID ("(" options+=AnnotationOption ("," options+=AnnotationOption)* ")")?
+;
+
+AnnotationOption:
+	(name=DOT_ID "=")? ((annotation=Annotation)|(element=AnnotationOptionElement))
+;
+
+AnnotationOptionElement:
+	DOT_ID | STRING
+;
+
+terminal DOT_ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'.'|'<'|'>')*;
+
+Statement:
+	(modifiers+=Modifier)* type=DOT_ID name=DOT_ID ";"
+;
+
+JavaClass:
+	(modifiers+=Modifier)* "class" name=DOT_ID ("implements" implements=DOT_ID)?"{"
+		(elements+=JavaElement)*
+	"}"
+;
+
+Method:
+	(modifiers+=Modifier)* type=ID name=DOT_ID "{"
+		(elements+=JavaElement)*
+	"}"
+;
+
+enum Modifier: 
+    Annotation = 'annotation' |
+    public = 'public' |
+    protected = 'protected' |
+    private = 'private'|
+    static = 'static'|
+    abstract = 'abstract'|
+    final = 'final'|
+    native = 'native'|
+    synchronized = 'synchronized'|
+    transient = 'transient'|
+    volatile = 'volatile'|
+    strictfp  = 'strictfp'
+    ;

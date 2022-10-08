@@ -3,7 +3,7 @@
  */
 package org.big.orm.ide;
 
-import org.big.orm.ide.command.CommandService;
+import org.big.orm.ide.command.ExecutableCommandService;
 import org.big.orm.ide.symbol.OrmDocumentSymbolKindProvider;
 import org.big.orm.ide.symbol.OrmDocumentSymbolNameProvider;
 import org.eclipse.xtext.ide.server.commands.IExecutableCommandService;
@@ -24,7 +24,7 @@ public class OrmModelIdeModule extends AbstractOrmModelIdeModule {
 	}
 	
 	public Class<? extends IExecutableCommandService> bindIExecutableCommandService() {
-		return CommandService.class;
+		return ExecutableCommandService.class;
 	}
 	
 }

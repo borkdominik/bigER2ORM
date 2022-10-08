@@ -53,5 +53,27 @@ Workflow {
 				junitVersion = "5"
 			}
 		}
+		language = StandardLanguage {
+			name = "org.big.orm.language.java.JavaModel"
+			fileExtensions = "java"
+			
+			
+			serializer = {
+				generateStub = false
+			}
+			validator = {
+				generateStub = false
+			}
+			generator = {
+				generateStub = false
+			}
+			scopeProvider = {
+				generateStub = false
+			}
+			formatter = {
+				generateStub = false
+			}
+		}
 	}
+
 }

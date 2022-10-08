@@ -17,6 +17,7 @@ public class OrmModelIdeSetup extends OrmModelStandaloneSetup {
 
 	@Override
 	public Injector createInjector() {
+		
 		return Guice.createInjector(Modules2.mixin(new OrmModelRuntimeModule(), new OrmModelIdeModule(), new OrmModelDiagramModule()));
 	}
 	

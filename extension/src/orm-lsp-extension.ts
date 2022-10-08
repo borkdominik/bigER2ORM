@@ -6,6 +6,7 @@ import { SprottyWebview } from "sprotty-vscode/lib/sprotty-webview";
 import { SprottyDiagramIdentifier, SprottyLspWebview } from "sprotty-vscode/lib/lsp";
 import { OrmDiagramWebview } from './orm-webview';
 import generateCode from './commands/generate-code';
+import reverseToModel from './commands/reverse-to-model';
 
 export class OrmLspVscodeExtension extends SprottyLspEditVscodeExtension {
 
@@ -17,6 +18,9 @@ export class OrmLspVscodeExtension extends SprottyLspEditVscodeExtension {
         super.registerCommands();
         this.context.subscriptions.push(vscode.commands.registerCommand('bigorm.model.generateCode', (...commandArgs: any[]) => {
             generateCode();
+        }));
+        this.context.subscriptions.push(vscode.commands.registerCommand('bigorm.model.reverseToModel', (...commandArgs: any[]) => {
+            reverseToModel();
         }));
     }
 

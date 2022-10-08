@@ -91,6 +91,10 @@
       {
         "command": "bigorm.model.generateCode",
         "title": "Generate Code from Model"
+      },
+      {
+        "command": "bigorm.model.reverseToModel",
+        "title": "Reverse file to model"
       }
     ],
     "menus": {
@@ -124,6 +128,11 @@
         },
         {
           "command": "bigorm.model.generateCode",
+          "when": "editorLangId == 'bigorm'",
+          "group": "navigation"
+        },
+        {
+          "command": "bigorm.model.reverseToModel",
           "when": "editorLangId == 'bigorm'",
           "group": "navigation"
         }

@@ -62,7 +62,7 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
         // Generate persistance file
         
         fsa.generateFile(
-        	modelName + "/src/main/resources/META-INF/persistence.java",
+        	modelName + "/src/main/resources/META-INF/persistence.xml",
         	compilePersistenceFile
         );
         
