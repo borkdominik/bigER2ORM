@@ -1,20 +1,21 @@
 import { Container, ContainerModule } from "inversify";
-import { LibavoidDiamondAnchor, LibavoidEllipseAnchor, LibavoidRectangleAnchor, LibavoidRouter, RouteType } from 'sprotty-routing-libavoid';
+import { LibavoidDiamondAnchor, LibavoidEdge, LibavoidEllipseAnchor, LibavoidRectangleAnchor, LibavoidRouter, RouteType } from 'sprotty-routing-libavoid';
 import 'sprotty/css/command-palette.css';
 import 'sprotty/css/sprotty.css';
 import '../css/diagram.css';
-
-
 import {
+    configureActionHandler,
     configureModelElement, ConsoleLogger, DiamondNodeView, editFeature, editLabelFeature, ExpandButtonHandler, ExpandButtonView,
     expandFeature, HtmlRoot, HtmlRootView, labelEditUiModule, loadDefaultModules, LogLevel, overrideViewerOptions,
     PreRenderedElement, PreRenderedView, RectangularNodeView, SButton, SCompartment, SCompartmentView,
     SLabel, SLabelView, SModelRoot, SPort, TYPES
 } from "sprotty";
 import { OrmModelGraph, OrmModelNode, OrmModelRelationshipEdge } from "./model";
-import { OrmModelView, RelationshipEdgeView, TriangleButtonView } from "./views";
+import { InheritanceEdgeView, OrmModelView, RelationshipEdgeView, TriangleButtonView } from "./views";
+import { RefreshAction, RefreshActionHandler } from "./refresh";
+import toolbarModule from "./toolbar/di.config";
 
-const ormDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
+const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     // Router
@@ -34,7 +35,7 @@ const ormDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
     configureModelElement(context, 'graph', OrmModelGraph, OrmModelView);
 
     // Nodes
-    configureModelElement(context, 'node:entity', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });
+    configureModelElement(context, 'node:inheritable', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });
     configureModelElement(context, 'node:embeddable', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });
     configureModelElement(context, 'node:relationship', OrmModelNode, DiamondNodeView);
 
@@ -45,6 +46,7 @@ const ormDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
 
     // Edges
     configureModelElement(context, 'edge:relationship', OrmModelRelationshipEdge, RelationshipEdgeView, { disable: [editFeature] });
+    configureModelElement(context, 'edge:inheritance', LibavoidEdge, InheritanceEdgeView, { disable: [editFeature] });
 
     // Edges
     configureModelElement(context, 'port', SPort, TriangleButtonView);
@@ -62,12 +64,16 @@ const ormDiagramModule = new ContainerModule((bind, unbind, isBound, rebind) => 
     configureModelElement(context, 'palette', SModelRoot, HtmlRootView);
     configureModelElement(context, 'pre-rendered', PreRenderedElement, PreRenderedView);
     configureModelElement(context, ExpandButtonHandler.TYPE, SButton, ExpandButtonView);
+
+    // Action Handlers
+    configureActionHandler(context, RefreshAction.KIND, RefreshActionHandler);
 });
 
-export function createOrmDiagramContainer(widgetId: string): Container {
+export function createDiagramContainer(widgetId: string): Container {
     const container = new Container();
     loadDefaultModules(container, { exclude: [labelEditUiModule] });
-    container.load(ormDiagramModule);
+    container.load(diagramModule);
+    container.load(toolbarModule);
     overrideViewerOptions(container, {
         needsClientLayout: true,
         needsServerLayout: true,

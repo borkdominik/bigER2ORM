@@ -17,8 +17,8 @@ export default async function generateCode() {
     let activeEditor = window.activeTextEditor;
 
     // TODO implement other code generators
-    if (language != 'Hibernate') {
-        console.log("Only hibernate supported currently");
+    if (language == 'Entity Framework') {
+        console.log("Only hibernate & SqlAlchemy supported currently");
         return;
     }
 

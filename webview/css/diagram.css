@@ -54,11 +54,6 @@ text {
     stroke: var(--vscode-list-deemphasizedForeground);;
 }
 
-.sprotty-edge.inheritance {
-    stroke-width: 3;
-    stroke:rgb(255, 255, 255);
-}
-
 .relationship {
     font-size: 16px;
 }

@@ -7,29 +7,55 @@ embeddable Address {
     country String
 }
 
+embeddable StudentCardId {
+    cardNr String
+    cardVersion String
+}
+
+@(Inheritance.JoinedTable)
+entity StudentCard {
+    id StudentCardId key
+    printedName String required
+}
+
+entity GraduateStudentCard extends StudentCard {
+    graduationDate String
+}
+
+@(Inheritance.JoinedTable)
 entity Certificate {
     id UUID key
+    grade Integer
 }
 
-entity Course {
+@(Inheritance.SingleTable)
+entity Course extends NamedElement {
+}
+
+entity CourseWithExercise extends Course {
+}
+
+entity Lecturer extends Person{
+}
+
+mapped_class NamedElement{
     id UUID key
     name String
 }
 
-entity Lecturer {
-    id UUID key
-    name String
-}
-
-entity Student {
-    id UUID key
-    name String
+@(Inheritance.TablePerClass)
+entity Person extends NamedElement{
     address Address
 }
 
-entity StudyProgram {
-    id UUID key
-    name String
+entity RecognizedCertificate extends Certificate {
+    
+}
+
+entity Student extends Person {
+}
+
+entity StudyProgram extends NamedElement {
 }
 
 ManyToOne relationship CertificateStudent {
@@ -51,4 +77,14 @@ ManyToMany relationship StudentStudyProgram {
     source Student["studies"]
     target StudyProgram["students"]
     finished Boolean
+}
+
+ManyToOne relationship unidirectional CourseWithExercise_Student {
+    source CourseWithExercise["tutor"]
+    target Student
+}
+
+ManyToOne relationship unidirectional RecognizedCertificate_OriginalCertificate {
+    source RecognizedCertificate["originalCertificate"] required
+    target Certificate
 }

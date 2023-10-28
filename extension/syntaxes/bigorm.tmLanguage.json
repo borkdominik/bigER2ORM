@@ -9,7 +9,7 @@
             "include": "#comments"
         }, {
 			"name": "entity.name.type.ormModel",
-			"match": "\\b(entity|embeddable|relationship)\\b"
+			"match": "\\b(entity|embeddable|relationship|mapped_class)\\b"
 		}, {
 			"name": "constant.language.ormModel",
 			"match": "\\b(orm_model)\\b"

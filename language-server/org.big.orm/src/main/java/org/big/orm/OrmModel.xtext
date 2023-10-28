@@ -7,11 +7,22 @@ OrmModel:
 	(elements+=ModelElement | relationships+=Relationship)*;
 
 ModelElement:
-	Entity | Embeddable
+	InheritableElement | Embeddable
+;
+
+InheritableElement:
+	Entity | MappedClass
+;
+
+MappedClass:
+	'mapped_class' name=ID ('extends' extends=[MappedClass])? '{'
+		(attributes += DataAttribute)*
+	'}'
 ;
 	
 Entity:
-	'entity' name=ID '{'
+	(options+=EntityOption)*
+	'entity' name=ID ('extends' extends=[InheritableElement])? '{'
 		(attributes += Attribute)*
 	'}';
 	
@@ -22,7 +33,7 @@ Embeddable:
 
 Relationship:
 	type=RelationshipType 'relationship' (unidirectional?='unidirectional')? name=ID '{'
-		'source' source=RelationEntity
+		'source' source=RelationEntity (sourceRequired?='required')?
 		'target' target=RelationEntity
 		(attributes += Attribute)*
 	'}';
@@ -41,6 +52,7 @@ DataAttribute:
 	
 EmbeddedAttribute:
 	name=ID (embeddedType=[Embeddable]) (type=AttributeType)?;
+
 	
 enum DataType:
 	UUID = 'UUID' |
@@ -60,3 +72,21 @@ enum RelationshipType:
 	ManyToOne = 'ManyToOne' |
 	ManyToMany = 'ManyToMany'
 	;
+
+EntityOption:
+	InheritanceOption | TableNameOption
+;
+
+TableNameOption:
+	'@(table_name=' name=ID ')'
+;
+
+InheritanceOption:
+	'@('option=InheritanceStrategy')'
+;
+	
+enum InheritanceStrategy:
+	SINGLE_TABLE = 'Inheritance.SingleTable' |
+	JOINED_TABLE = 'Inheritance.JoinedTable' |
+	TABLE_PER_CLASS = 'Inheritance.TablePerClass'
+;

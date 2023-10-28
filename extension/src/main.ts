@@ -11,8 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage('BigORM Extension is active.', ...[openHelp])
         .then((selection) => {
             if (selection === openHelp) {
-                //TODO
-                vscode.env.openExternal(vscode.Uri.parse('https://github.com/borkdominik/bigER/wiki/Language'));
+                vscode.env.openExternal(vscode.Uri.parse('https://github.com/big-thesis/Stainer.MDE4ORM'));
             }
     });
 }

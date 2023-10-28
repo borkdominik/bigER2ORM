@@ -1,22 +1,25 @@
 import 'reflect-metadata';
 import 'sprotty-vscode-webview/css/sprotty-vscode.css';
-import '../css/menu-bar.css';
+import '../css/toolbar.css';
 import { Container } from 'inversify';
 import { SprottyLspEditStarter } from 'sprotty-vscode-webview/lib/lsp/editing';
-import { createOrmDiagramContainer } from './di.config';
+import { createDiagramContainer } from './di.config';
 import { load as loadLibavoidRouter } from 'sprotty-routing-libavoid';
-import { SprottyDiagramIdentifier, VscodeDiagramWidget } from 'sprotty-vscode-webview';
-import { OrmToolbarDiagramWidget } from './toolbar';
+import { SprottyDiagramIdentifier } from 'sprotty-vscode-protocol';
+import { VscodeDiagramServer, VscodeDiagramWidget } from 'sprotty-vscode-webview';
+import { OrmDiagramServer } from './diagram-server';
+import { OrmDiagramWidget } from './diagram-widget';
 
 export class OrmSprottyStarter extends SprottyLspEditStarter {
 
     createContainer(diagramIdentifier: SprottyDiagramIdentifier) {
-        return createOrmDiagramContainer(diagramIdentifier.clientId);
+        return createDiagramContainer(diagramIdentifier.clientId);
     }
 
     protected addVscodeBindings(container: Container, diagramIdentifier: SprottyDiagramIdentifier): void {
         super.addVscodeBindings(container, diagramIdentifier);
-        container.rebind(VscodeDiagramWidget).to(OrmToolbarDiagramWidget).inSingletonScope();
+        container.rebind(VscodeDiagramServer).to(OrmDiagramServer);
+        container.rebind(VscodeDiagramWidget).to(OrmDiagramWidget).inSingletonScope();
     }
 }
 

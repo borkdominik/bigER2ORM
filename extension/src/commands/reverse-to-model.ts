@@ -45,13 +45,12 @@ export default async function reverseToModel() {
     console.log('Model name: ' + model_name);
 
     const args = {"fileInput": fileInput[0].toString(), "fileOutput": fileOutputPath[0].toString(), "modelName": model_name};
-    commands.executeCommand("big.orm.command.reverse", args).then(((answer) => { 
-        console.log(answer) 
-        const filePath = path.join(fileOutputPath[0].path, model_name + ".orm")
-        const openPath = Uri.file(filePath);
+    let answer = await commands.executeCommand("big.orm.command.reverse", args);
+    console.log(answer) 
 
-        workspace.openTextDocument(openPath).then(doc => {
-            window.showTextDocument(doc);
-        });
-    }));
+    const filePath = path.join(fileOutputPath[0].path, model_name + ".orm")
+    const openPath = Uri.file(filePath);
+    workspace.openTextDocument(openPath).then(doc => {
+        window.showTextDocument(doc);
+    });
 }

@@ -1,71 +1,113 @@
-# bigorm README
+TODO: Readme needs improvement, this is currently only focused on a rough feature description 
 
-This is the README for your extension "bigorm". After writing up a brief description, we recommend including the following sections.
+bigORM is a tool used to model ORM structures in a generic way and later on generate framework specific ORM code for some of the most popular ORM frameworks, with the code resulting in an equal database structure for all supported frameworks. Currently supported frameworks are Hibernate for Java and SQLalchemy for Python, in the near future additionally the .NET Entity Framework is planned to be supported.
 
-## Features
+# Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+The following section describes the features the framework supports.
 
-For example if there is an image subfolder under your extension project workspace:
+## ORM Modeling
 
-\!\[feature X\]\(images/feature-x.png\)
+The main capability of bigORM is the modeling of the class structure that should be defined by ORM. bigORM is automatically loaded for VS Code for all files ending with ``.orm``
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Every model starts with the definition of the model name, defined as follows:
 
-## Requirements
+```orm_model <model name>```
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Afterwards the different model elements can be defined, which can be devided into data elements and relationships between those elements. Additionally this section also explains supported data types and type modifiers.
 
-## Extension Settings
+### Data Elements
+Data elements are elements that represent data containers, for the Frameworks they are mainly translated to classes.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+There are two types of data elements:
 
-For example:
+#### Embeddables
 
-This extension contributes the following settings:
+Embeddables represent containers to display repeated standardized data structures.
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+An example would be as follows:
 
-## Known Issues
+```
+embeddable Address {
+    street String
+    city String
+    postCode Integer
+    country String
+}
+```
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Embeddables do not support type modifiers.
 
-## Release Notes
+#### Entities
 
-Users appreciate release notes as you update your extension.
+An Entity represents an object that is meant to be saved within the database. They need a key, additionally they support inheritance from other entities.
 
-### 1.0.0
+See the following for an example on how entities could be defined:
 
-Initial release of ...
+```
+@(Inheritance.JoinedTable)
+entity Certificate {
+    id UUID key
+    grade Integer
+}
 
-### 1.0.1
+entity RecognizedCertificate extends Certificate {
+}
+```
 
-Fixed issue #.
+Notice how the annotation on the parent class defines how the child classes will inherit the class, especially how the later selected framework should translate this into the database. Options here include:
 
-### 1.1.0
+* Inheritance.JoinedTable : Child classes will contain a foreign key to their parent object
+* Inheritance.TablePerClass : Every class will have a dedicated table covering all attributes
+* Inheritance.SingleTable : All objects are in the same table, having a dedicated column to differentiat which kind of type the object has
 
-Added features X, Y, and Z.
 
----
+### Relationships
 
-## Following extension guidelines
+Entities defined can than be included in relationships, which can look like as follows:
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+```
+ManyToMany relationship StudentStudyProgram {
+    source Student["studies"]
+    target StudyProgram["students"]
+    finished Boolean
+}
+```
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+The first keyword describes the relationship type, options are:
+* ManyToMany
+* ManyToOne
+* OneToMany
+* OneToOne
 
-## Working with Markdown
+Afterwards the ``relationship`` keyword defines the object actually as an relationship, which is followed by the name of the relationship. Additionally is is possible to include the ``unidirectional`` keyword between the ``relationship`` keyword and the name, to mark the relationship as unidirection, therefore only having the relationship available from within the source.
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+Afterwards the source and target have to be defined, by describing the Entities that the relationship is related to, in addition to the property under which the relationship element should be accessable from within the object.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+Finally it is possible to include additional properties for the relationship, if this is needed.
 
-## For more information
+### Data types
+Supported datatypes are: 
+* String
+* Integer
+* Boolean
+* UUID
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+### Type modifiers
+Currently supported modifiers are:
 
-**Enjoy!**
+* key : describes the property as a primary key for the object
+* required : describes the property as required within the database
+* none : default for not adapting the property 
+
+## Model Visualization
+
+When opening an ``.orm`` file, the diagram icon in the top right allows to display the model in a diagram to be able to inspect the overall structure.
+
+## Code Generation
+
+Same as with the diagram view, the toolbar also allows the export to a specific framework, by using the "Generate Code from Model" command. This is a guided process, asking for a few user inputs to be able to achieve the code generation
+
+## ORM Reverse engineering (!EXPERIMENTAL!)
+
+As an experimental feature, bigORM also supports to reverse engineer Hibernate models to ``.orm`` models, this is also triggered via the orm toolbar and is achieved by a guided process.

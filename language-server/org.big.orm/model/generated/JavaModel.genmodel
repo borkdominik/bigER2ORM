@@ -49,6 +49,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//Statement/type"/>
     </genClasses>
     <genClasses ecoreClass="JavaModel.ecore#//JavaClass">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//JavaClass/extends"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//JavaClass/implements"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference JavaModel.ecore#//JavaClass/elements"/>
     </genClasses>

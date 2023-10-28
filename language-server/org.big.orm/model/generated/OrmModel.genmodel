@@ -23,6 +23,11 @@
       <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/ManyToOne"/>
       <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/ManyToMany"/>
     </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="OrmModel.ecore#//InheritanceStrategy">
+      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//InheritanceStrategy/SINGLE_TABLE"/>
+      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//InheritanceStrategy/JOINED_TABLE"/>
+      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//InheritanceStrategy/TABLE_PER_CLASS"/>
+    </genEnums>
     <genClasses ecoreClass="OrmModel.ecore#//OrmModel">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//OrmModel/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//OrmModel/elements"/>
@@ -32,13 +37,20 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//ModelElement/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//ModelElement/attributes"/>
     </genClasses>
-    <genClasses ecoreClass="OrmModel.ecore#//Entity"/>
+    <genClasses ecoreClass="OrmModel.ecore#//InheritableElement">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference OrmModel.ecore#//InheritableElement/extends"/>
+    </genClasses>
+    <genClasses ecoreClass="OrmModel.ecore#//MappedClass"/>
+    <genClasses ecoreClass="OrmModel.ecore#//Entity">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//Entity/options"/>
+    </genClasses>
     <genClasses ecoreClass="OrmModel.ecore#//Embeddable"/>
     <genClasses ecoreClass="OrmModel.ecore#//Relationship">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//Relationship/type"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//Relationship/unidirectional"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//Relationship/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//Relationship/source"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//Relationship/sourceRequired"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//Relationship/target"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference OrmModel.ecore#//Relationship/attributes"/>
     </genClasses>
@@ -55,6 +67,13 @@
     </genClasses>
     <genClasses ecoreClass="OrmModel.ecore#//EmbeddedAttribute">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference OrmModel.ecore#//EmbeddedAttribute/embeddedType"/>
+    </genClasses>
+    <genClasses ecoreClass="OrmModel.ecore#//EntityOption"/>
+    <genClasses ecoreClass="OrmModel.ecore#//TableNameOption">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//TableNameOption/name"/>
+    </genClasses>
+    <genClasses ecoreClass="OrmModel.ecore#//InheritanceOption">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute OrmModel.ecore#//InheritanceOption/option"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

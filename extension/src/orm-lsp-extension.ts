@@ -40,6 +40,7 @@ export class OrmLspVscodeExtension extends SprottyLspEditVscodeExtension {
         }) as SprottyLspWebview;
         webview.addActionHandler(WorkspaceEditActionHandler);
         webview.addActionHandler(LspLabelEditActionHandler);
+        console.log(webview)
         return webview;
     }
 

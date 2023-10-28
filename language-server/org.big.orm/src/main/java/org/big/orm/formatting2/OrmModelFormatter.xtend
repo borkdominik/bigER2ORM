@@ -16,12 +16,19 @@ class OrmModelFormatter extends AbstractFormatter2 {
 	// @Inject extension OrmModelGrammarAccess
 
 	def dispatch void format(OrmModel ormModel, extension IFormattableDocument document) {
+		
+		System.err.println("Formatter triggered!")
+		
 		// Model header
 		ormModel.regionFor.feature(ORM_MODEL__NAME).surround[oneSpace]
-		ormModel.regionFor.feature(ORM_MODEL__NAME).append[setNewLines(1, 1, 2)]
+		ormModel.regionFor.feature(ORM_MODEL__NAME).append[setNewLines(2, 2, 2)]
 		
 		for (modelElement : ormModel.elements) {
 			modelElement.format
+		}
+		
+		for (relationship : ormModel.relationships) {
+			relationship.format
 		}
 	}
 
@@ -34,6 +41,7 @@ class OrmModelFormatter extends AbstractFormatter2 {
 			open.append[newLine]
 		}
 		interior(open, close)[indent]
+		close.append[setNewLines(2,2,2)]
 		
 		for (attribute : element.attributes) {
 			attribute.append[setNewLines(1, 1, 2)]
@@ -41,14 +49,20 @@ class OrmModelFormatter extends AbstractFormatter2 {
 	}
 	
 	def dispatch void format(Relationship relationship, extension IFormattableDocument document) {
-		relationship.regionFor.feature(MODEL_ELEMENT__NAME).surround[oneSpace]
+		relationship.regionFor.feature(RELATIONSHIP__NAME).surround[oneSpace]
+		relationship.regionFor.feature(RELATIONSHIP__TYPE).surround[oneSpace]
+		relationship.regionFor.feature(RELATIONSHIP__UNIDIRECTIONAL).surround[oneSpace]
 		
 		val open = relationship.regionFor.keyword("{")
 		val close = relationship.regionFor.keyword("}")
-		if (relationship.attributes.length > 0) {
-			open.append[newLine]
-		}
+		open.append[newLine]
 		interior(open, close)[indent]
+		close.append[setNewLines(2,2,2)]
+		
+		relationship.source.append[setNewLines(1, 1, 2)]
+		relationship.source.regionFor.feature(RELATION_ENTITY__ATTRIBUTE_NAME).surround[noSpace]
+		relationship.target.append[setNewLines(1, 1, 2)]
+		relationship.target.regionFor.feature(RELATION_ENTITY__ATTRIBUTE_NAME).surround[noSpace]
 		
 		for (attribute : relationship.attributes) {
 			attribute.append[setNewLines(1, 1, 2)]

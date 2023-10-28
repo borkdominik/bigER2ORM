@@ -3,23 +3,82 @@
  */
 package org.big.orm.validation;
 
+import org.big.orm.ormModel.Attribute;
+import org.big.orm.ormModel.AttributeType;
+import org.big.orm.ormModel.DataAttribute;
+import org.big.orm.ormModel.Embeddable;
+import org.big.orm.ormModel.Entity;
+import org.big.orm.ormModel.InheritableElement;
+import org.big.orm.ormModel.MappedClass;
+import org.big.orm.ormModel.OrmModelPackage;
+import org.big.orm.ormModel.Relationship;
+import org.big.orm.ormModel.RelationshipType;
+import org.eclipse.xtext.validation.Check;
 
 /**
- * This class contains custom validation rules. 
+ * This class contains custom validation rules.
  *
- * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
+ * See
+ * https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class OrmModelValidator extends AbstractOrmModelValidator {
+
+	@Check
+	public void checkRelationshipAttributeNames(Relationship relationship) {
+		if (relationship.getSource().getAttributeName() == null) {
+			warning("Relationship source always needs a name", OrmModelPackage.Literals.RELATIONSHIP__NAME, "invalidRelationship");
+		}
+		if (!relationship.isUnidirectional() && relationship.getTarget().getAttributeName() == null) {
+			warning("Bidirectional relationships need a target name", OrmModelPackage.Literals.RELATIONSHIP__NAME, "invalidRelationship");
+		}
+		if (relationship.isUnidirectional() && relationship.getTarget().getAttributeName() != null) {
+			warning("Unidirectional relationships can't have a target name", OrmModelPackage.Literals.RELATIONSHIP__NAME, "invalidRelationship");
+		}
+	}
 	
-//	public static final String INVALID_NAME = "invalidName";
-//
-//	@Check
-//	public void checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.getName().charAt(0))) {
-//			warning("Name should start with a capital",
-//					OrmModelPackage.Literals.GREETING__NAME,
-//					INVALID_NAME);
-//		}
-//	}
+	@Check
+	public void checkRelationshipRequiredOnlyOnManyToOne(Relationship relationship) {
+		if (relationship.isSourceRequired() && relationship.getType() != RelationshipType.MANY_TO_ONE) {
+			warning("Required relationships only work for ManyToOne currently", OrmModelPackage.Literals.RELATIONSHIP__NAME, "invalidRelationship");
+		}
+	}
 	
+	@Check
+	public void checkElementOnlyHasOneKey(InheritableElement element) {
+		int keys = getKeyCount(element);
+		if (keys != 1) {
+			warning("Root entities must have exactly one primary key. For composite primary keys define an embeddable to be used as key.", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidEntity");
+		}
+	}
+	
+	private int getKeyCount(InheritableElement element) {
+		int keys = 0;
+		keys = (int) (keys + element.getAttributes().stream().filter(a -> a.getType().equals(AttributeType.ID)).count());
+		if (element.getExtends() != null) {
+			keys = keys + getKeyCount(element.getExtends());
+		}
+		return keys;
+	}
+	
+	@Check
+	public void checkEmbeddableHasNoKey(Embeddable embeddable) {
+		if (embeddable.getAttributes().stream().filter(a -> a.getType().equals(AttributeType.ID)).count() != 0) {
+			warning("Embeddables are not allowed to have primary keys.", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidEmbeddable");
+		}
+	}
+	
+	@Check
+	public void checkRequiredOnlyOnDataAttribute(Attribute attribute) {
+		if (!(attribute instanceof DataAttribute) && attribute.getType().equals(AttributeType.REQUIRED)) {
+			warning("Required only allowed on data attributes.", OrmModelPackage.Literals.ATTRIBUTE__NAME, "invalidAttribute");
+		}
+	}
+	
+	@Check
+	public void checkEmbeddableOnlyHasDataAttributes(Embeddable embeddable) {
+		if (embeddable.getAttributes().stream().filter(a -> !(a instanceof DataAttribute)).count() > 0) {
+			warning("Embeddables currently only support data attributes.", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidEmbeddable");
+		}
+	}
+
 }

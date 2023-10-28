@@ -40,7 +40,7 @@ Statement:
 ;
 
 JavaClass:
-	(modifiers+=Modifier)* "class" name=DOT_ID ("implements" implements=DOT_ID)?"{"
+	(modifiers+=Modifier)* "class" name=DOT_ID  ("extends" extends=DOT_ID)? ("implements" implements=DOT_ID)?"{"
 		(elements+=JavaElement)*
 	"}"
 ;

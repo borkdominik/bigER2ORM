@@ -8,7 +8,6 @@ import org.big.orm.ormModel.OrmModel
 import org.eclipse.sprotty.SGraph
 import org.eclipse.sprotty.SModelElement
 import org.eclipse.emf.ecore.EObject
-import org.big.orm.ormModel.Entity
 import org.eclipse.sprotty.SLabel
 import static org.big.orm.ormModel.OrmModelPackage.Literals.*
 import org.eclipse.sprotty.LayoutOptions
@@ -26,6 +25,8 @@ import org.big.orm.ormModel.RelationshipType
 import org.big.orm.ormModel.Relationship
 import org.eclipse.sprotty.SNode
 import java.util.List
+import org.big.orm.ormModel.MappedClass
+import org.big.orm.ormModel.InheritableElement
 
 class OrmModelDiagramGenerator implements IDiagramGenerator {
 	
@@ -35,7 +36,7 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 	
 	// Types for the elements
 	static val GRAPH = 'graph'
-	static val NODE_ENTITY = 'node:entity'
+	static val NODE_INHERITABLE = 'node:inheritable'
 	static val NODE_RELATIONSHIP = 'node:relationship'
 	static val NODE_EMBEDDABLE = 'node:embeddable'
 	static val COMP_ELEMENT_HEADER = 'comp:element-header'
@@ -48,6 +49,7 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 	static val ATTRIBUTE_LABEL_KEY = 'label:key'
 	static val ATTRIBUTE_LABEL_REQUIRED = 'label:required'
 	static val EDGE_RELATIONSHIP = 'edge:relationship'
+	static val EDGE_INHERITANCE = 'edge:inheritance'
 	
 	
 	OrmModel model
@@ -87,6 +89,11 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		model.relationships.forEach[ r |
 			graph.children.addAll(r.toSEdges(context))
 		]
+		
+		// Create Inheritance edges
+		model.elements.filter(InheritableElement).forEach[ e | 
+			graph.children.addAll(e.addInheritanceEdge(context))
+		]
 	}
 	
 	def List<OrmModelRelationshipEdge> toSEdges(Relationship relationship, extension Context context) {
@@ -124,6 +131,20 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		return edges
 	}
 	
+	def List<OrmModelInheritanceEdge> addInheritanceEdge(InheritableElement element, extension Context context) {
+		var edges = new ArrayList<OrmModelInheritanceEdge>();
+		if (element.extends !== null) {
+			edges.add(new OrmModelInheritanceEdge [
+				sourceId = idCache.getId(element)
+				targetId = idCache.getId(element.extends)
+				id = idCache.uniqueId(idCache.getId(element) + ".extends")
+				type = EDGE_INHERITANCE
+			])
+		}
+		return edges
+	}
+	
+	
 	def SNode toSNode(Relationship relationship, extension Context context) {
 		val relationshipId = idCache.uniqueId(relationship, relationship.name + ".node")
 		val node = new SNode [
@@ -148,15 +169,27 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 	
 	def OrmModelNode toSNode(ModelElement element, extension Context context) {
 		val elementId = idCache.uniqueId(element, element.name) 
+		val elementType = switch(element) {
+			case element instanceof InheritableElement : NODE_INHERITABLE
+			case element instanceof Embeddable : NODE_EMBEDDABLE
+			default : ""
+		}
+		
 		val node = new OrmModelNode [
 			id = elementId
-			type = element instanceof Entity ? NODE_ENTITY : NODE_EMBEDDABLE
+			type = elementType
 			layout = 'vbox'
 			layoutOptions = new LayoutOptions [
 				VGap = 10.0
 			]
 			children = new ArrayList<SModelElement>
 		]
+		
+		val additionalText = switch(element) {
+			case element instanceof Embeddable : "[Embeddable] "
+			case element instanceof MappedClass : "[MappedClass] "
+			default : ""
+		}
 		
 		// Header with label and collapse/expand button
 		val headerComp = new SCompartment => [
@@ -167,7 +200,7 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 				(new SLabel [
 					id = idCache.uniqueId(elementId + '.label')
 					type = ELEMENT_LABEL
-					text = (element instanceof Embeddable ? "[Embeddable] " : "") + element.name
+					text = additionalText + element.name
 				]).trace(element, MODEL_ELEMENT__NAME, -1),
 				(new SButton [
 					id = idCache.uniqueId(elementId + '.button')

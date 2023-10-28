@@ -30,7 +30,6 @@ Workflow {
 		language = StandardLanguage {
 			name = "org.big.orm.OrmModel"
 			fileExtensions = "orm"
-
 			serializer = {
 				generateStub = false
 			}
@@ -56,8 +55,6 @@ Workflow {
 		language = StandardLanguage {
 			name = "org.big.orm.language.java.JavaModel"
 			fileExtensions = "java"
-			
-			
 			serializer = {
 				generateStub = false
 			}
@@ -75,5 +72,4 @@ Workflow {
 			}
 		}
 	}
-
 }

@@ -13,7 +13,14 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
         eType="#//Attribute" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Entity" eSuperTypes="#//ModelElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="InheritableElement" eSuperTypes="#//ModelElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="extends" eType="#//InheritableElement"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MappedClass" eSuperTypes="#//InheritableElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Entity" eSuperTypes="#//InheritableElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
+        eType="#//EntityOption" containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Embeddable" eSuperTypes="#//ModelElement"/>
   <eClassifiers xsi:type="ecore:EClass" name="Relationship">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//RelationshipType"/>
@@ -21,6 +28,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="source" eType="#//RelationEntity"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sourceRequired" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//RelationEntity"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
@@ -56,5 +64,17 @@
     <eLiterals name="OneToMany" value="1" literal="OneToMany"/>
     <eLiterals name="ManyToOne" value="2" literal="ManyToOne"/>
     <eLiterals name="ManyToMany" value="3" literal="ManyToMany"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EntityOption"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TableNameOption" eSuperTypes="#//EntityOption">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="InheritanceOption" eSuperTypes="#//EntityOption">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="option" eType="#//InheritanceStrategy"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="InheritanceStrategy">
+    <eLiterals name="SINGLE_TABLE" literal="Inheritance.SingleTable"/>
+    <eLiterals name="JOINED_TABLE" value="1" literal="Inheritance.JoinedTable"/>
+    <eLiterals name="TABLE_PER_CLASS" value="2" literal="Inheritance.TablePerClass"/>
   </eClassifiers>
 </ecore:EPackage>
