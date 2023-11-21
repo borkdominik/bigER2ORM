@@ -17,7 +17,7 @@ export default async function generateCode() {
     let activeEditor = window.activeTextEditor;
 
     // TODO implement other code generators
-    if (language == 'Entity Framework') {
+    if (language === 'Entity Framework') {
         console.log("Only hibernate & SqlAlchemy supported currently");
         return;
     }
@@ -37,6 +37,6 @@ export default async function generateCode() {
 
     if (activeEditor.document.uri instanceof Uri) {
         const args = {"file": activeEditor.document.uri.toString(), "language": language, "output-path": folder[0].toString()};
-        commands.executeCommand("big.orm.command.generate", args).then(((answer) => { console.log(answer) }));
+        commands.executeCommand("big.orm.command.generate", args).then(((answer) => { console.log(answer); }));
     }
 }

@@ -15,7 +15,7 @@ class OrmModelDiagramServerFactory extends DiagramServerFactory {
 	
 	override IDiagramServer createDiagramServer(String diagramType, String clientId) {
 		val server = diagramServerProvider.get
-		server.clientId = clientId
+		server.clientId = clientId;
 		if (server instanceof OrmModelDiagramServer) {
 			server.diagramType = diagramType
 		}

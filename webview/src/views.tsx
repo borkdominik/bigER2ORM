@@ -10,9 +10,9 @@ import { UITypes } from "./utils";
 @injectable()
 export class OrmModelView<IRenderingArgs> extends SGraphView<IRenderingArgs> {
 
-    @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
+    @inject(EdgeRouterRegistry) override edgeRouterRegistry: EdgeRouterRegistry;
 
-    render(model: Readonly<OrmModelGraph>, context: RenderingContext, args?: IRenderingArgs): VNode {
+    override render(model: Readonly<OrmModelGraph>, context: RenderingContext, args?: IRenderingArgs): VNode {
         // set model name in toolbar
         const menuModelName = document.getElementById(UITypes.MODEL_NAME);
         if (menuModelName) {
@@ -30,7 +30,7 @@ export class OrmModelView<IRenderingArgs> extends SGraphView<IRenderingArgs> {
 
 @injectable()
 export class RelationshipEdgeView extends PolylineEdgeView {
-    protected renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+    protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
         const firstPoint = segments[0];
         const secondPoint = segments[1];
         const secondToLastPoint = segments[segments.length - 2];
@@ -53,7 +53,7 @@ export class RelationshipEdgeView extends PolylineEdgeView {
 
 @injectable()
 export class InheritanceEdgeView extends PolylineEdgeView {
-    protected renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+    protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
         const secondToLastPoint = segments[segments.length - 2];
         const lastPoint = segments[segments.length - 1];
 

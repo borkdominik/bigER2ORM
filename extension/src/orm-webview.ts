@@ -6,11 +6,11 @@ import { SprottyLspWebview } from "sprotty-vscode/lib/lsp";
 
 export class OrmDiagramWebview extends SprottyLspWebview {
 
-    constructor(protected options: SprottyWebviewOptions) {
+    constructor(protected override options: SprottyWebviewOptions) {
         super(options);
     }
 
-    protected initializeWebview(webview: vscode.Webview, title?: string) {
+    protected override initializeWebview(webview: vscode.Webview, title?: string) {
         const extensionUri = this.extension.context.extensionUri;
         const codiconsUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
         const toolkitUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'node_modules', '@vscode', 'webview-ui-toolkit', 'dist', 'toolkit.js'));

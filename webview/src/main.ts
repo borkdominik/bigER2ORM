@@ -16,7 +16,7 @@ export class OrmSprottyStarter extends SprottyLspEditStarter {
         return createDiagramContainer(diagramIdentifier.clientId);
     }
 
-    protected addVscodeBindings(container: Container, diagramIdentifier: SprottyDiagramIdentifier): void {
+    protected override addVscodeBindings(container: Container, diagramIdentifier: SprottyDiagramIdentifier): void {
         super.addVscodeBindings(container, diagramIdentifier);
         container.rebind(VscodeDiagramServer).to(OrmDiagramServer);
         container.rebind(VscodeDiagramWidget).to(OrmDiagramWidget).inSingletonScope();

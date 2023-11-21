@@ -1,12 +1,24 @@
 import * as vscode from 'vscode';
-import { SprottyLspVscodeExtension } from 'sprotty-vscode/lib/lsp';
-import { OrmLspVscodeExtension } from './orm-lsp-extension';
+import { LanguageClient } from 'vscode-languageclient/node';
+import { OrmWebviewPanelManager, createLanguageClient, registerCommands } from './orm-lsp-extension';
+import { registerDefaultCommands, registerLspEditCommands } from 'sprotty-vscode';
 
-let extension: SprottyLspVscodeExtension;
+let languageClient: LanguageClient;
 
 export function activate(context: vscode.ExtensionContext) {
 
-	extension = new OrmLspVscodeExtension(context);
+	languageClient = createLanguageClient(context);
+    registerCommands(context);
+    const webviewPanelManager = new OrmWebviewPanelManager({
+        extensionUri: context.extensionUri,
+        defaultDiagramType: 'bigorm-diagram',
+        languageClient,
+        supportedFileExtensions: ['.orm']
+    });
+    
+    registerDefaultCommands(webviewPanelManager, context, { extensionPrefix: 'bigorm' });
+    registerLspEditCommands(webviewPanelManager, context, { extensionPrefix: 'bigorm' });
+
     const openHelp = 'Open Help';
     vscode.window.showInformationMessage('BigORM Extension is active.', ...[openHelp])
         .then((selection) => {
@@ -16,10 +28,8 @@ export function activate(context: vscode.ExtensionContext) {
     });
 }
 
-export function deactivate() {
-	if (!extension) {
-        return Promise.resolve(undefined);
+export async function deactivate() {
+	if (languageClient) {
+        await languageClient.stop();
     }
-
-    return extension.deactivateLanguageClient();
 }
