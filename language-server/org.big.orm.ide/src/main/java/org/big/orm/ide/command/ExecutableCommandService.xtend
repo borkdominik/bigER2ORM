@@ -54,7 +54,7 @@ class ExecutableCommandService implements IExecutableCommandService {
 		if (params.getCommand().equals("big.orm.command.generate")) {
 
 			val filePath = URLDecoder.decode(arguments.get("file"), StandardCharsets.UTF_8);
-			val outputPath = URLDecoder.decode(arguments.get("output-path"), StandardCharsets.UTF_8);
+			val outputPath = URLDecoder.decode(arguments.get("outputPath"), StandardCharsets.UTF_8);
 			
 			var URL fileUrl = null;
 			var URL outputUrl = null;

@@ -36,7 +36,7 @@ export default async function generateCode() {
     console.log('Selected folder: ' + folder[0]);
 
     if (activeEditor.document.uri instanceof Uri) {
-        const args = {"file": activeEditor.document.uri.toString(), "language": language, "output-path": folder[0].toString()};
+        const args = {"file": activeEditor.document.uri.toString(), "language": language, "outputPath": folder[0].toString()};
         commands.executeCommand("big.orm.command.generate", args).then(((answer) => { console.log(answer); }));
     }
 }

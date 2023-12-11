@@ -14,6 +14,7 @@ export class OrmDiagramWebview extends SprottyLspWebview {
         const extensionUri = this.extension.context.extensionUri;
         const codiconsUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'));
         const toolkitUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'node_modules', '@vscode', 'webview-ui-toolkit', 'dist', 'toolkit.js'));
+        const webviewUri = webview.asWebviewUri(this.scriptUri);
         webview.html = `
             <!DOCTYPE html>
             <html lang="en">
@@ -30,9 +31,10 @@ export class OrmDiagramWebview extends SprottyLspWebview {
                 </head>
                 <body>
                     <div id="${this.diagramIdentifier.clientId}_container" style="height: 100%;"></div>
-                    <script src="${webview.asWebviewUri(this.scriptUri).toString()}"></script>
+                    <script src="${webviewUri}"></script>
                 </body>
             </html>`;
+            console.log("nee");
     }
 
     getUri(webview: Webview, extensionUri: Uri, ...pathList: string[]) {

@@ -6,10 +6,9 @@ const path = require('path');
 /**@type {import('webpack').Configuration}*/
 const config = {
     target: 'node',
-
     entry: path.resolve(__dirname, 'src/main.ts'),
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'pack'),
         filename: 'main.js',
         libraryTarget: "commonjs2",
         devtoolModuleFilenameTemplate: "../[resource-path]",
@@ -27,15 +26,9 @@ const config = {
                 test: /\.ts$/,
                 exclude: /node_modules/,
                 use: ['ts-loader']
-            },
-            {
-                test: /\.js$/,
-                enforce: 'pre',
-                use: ['source-map-loader'],
             }
         ]
     },
-    ignoreWarnings: [/Failed to parse source map/]
-}
+};
 
 module.exports = config;

@@ -13,16 +13,20 @@ import { OrmDiagramWidget } from './diagram-widget';
 export class OrmSprottyStarter extends SprottyLspEditStarter {
 
     createContainer(diagramIdentifier: SprottyDiagramIdentifier) {
+        console.log("call1");
         return createDiagramContainer(diagramIdentifier.clientId);
     }
 
     protected override addVscodeBindings(container: Container, diagramIdentifier: SprottyDiagramIdentifier): void {
         super.addVscodeBindings(container, diagramIdentifier);
+        console.log("call2");
         container.rebind(VscodeDiagramServer).to(OrmDiagramServer);
         container.rebind(VscodeDiagramWidget).to(OrmDiagramWidget).inSingletonScope();
     }
 }
 
+console.log("call3");
 loadLibavoidRouter().then(() => {
+    console.log("call4");
     new OrmSprottyStarter();
 });
