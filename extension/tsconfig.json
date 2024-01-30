@@ -1,12 +1,8 @@
 {
     "extends": "../base-tsconfig.json",
     "compilerOptions": {
-        "module": "es6",
         "rootDir": "src",
-        "outDir": "out",
-        "lib": [
-            "es2019"
-        ]
+        "outDir": "out"
     },
     "include": [
         "src"
