@@ -34,6 +34,4 @@ yarn-error.log*
 
 # Modules
 node_modules/
-package-lock.json
-yarn.lock
 .yarn-integrity
