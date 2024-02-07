@@ -34,3 +34,11 @@ class OrmModelRelationshipEdge extends SEdge {
 		initializer.apply(this)
 	}
 }
+
+@Accessors
+class OrmModelInheritanceEdge extends SEdge {
+	new() { }
+	new((OrmModelInheritanceEdge) => void initializer) {
+		initializer.apply(this)
+	}
+}

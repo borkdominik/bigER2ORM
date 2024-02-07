@@ -13,7 +13,6 @@ import org.eclipse.xtext.util.CancelIndicator
 import java.util.Map
 import org.eclipse.xtext.generator.trace.TraceRegionSerializer
 import java.net.MalformedURLException
-import org.big.orm.generator.hibernate.HibernateOrmModelGenerator
 import java.nio.charset.StandardCharsets
 import org.eclipse.xtext.generator.IGenerator2
 import java.util.List
@@ -30,14 +29,17 @@ import java.io.File
 import org.big.orm.language.java.JavaModel2OrmModelConverter
 import java.util.ArrayList
 import com.google.inject.Inject
-import org.eclipse.xtext.serializer.impl.Serializer
+import org.eclipse.xtext.resource.SaveOptions
+import org.eclipse.xtext.resource.XtextResourceFactory
+import org.big.orm.generator.hibernate.HibernateOrmModelGenerator
+import org.big.orm.generator.sqlalchemy.SqlAlchemyOrmModelGenerator
 
 class ExecutableCommandService implements IExecutableCommandService {
 	
 	IGenerator2 hibernateGenerator = new HibernateOrmModelGenerator();
-	JavaModel2OrmModelConverter javaConverter = new JavaModel2OrmModelConverter();
-
-  	@Inject Serializer serializer;
+	IGenerator2 sqlAlchemyGenerator = new SqlAlchemyOrmModelGenerator();
+  	
+  	@Inject XtextResourceFactory xtextResourceFactory;
 	
 	override List<String> initialize() {
 		return Lists.newArrayList("big.orm.command.generate", "big.orm.command.reverse");
@@ -52,7 +54,7 @@ class ExecutableCommandService implements IExecutableCommandService {
 		if (params.getCommand().equals("big.orm.command.generate")) {
 
 			val filePath = URLDecoder.decode(arguments.get("file"), StandardCharsets.UTF_8);
-			val outputPath = URLDecoder.decode(arguments.get("output-path"), StandardCharsets.UTF_8);
+			val outputPath = URLDecoder.decode(arguments.get("outputPath"), StandardCharsets.UTF_8);
 			
 			var URL fileUrl = null;
 			var URL outputUrl = null;
@@ -76,6 +78,8 @@ class ExecutableCommandService implements IExecutableCommandService {
 
 			if(arguments.get("language").equals("Hibernate")) {
 				hibernateGenerator.doGenerate(r, fsa, null);
+			} else if(arguments.get("language").equals("SQLAlchemy")) {
+				sqlAlchemyGenerator.doGenerate(r, fsa, null);
 			} else {
 				return "Unsupported language";
 			}
@@ -96,17 +100,20 @@ class ExecutableCommandService implements IExecutableCommandService {
 			var URL outputUrl = null;
 			try {
 				fileUrl = new URL(filePath);
-				outputUrl = new URL(outputPath);
+				outputUrl = new URL(outputPath + File.separatorChar + modelName + ".orm");
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			val XtextResourceSet rs = new XtextResourceSet();
+			val Map<String, Object> extensionMap = rs.resourceFactoryRegistry.extensionToFactoryMap;
+			extensionMap.put("orm", xtextResourceFactory);
 			
 			System.err.println("Valid file URI type: " + fileUrl.getPath())
 			
 			var file = new File(fileUrl.getPath)
+			var outputFile = new File(outputUrl.getPath)
 			var files = FileUtils.listFiles(file, #{"java"}, true)
 			
 			val models = new ArrayList<JavaModel>
@@ -118,14 +125,18 @@ class ExecutableCommandService implements IExecutableCommandService {
 				models.add(r.allContents.toIterable.filter(JavaModel).head)
 			]
 			
+			
+			val JavaModel2OrmModelConverter javaConverter = new JavaModel2OrmModelConverter();
 			var ormModel = javaConverter.generateOrmModelFromJavaModels(modelName, models)
 			
 			val JavaIoFileSystemAccess fsa = new JavaIoFileSystemAccess(
 					IResourceServiceProvider.Registry.INSTANCE, new IEncodingProvider.Runtime(),
 					new TraceFileNameProvider(), new TraceRegionSerializer());
 			fsa.setOutputPath(outputUrl.getPath());
+			var outResource = rs.createResource(URI.createFileURI(outputFile.absolutePath))
+			outResource.contents.add(ormModel)
 			
-			fsa.generateFile(ormModel.name + ".orm", serializer.serialize(ormModel));
+			outResource.save(SaveOptions.newBuilder.format.options.toOptionsMap)
 			
 			return "Generated Model";
 		}

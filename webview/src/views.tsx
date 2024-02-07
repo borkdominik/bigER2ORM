@@ -1,19 +1,20 @@
 /** @jsx svg */
 import { inject, injectable } from "inversify";
 import { VNode } from "snabbdom";
-import { RenderingContext, svg, PolylineEdgeView, SEdge, EdgeRouterRegistry, SGraphView, IView } from "sprotty";
+import { RenderingContext, svg, PolylineEdgeView, SEdge, EdgeRouterRegistry, SGraphView, IView} from "sprotty";
 import { Point, SPort, toDegrees } from "sprotty-protocol";
 import { OrmModelGraph, OrmModelRelationshipEdge } from "./model";
+import { UITypes } from "./utils";
 
 
 @injectable()
 export class OrmModelView<IRenderingArgs> extends SGraphView<IRenderingArgs> {
 
-    @inject(EdgeRouterRegistry) edgeRouterRegistry: EdgeRouterRegistry;
+    @inject(EdgeRouterRegistry) override edgeRouterRegistry: EdgeRouterRegistry;
 
-    render(model: Readonly<OrmModelGraph>, context: RenderingContext, args?: IRenderingArgs): VNode {
+    override render(model: Readonly<OrmModelGraph>, context: RenderingContext, args?: IRenderingArgs): VNode {
         // set model name in toolbar
-        const menuModelName = document.getElementById('toolbar-modelName');
+        const menuModelName = document.getElementById(UITypes.MODEL_NAME);
         if (menuModelName) {
             menuModelName.innerText = model.name;
         }
@@ -29,7 +30,7 @@ export class OrmModelView<IRenderingArgs> extends SGraphView<IRenderingArgs> {
 
 @injectable()
 export class RelationshipEdgeView extends PolylineEdgeView {
-    protected renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+    protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
         const firstPoint = segments[0];
         const secondPoint = segments[1];
         const secondToLastPoint = segments[segments.length - 2];
@@ -46,6 +47,20 @@ export class RelationshipEdgeView extends PolylineEdgeView {
                     transform={`rotate(${angle(firstPoint, secondPoint)} ${firstPoint.x} ${firstPoint.y}) translate(${firstPoint.x} ${firstPoint.y})`}/>);
             }
         }
+        return arrows;
+    }
+}
+
+@injectable()
+export class InheritanceEdgeView extends PolylineEdgeView {
+    protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+        const secondToLastPoint = segments[segments.length - 2];
+        const lastPoint = segments[segments.length - 1];
+
+        const arrows = [];
+
+        arrows.push(<path class-sprotty-edge-arrow={true} stroke-width={1} fill={"red"} d="M 8,-4 L 0,0 L 8,4 L 16,0 Z"
+            transform={`rotate(${angle(lastPoint, secondToLastPoint)} ${lastPoint.x} ${lastPoint.y}) translate(${lastPoint.x} ${lastPoint.y})`}/>);
         return arrows;
     }
 }

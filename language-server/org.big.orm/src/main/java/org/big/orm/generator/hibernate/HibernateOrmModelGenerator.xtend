@@ -22,6 +22,11 @@ import org.big.orm.ormModel.RelationshipType
 import java.util.ArrayList
 import org.big.orm.ormModel.OrmModel
 import com.google.common.base.CaseFormat
+import org.big.orm.ormModel.MappedClass
+import org.big.orm.ormModel.InheritableElement
+import org.big.orm.ormModel.InheritanceOption
+import org.big.orm.ormModel.InheritanceStrategy
+import org.big.orm.ormModel.EntityOption
 
 /**
  * Generates code from your model files on save.
@@ -82,9 +87,20 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
     «IF e instanceof Embeddable»
     @Embeddable
     «ENDIF»
+    «IF e instanceof MappedClass»
+    @MappedSuperclass
+    «ENDIF»
     @Getter
     @Setter
-    public class «e.name» {
+    «IF e instanceof Entity»
+    «FOR entityOption: e.options»
+    «entityOption.compileEntityOption»
+    «ENDFOR»
+    «IF e.extends !== null && e.extends instanceof Entity && !(e.extends as Entity).options.filter(InheritanceOption).filter[option == InheritanceStrategy.JOINED_TABLE].empty»
+    @PrimaryKeyJoinColumns(value = {}, foreignKey = @ForeignKey(name = "fk_«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.extends.name)»"))
+    «ENDIF»
+    «ENDIF»
+    public «IF e instanceof MappedClass»abstract «ENDIF»class «e.name» «IF e instanceof InheritableElement && (e as InheritableElement).extends !== null »extends «(e as InheritableElement).extends.name» «ENDIF»«IF e instanceof Embeddable»implements Serializable «ENDIF»{
     	
     	«FOR a : e.attributes»
     	«IF a instanceof DataAttribute»
@@ -107,12 +123,18 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
     }
 	'''
 	
+	private def compileEntityOption(EntityOption entityOption)
+	'''
+	«IF entityOption instanceof InheritanceOption»
+	@Inheritance(strategy = «entityOption.option.compile»)
+	«ENDIF»
+	'''
 	
 	private def compileSource(Relationship r)
 	'''
 	«IF r.type.equals(RelationshipType.MANY_TO_ONE)»
-	@ManyToOne
-	@JoinColumn(name = "«r.source.attributeName»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.attributeName)»"))
+	@ManyToOne«IF r.sourceRequired»(optional = false)«ENDIF»
+	@JoinColumn(name = "«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.attributeName)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.attributeName)»"))
 	private «r.target.entity.name» «r.source.attributeName»;
     «ELSEIF (r.type.equals(RelationshipType.MANY_TO_MANY) && r.attributes.empty)»
 	@ManyToMany
@@ -215,6 +237,9 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	«ENDIF»
+	«IF a.type.equals(AttributeType.REQUIRED)»
+	@Column(nullable = false)
+	«ENDIF»
 	private «a.datatype» «a.name»;
 	
 	'''
@@ -230,13 +255,39 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
 	
 	'''
 	
+	private def compile(InheritanceStrategy strategy) {
+		switch strategy{
+			case InheritanceStrategy.JOINED_TABLE: "InheritanceType.JOINED"
+			case InheritanceStrategy.SINGLE_TABLE: "InheritanceType.SINGLE_TABLE"
+			case InheritanceStrategy.TABLE_PER_CLASS: "InheritanceType.TABLE_PER_CLASS"
+		}
+	}
+	
 	private def generateImports(ModelElement e) {
 		val imports = new TreeSet<String>();
 		
 		if(e instanceof Entity){	
 			imports.add("jakarta.persistence.Entity");
+			
+			// INHERITANCE
+			if (!e.options.filter(InheritanceOption).empty) {
+				imports.add("jakarta.persistence.Inheritance");	
+				imports.add("jakarta.persistence.InheritanceType")
+			}
+			
+			// INHERITANCE ON JOINED STRATEGY
+			if (e.extends !== null && e.extends instanceof Entity) {
+				if (!(e.extends as Entity).options.filter(InheritanceOption).filter[option == InheritanceStrategy.JOINED_TABLE].empty) {
+					imports.add("jakarta.persistence.ForeignKey");
+					imports.add("jakarta.persistence.PrimaryKeyJoinColumns")
+				}
+			}
+			
 		} else if (e instanceof Embeddable) {
 			imports.add("jakarta.persistence.Embeddable");
+			imports.add("java.io.Serializable");
+		} else if (e instanceof MappedClass) {
+			imports.add("jakarta.persistence.MappedSuperclass");
 		}
 		
 		imports.add("lombok.Getter");
@@ -252,6 +303,10 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
 			imports.add("jakarta.persistence.GeneratedValue");
 		}
 		
+		if(!e.attributes.filter(DataAttribute).filter[type.equals(AttributeType.REQUIRED)].empty){
+			imports.add("jakarta.persistence.Column");
+		}
+		
 		if(!e.attributes.filter(EmbeddedAttribute).filter[type.equals(AttributeType.ID)].empty){
 			imports.add("jakarta.persistence.EmbeddedId");
 		}
@@ -259,6 +314,10 @@ class HibernateOrmModelGenerator extends AbstractGenerator {
 		if(!e.attributes.filter(EmbeddedAttribute).filter[!type.equals(AttributeType.ID)].empty){
 			imports.add("jakarta.persistence.Embedded");
 		}
+		
+		
+		
+		// PREPARE RELATIONS
 		
 		
 		val elementSourceRelations = new ArrayList<Relationship>();

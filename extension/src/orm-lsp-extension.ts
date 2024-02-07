@@ -1,20 +1,22 @@
 import * as path from 'path';
+import { SprottyDiagramIdentifier, SprottyWebview } from 'sprotty-vscode';
+import { SprottyLspWebview } from 'sprotty-vscode/lib/lsp';
+import { LspLabelEditActionHandler, SprottyLspEditVscodeExtension, WorkspaceEditActionHandler } from 'sprotty-vscode/lib/lsp/editing';
 import * as vscode from 'vscode';
-import { LspLabelEditActionHandler, SprottyLspEditVscodeExtension, WorkspaceEditActionHandler } from "sprotty-vscode/lib/lsp/editing";
-import { LanguageClient, ServerOptions, LanguageClientOptions, } from "vscode-languageclient/node";
-import { SprottyWebview } from "sprotty-vscode/lib/sprotty-webview";
-import { SprottyDiagramIdentifier, SprottyLspWebview } from "sprotty-vscode/lib/lsp";
-import { OrmDiagramWebview } from './orm-webview';
+import { LanguageClient, LanguageClientOptions, ServerOptions, } from "vscode-languageclient/node";
 import generateCode from './commands/generate-code';
 import reverseToModel from './commands/reverse-to-model';
+import { OrmDiagramWebview } from './orm-webview';
+
 
 export class OrmLspVscodeExtension extends SprottyLspEditVscodeExtension {
+
 
     constructor(context: vscode.ExtensionContext) {
         super('bigorm', context);
     }
 
-    protected registerCommands() {
+    override registerCommands() {
         super.registerCommands();
         this.context.subscriptions.push(vscode.commands.registerCommand('bigorm.model.generateCode', (...commandArgs: any[]) => {
             generateCode();
@@ -28,6 +30,7 @@ export class OrmLspVscodeExtension extends SprottyLspEditVscodeExtension {
         if (commandArgs.length === 0 || (commandArgs[0] instanceof vscode.Uri && commandArgs[0].path.endsWith('.orm'))) {
             return 'bigorm-diagram';
         }
+        return undefined;
     }
 
     createWebView(identifier: SprottyDiagramIdentifier): SprottyWebview {
@@ -36,13 +39,15 @@ export class OrmLspVscodeExtension extends SprottyLspEditVscodeExtension {
             identifier,
             localResourceRoots: [this.getExtensionFileUri('pack'), this.getExtensionFileUri('node_modules')],
             scriptUri: this.getExtensionFileUri('pack', 'webview.js'),
-            singleton: false
+            singleton: true
         }) as SprottyLspWebview;
         webview.addActionHandler(WorkspaceEditActionHandler);
         webview.addActionHandler(LspLabelEditActionHandler);
+        this.singleton=webview;
+        console.log(webview);
         return webview;
     }
-
+    
     protected activateLanguageClient(context: vscode.ExtensionContext): LanguageClient {
         const executable = process.platform === 'win32' ? 'orm-language-server.bat' : 'orm-language-server';
         const languageServerPath = path.join('server', 'orm-language-server', 'bin', executable);
@@ -64,8 +69,7 @@ export class OrmLspVscodeExtension extends SprottyLspEditVscodeExtension {
             }]
         };
         const languageClient = new LanguageClient('ormLanguageClient', 'ORM Language Server', serverOptions, clientOptions);
-        context.subscriptions.push(languageClient.start());
+        languageClient.start();
         return languageClient;
     }
-
 }

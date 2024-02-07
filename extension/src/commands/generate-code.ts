@@ -17,8 +17,8 @@ export default async function generateCode() {
     let activeEditor = window.activeTextEditor;
 
     // TODO implement other code generators
-    if (language != 'Hibernate') {
-        console.log("Only hibernate supported currently");
+    if (language === 'Entity Framework') {
+        console.log("Only hibernate & SqlAlchemy supported currently");
         return;
     }
 
@@ -36,7 +36,7 @@ export default async function generateCode() {
     console.log('Selected folder: ' + folder[0]);
 
     if (activeEditor.document.uri instanceof Uri) {
-        const args = {"file": activeEditor.document.uri.toString(), "language": language, "output-path": folder[0].toString()};
-        commands.executeCommand("big.orm.command.generate", args).then(((answer) => { console.log(answer) }));
+        const args = {"file": activeEditor.document.uri.toString(), "language": language, "outputPath": folder[0].toString()};
+        commands.executeCommand("big.orm.command.generate", args).then(((answer) => { console.log(answer); }));
     }
 }
