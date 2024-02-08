@@ -69,7 +69,8 @@ export class OrmLspVscodeExtension extends SprottyLspEditVscodeExtension {
             }]
         };
         const languageClient = new LanguageClient('ormLanguageClient', 'ORM Language Server', serverOptions, clientOptions);
-        languageClient.start();
+        // TODO: verify if subscription is needed
+        context.subscriptions.push(languageClient.start());
         return languageClient;
     }
 }
