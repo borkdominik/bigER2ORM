@@ -38,7 +38,7 @@ jobs:
           if [ -f /home/runner/work/Stainer.MDE4ORM/Stainer.MDE4ORM/language-server/org.big.orm/src/main/java/org/big/orm/language/Java/JavaModel.xtext ]; then
             echo "File exists"
           else
-            echo "File does not exist"
+            ls -laR
           fi
           language-server/gradlew -p language-server/ build --no-daemon
       - name: Build Webview
