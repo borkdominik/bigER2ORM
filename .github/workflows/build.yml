@@ -34,14 +34,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: Build Language Server
-        run: |
-          echo "$PWD"
-          if [ -f /home/runner/work/Stainer.MDE4ORM/Stainer.MDE4ORM/language-server/org.big.orm/src/main/java/org/big/orm/language/Java/JavaModel.xtext ]; then
-            echo "File exists"
-          else
-            ls -laR
-          fi
-          language-server/gradlew -p language-server/ build --no-daemon
+        run: language-server/gradlew -p language-server/ build --no-daemon
       - name: Build Webview
         run: yarn --cwd webview
       - name: Build Extension
