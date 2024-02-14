@@ -9,6 +9,10 @@
   "categories": [
     "Other"
   ],
+  "repository": {
+		"type": "git",
+		"url": "https://github.com/big-thesis/Stainer.MDE4ORM"
+	},
   "files": [
     "dist",
     "extension",
@@ -200,7 +204,7 @@
   },
   "devDependencies": {
     "@types/node": "16.x",
-    "@types/vscode": "^1.83.1",
+    "@types/vscode": "^1.75.0",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
     "@vscode/vsce": "^2.22.0",
