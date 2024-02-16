@@ -6,16 +6,16 @@ const optionsInput: OpenDialogOptions = {
     canSelectMany: false,
     openLabel: 'Select as input',
     canSelectFiles: true,
-    canSelectFolders: true,
-    title: 'Select files to reverse'
+    canSelectFolders: true
+    // TODO: ,title: 'Select files to reverse'
 };
 
 const optionsOutput: OpenDialogOptions = {
     canSelectMany: false,
     openLabel: 'Select for output',
     canSelectFiles: false,
-    canSelectFolders: true,
-    title: 'Select output folder'
+    canSelectFolders: true
+    // TODO: ,title: 'Select output folder'
 };
 
 export default async function reverseToModel() {
