@@ -39,3 +39,10 @@ jobs:
         run: yarn --cwd webview
       - name: Build Extension
         run: yarn --cwd extension
+      - name: Package Extension
+        run: yarn --cwd extension run package
+      - name: Archive extension build
+        uses: actions/upload-artifact@v4
+        with:
+          name: bigorm-extension
+          path: extension/bigorm-*.vsix

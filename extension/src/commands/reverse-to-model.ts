@@ -1,4 +1,4 @@
-import path = require('path');
+import * as path from 'path';
 import { commands, OpenDialogOptions, Uri, window, workspace } from 'vscode';
 export const command = 'bigorm.model.reverseToModel';
 
@@ -6,16 +6,16 @@ const optionsInput: OpenDialogOptions = {
     canSelectMany: false,
     openLabel: 'Select as input',
     canSelectFiles: true,
-    canSelectFolders: true,
-    title: 'Select files to reverse'
+    canSelectFolders: true
+    // TODO: ,title: 'Select files to reverse'
 };
 
 const optionsOutput: OpenDialogOptions = {
     canSelectMany: false,
     openLabel: 'Select for output',
     canSelectFiles: false,
-    canSelectFolders: true,
-    title: 'Select output folder'
+    canSelectFolders: true
+    // TODO: ,title: 'Select output folder'
 };
 
 export default async function reverseToModel() {
@@ -35,20 +35,20 @@ export default async function reverseToModel() {
     }
     console.log('Selected output path: ' + fileOutputPath[0].toString());
 
-    const model_name = await window.showInputBox({
+    const modelName = await window.showInputBox({
         placeHolder: 'Select name of model to create'
     });
-    if (!model_name) {
+    if (!modelName) {
         console.log("No model name entered");
         return;
     }
-    console.log('Model name: ' + model_name);
+    console.log('Model name: ' + modelName);
 
-    const args = {"fileInput": fileInput[0].toString(), "fileOutput": fileOutputPath[0].toString(), "modelName": model_name};
+    const args = {"fileInput": fileInput[0].toString(), "fileOutput": fileOutputPath[0].toString(), "modelName": modelName};
     let answer = await commands.executeCommand("big.orm.command.reverse", args);
-    console.log(answer) 
+    console.log(answer);
 
-    const filePath = path.join(fileOutputPath[0].path, model_name + ".orm")
+    const filePath = path.join(fileOutputPath[0].path, modelName + ".orm");
     const openPath = Uri.file(filePath);
     workspace.openTextDocument(openPath).then(doc => {
         window.showTextDocument(doc);

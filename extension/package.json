@@ -1,28 +1,31 @@
 {
   "name": "bigorm",
-  "displayName": "",
+  "displayName": "bigORM Modeling Tool",
   "description": "ORM modeling for various platforms",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.71.0"
+    "vscode": "^1.75.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onLanguage:bigorm",
-    "onCommand:bigorm.diagram.open"
-  ],
+  "repository": {
+		"type": "git",
+		"url": "https://github.com/big-thesis/Stainer.MDE4ORM"
+	},
   "files": [
-		"dist",
-		"extension",
-    "pack",
-		"server",
-		"syntaxes",
-		"webview",
-		"media"
+    "dist",
+    "extension",
+    "server",
+    "syntaxes",
+    "webview",
+    "media"
+  ],
+  "main": "./pack/main",
+  "activationEvents": [
+		"onLanguage:bigorm",
+		"onCommand:bigorm.diagram.open"
 	],
-  "main": "./dist/main.js",
   "contributes": {
     "configuration": {
       "type": "object",
@@ -197,25 +200,25 @@
     "package": "vsce package --yarn",
     "watch": "webpack --mode=development --watch"
   },
-  "dependencies": {
-		"@vscode/webview-ui-toolkit": "^1.2.2",
+	"dependencies": {
+		"@vscode/webview-ui-toolkit": "^1.0.0",
 		"sprotty-vscode": "^0.2.0",
 		"sprotty-vscode-webview": "^0.2.0",
 		"vscode-languageclient": "^7.0.0"
-  },
-  "devDependencies": {
-    "@types/glob": "^7.2.0",
-    "@types/node": "16.x",
-    "@types/vscode": "^1.71.0",
-    "@typescript-eslint/eslint-plugin": "^5.28.0",
-    "@typescript-eslint/parser": "^5.28.0",
-    "eslint": "^8.18.0",
+	},
+	"devDependencies": {
+		"@types/glob": "^7.2.0",
+		"@types/node": "^12.12.6",
+		"@types/vscode": "1.46.0",
+		"@typescript-eslint/eslint-plugin": "^5.28.0",
+		"@typescript-eslint/parser": "^5.28.0",
+		"eslint": "^8.18.0",
 		"rimraf": "^3.0.2",
 		"source-map-loader": "^3.0.0",
-    "ts-loader": "^9.2.6",
-    "typescript": "~4.6.2",
+		"ts-loader": "^9.2.6",
+		"typescript": "~4.6.2",
 		"vsce": "^2.14.0",
 		"webpack": "^5.64.2",
 		"webpack-cli": "^4.9.1"
-  }
+	}
 }

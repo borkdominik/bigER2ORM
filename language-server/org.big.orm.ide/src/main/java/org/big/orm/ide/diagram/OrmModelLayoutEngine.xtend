@@ -1,16 +1,16 @@
 package org.big.orm.ide.diagram
 
-import org.eclipse.sprotty.layout.ElkLayoutEngine
-import org.eclipse.sprotty.SModelRoot
-import org.eclipse.sprotty.Action
-import org.eclipse.sprotty.SGraph
-import org.eclipse.sprotty.layout.SprottyLayoutConfigurator
+import org.eclipse.elk.alg.layered.options.LayeredOptions
 import org.eclipse.elk.core.options.CoreOptions
 import org.eclipse.elk.core.options.Direction
-import org.eclipse.elk.alg.layered.options.LayeredOptions
 import org.eclipse.elk.core.options.PortAlignment
 import org.eclipse.elk.core.options.PortConstraints
 import org.eclipse.elk.core.options.PortSide
+import org.eclipse.sprotty.Action
+import org.eclipse.sprotty.SGraph
+import org.eclipse.sprotty.SModelRoot
+import org.eclipse.sprotty.layout.ElkLayoutEngine
+import org.eclipse.sprotty.layout.SprottyLayoutConfigurator
 
 class OrmModelLayoutEngine extends ElkLayoutEngine {
 	

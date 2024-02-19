@@ -51,7 +51,6 @@ const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     // Edges
     configureModelElement(context, 'port', SPort, TriangleButtonView);
 
-
     // Labels
     configureModelElement(context, 'label:header', SLabel, SLabelView, { enable: [editLabelFeature] });
     configureModelElement(context, 'label:relationship', SLabel, SLabelView, { enable: [editLabelFeature] });

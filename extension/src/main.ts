@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { SprottyLspVscodeExtension } from 'sprotty-vscode/lib/lsp';
 import { OrmLspVscodeExtension } from './orm-lsp-extension';
+import { SprottyLspVscodeExtension } from 'sprotty-vscode/lib/lsp';
 
 let extension: SprottyLspVscodeExtension;
 
