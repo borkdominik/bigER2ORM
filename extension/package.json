@@ -1,6 +1,6 @@
 {
   "name": "bigorm",
-  "displayName": "",
+  "displayName": "bigORM Modeling Tool",
   "description": "ORM modeling for various platforms",
   "version": "0.0.1",
   "engines": {
