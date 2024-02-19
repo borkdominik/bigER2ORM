@@ -4,6 +4,7 @@ import org.eclipse.sprotty.xtext.DiagramServerFactory
 import com.google.inject.Inject
 import com.google.inject.Provider
 import org.eclipse.sprotty.IDiagramServer
+import org.eclipse.sprotty.xtext.LanguageAwareDiagramServer
 
 class OrmModelDiagramServerFactory extends DiagramServerFactory {
 
@@ -16,7 +17,7 @@ class OrmModelDiagramServerFactory extends DiagramServerFactory {
 	override IDiagramServer createDiagramServer(String diagramType, String clientId) {
 		val server = diagramServerProvider.get
 		server.clientId = clientId;
-		if (server instanceof OrmModelDiagramServer) {
+		if (server instanceof LanguageAwareDiagramServer) {
 			server.diagramType = diagramType
 		}
 		return server
