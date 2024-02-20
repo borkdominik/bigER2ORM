@@ -1,5 +1,5 @@
 import { Container, ContainerModule } from "inversify";
-import { LibavoidDiamondAnchor, LibavoidEdge, LibavoidEllipseAnchor, LibavoidRectangleAnchor, LibavoidRouter, RouteType } from 'sprotty-routing-libavoid';
+// import { LibavoidDiamondAnchor, LibavoidEdge, LibavoidEllipseAnchor, LibavoidRectangleAnchor, LibavoidRouter, RouteType } from 'sprotty-routing-libavoid';
 import 'sprotty/css/command-palette.css';
 import 'sprotty/css/sprotty.css';
 import '../css/diagram.css';
@@ -8,6 +8,7 @@ import {
     configureModelElement, ConsoleLogger, DiamondNodeView, editFeature, editLabelFeature, ExpandButtonHandler, ExpandButtonView,
     expandFeature, HtmlRoot, HtmlRootView, labelEditUiModule, loadDefaultModules, LogLevel, overrideViewerOptions,
     PreRenderedElement, PreRenderedView, RectangularNodeView, SButton, SCompartment, SCompartmentView,
+    SEdge,
     SLabel, SLabelView, SModelRoot, SPort, TYPES
 } from "sprotty";
 import { OrmModelGraph, OrmModelNode, OrmModelRelationshipEdge } from "./model";
@@ -19,11 +20,11 @@ const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
     // Router
-    bind(LibavoidRouter).toSelf().inSingletonScope();
-    bind(TYPES.IEdgeRouter).toService(LibavoidRouter);
-    bind(TYPES.IAnchorComputer).to(LibavoidDiamondAnchor).inSingletonScope();
-    bind(TYPES.IAnchorComputer).to(LibavoidEllipseAnchor).inSingletonScope();
-    bind(TYPES.IAnchorComputer).to(LibavoidRectangleAnchor).inSingletonScope();
+    // bind(LibavoidRouter).toSelf().inSingletonScope();
+    // bind(TYPES.IEdgeRouter).toService(LibavoidRouter);
+    // bind(TYPES.IAnchorComputer).to(LibavoidDiamondAnchor).inSingletonScope();
+    // bind(TYPES.IAnchorComputer).to(LibavoidEllipseAnchor).inSingletonScope();
+    // bind(TYPES.IAnchorComputer).to(LibavoidRectangleAnchor).inSingletonScope();
 
     // change animation speed to 300ms
     rebind(TYPES.CommandStackOptions).toConstantValue({
@@ -46,7 +47,7 @@ const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
 
     // Edges
     configureModelElement(context, 'edge:relationship', OrmModelRelationshipEdge, RelationshipEdgeView, { disable: [editFeature] });
-    configureModelElement(context, 'edge:inheritance', LibavoidEdge, InheritanceEdgeView, { disable: [editFeature] });
+    configureModelElement(context, 'edge:inheritance', SEdge, InheritanceEdgeView, { disable: [editFeature] });
 
     // Edges
     configureModelElement(context, 'port', SPort, TriangleButtonView);
@@ -81,21 +82,21 @@ export function createDiagramContainer(widgetId: string): Container {
         popupOpenDelay: 0
     });
 
-    // Router options
-    const router = container.get(LibavoidRouter);
-    router.setOptions({
-        routingType: RouteType.Orthogonal,
-        segmentPenalty: 50,
-        // at least height of label to avoid labels overlap if
-        // there two neighbour edges have labels on the position
-        idealNudgingDistance: 24,
-        // 25 - height of label text + label offset. Such shape buffer distance is required to
-        // avoid label over shape
-        shapeBufferDistance: 25,
-        nudgeOrthogonalSegmentsConnectedToShapes: true,
-        // allow or disallow moving edge end from center
-        nudgeOrthogonalTouchingColinearSegments: false,
-    });
+    // // Router options
+    // const router = container.get(LibavoidRouter);
+    // router.setOptions({
+    //     routingType: RouteType.Orthogonal,
+    //     segmentPenalty: 50,
+    //     // at least height of label to avoid labels overlap if
+    //     // there two neighbour edges have labels on the position
+    //     idealNudgingDistance: 24,
+    //     // 25 - height of label text + label offset. Such shape buffer distance is required to
+    //     // avoid label over shape
+    //     shapeBufferDistance: 25,
+    //     nudgeOrthogonalSegmentsConnectedToShapes: true,
+    //     // allow or disallow moving edge end from center
+    //     nudgeOrthogonalTouchingColinearSegments: false,
+    // });
 
     return container;
 }

@@ -8,6 +8,7 @@ dependencies {
 	api "org.eclipse.sprotty:org.eclipse.sprotty.xtext:${sprottyVersion}"
 	
 	api "org.eclipse.sprotty:org.eclipse.sprotty.layout:${sprottyVersion}"
+	api "org.eclipse.elk:org.eclipse.elk.alg.libavoid:${elkVersion}"
 	api "org.eclipse.elk:org.eclipse.elk.alg.layered:${elkVersion}"
 
 	implementation 'commons-io:commons-io:2.11.0'

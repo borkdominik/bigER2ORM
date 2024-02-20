@@ -1,5 +1,4 @@
-import { RectangularNode, SGraph } from 'sprotty';
-import { LibavoidEdge } from 'sprotty-routing-libavoid';
+import { RectangularNode, SEdge, SGraph } from 'sprotty';
 
 
 export class OrmModelGraph extends SGraph {
@@ -10,6 +9,6 @@ export class OrmModelNode extends RectangularNode {
     expanded: boolean;
 }
 
-export class OrmModelRelationshipEdge extends LibavoidEdge {
+export class OrmModelRelationshipEdge extends SEdge {
     unidirectional: boolean;
 }
