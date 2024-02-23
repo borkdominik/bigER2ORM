@@ -45,14 +45,7 @@ const config = {
                 }
             }
         ]
-    },
-    plugins: [
-        new CopyPlugin({
-            patterns: [
-                { from: "node_modules/libavoid-js/dist/libavoid.wasm" }
-            ],
-        }),
-    ]
+    }
 };
 
 module.exports = config;

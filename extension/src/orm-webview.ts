@@ -1,28 +1,21 @@
 import * as vscode from 'vscode';
-import { Uri, Webview } from "vscode";
-import { SprottyWebviewOptions } from "sprotty-vscode/lib/";
-import { SprottyLspWebview } from "sprotty-vscode/lib/lsp";
+import { SprottyDiagramIdentifier } from "sprotty-vscode/lib/";
+import { WebviewContainer } from 'sprotty-vscode/lib/';
 
 
-export class OrmDiagramWebview extends SprottyLspWebview {
 
-    constructor(protected override options: SprottyWebviewOptions) {
-        super(options);
-    }
-
-    protected override initializeWebview(webview: vscode.Webview, title?: string) {
-        const extensionUri = this.extension.context.extensionUri;
-        const codiconsUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.css'));
-        const toolkitUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'node_modules', '@vscode', 'webview-ui-toolkit', 'dist', 'toolkit.js'));
-        let webviewDebugChannel = vscode.window.createOutputChannel("webviewDebugChannel");
-        webviewDebugChannel.appendLine(codiconsUri.toString());
-        webview.html = `
+export function createWebviewHtml(identifier: SprottyDiagramIdentifier, container: WebviewContainer, options: { scriptUri: vscode.Uri, extensionBaseUri: vscode.Uri, title: string; }): string {
+    const transformUri = (uri: vscode.Uri) => container.webview.asWebviewUri(uri).toString();
+    const codiconsUri = transformUri(vscode.Uri.joinPath(options.extensionBaseUri, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.css'));
+    const toolkitUri = transformUri(vscode.Uri.joinPath(options.extensionBaseUri, 'node_modules', '@vscode', 'webview-ui-toolkit', 'dist', 'toolkit.js'));
+    const webviewScriptUri = transformUri(vscode.Uri.joinPath(options.scriptUri));
+    return `
             <!DOCTYPE html>
             <html lang="en">
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, height=device-height">
-                    <title>${title}</title>
+                    <title>${options.title}</title>
                     <link
                         rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
                         integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/"
@@ -31,13 +24,8 @@ export class OrmDiagramWebview extends SprottyLspWebview {
                     <script type="module" src="${toolkitUri}"></script>
                 </head>
                 <body>
-                    <div id="${this.diagramIdentifier.clientId}_container" style="height: 100%;"></div>
-                    <script src="${webview.asWebviewUri(this.scriptUri).toString()}"></script>
+                    <div id="${identifier.clientId}_container" style="height: 100%;"></div>
+                    <script src="${webviewScriptUri}"></script>
                 </body>
             </html>`;
-    }
-
-    getUri(webview: Webview, extensionUri: Uri, ...pathList: string[]) {
-        return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
-    }
 }

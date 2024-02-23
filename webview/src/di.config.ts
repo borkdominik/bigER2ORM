@@ -6,10 +6,9 @@ import '../css/diagram.css';
 import {
     configureActionHandler,
     configureModelElement, ConsoleLogger, DiamondNodeView, editFeature, editLabelFeature, ExpandButtonHandler, ExpandButtonView,
-    expandFeature, HtmlRoot, HtmlRootView, labelEditUiModule, loadDefaultModules, LogLevel, overrideViewerOptions,
-    PreRenderedElement, PreRenderedView, RectangularNodeView, SButton, SCompartment, SCompartmentView,
-    SEdge,
-    SLabel, SLabelView, SModelRoot, SPort, TYPES
+    expandFeature, HtmlRootImpl, HtmlRootView, labelEditUiModule, loadDefaultModules, LogLevel, overrideViewerOptions,
+    PreRenderedElementImpl,
+    PreRenderedView, RectangularNodeView, SButtonImpl, SCompartmentImpl, SCompartmentView, SEdgeImpl, SLabelImpl, SLabelView, SModelRootImpl, SPortImpl, TYPES
 } from "sprotty";
 import { OrmModelGraph, OrmModelNode, OrmModelRelationshipEdge } from "./model";
 import { InheritanceEdgeView, OrmModelView, RelationshipEdgeView, TriangleButtonView } from "./views";
@@ -41,29 +40,29 @@ const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     configureModelElement(context, 'node:relationship', OrmModelNode, DiamondNodeView);
 
     // Compartments
-    configureModelElement(context, 'comp:element-header', SCompartment, SCompartmentView);
-    configureModelElement(context, 'comp:attributes', SCompartment, SCompartmentView);
-    configureModelElement(context, 'comp:attribute-row', SCompartment, SCompartmentView);
+    configureModelElement(context, 'comp:element-header', SCompartmentImpl, SCompartmentView);
+    configureModelElement(context, 'comp:attributes', SCompartmentImpl, SCompartmentView);
+    configureModelElement(context, 'comp:attribute-row', SCompartmentImpl, SCompartmentView);
 
     // Edges
     configureModelElement(context, 'edge:relationship', OrmModelRelationshipEdge, RelationshipEdgeView, { disable: [editFeature] });
-    configureModelElement(context, 'edge:inheritance', SEdge, InheritanceEdgeView, { disable: [editFeature] });
+    configureModelElement(context, 'edge:inheritance', SEdgeImpl, InheritanceEdgeView, { disable: [editFeature] });
 
     // Edges
-    configureModelElement(context, 'port', SPort, TriangleButtonView);
+    configureModelElement(context, 'port', SPortImpl, TriangleButtonView);
 
     // Labels
-    configureModelElement(context, 'label:header', SLabel, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:relationship', SLabel, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:text', SLabel, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:key', SLabel, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:required', SLabel, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:header', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:relationship', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:text', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:key', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:required', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
 
     // Additional Sprotty elements
-    configureModelElement(context, 'html', HtmlRoot, HtmlRootView);
-    configureModelElement(context, 'palette', SModelRoot, HtmlRootView);
-    configureModelElement(context, 'pre-rendered', PreRenderedElement, PreRenderedView);
-    configureModelElement(context, ExpandButtonHandler.TYPE, SButton, ExpandButtonView);
+    configureModelElement(context, 'html', HtmlRootImpl, HtmlRootView);
+    configureModelElement(context, 'palette', SModelRootImpl, HtmlRootView);
+    configureModelElement(context, 'pre-rendered', PreRenderedElementImpl, PreRenderedView);
+    configureModelElement(context, ExpandButtonHandler.TYPE, SButtonImpl, ExpandButtonView);
 
     // Action Handlers
     configureActionHandler(context, RefreshAction.KIND, RefreshActionHandler);

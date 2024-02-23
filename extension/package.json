@@ -201,10 +201,10 @@
     "watch": "webpack --mode=development --watch"
   },
 	"dependencies": {
-		"@vscode/webview-ui-toolkit": "^1.0.0",
-		"sprotty-vscode": "^0.2.0",
-		"sprotty-vscode-webview": "^0.2.0",
-		"vscode-languageclient": "^7.0.0"
+		"@vscode/webview-ui-toolkit": "^1.4.0",
+		"sprotty-vscode": "^1.0.0",
+		"sprotty-vscode-webview": "^1.0.0",
+		"vscode-languageclient": "^9.0.1"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.2.0",

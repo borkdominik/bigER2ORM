@@ -1,18 +1,19 @@
 /** @jsx svg */
 import { inject, injectable } from "inversify";
 import { VNode } from "snabbdom";
-import { RenderingContext, svg, PolylineEdgeView, SEdge, EdgeRouterRegistry, SGraphView, IView} from "sprotty";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { RenderingContext, svg, PolylineEdgeView, EdgeRouterRegistry, SGraphView, IView, SEdgeImpl} from "sprotty";
 import { Point, SPort, toDegrees } from "sprotty-protocol";
 import { OrmModelGraph, OrmModelRelationshipEdge } from "./model";
 import { UITypes } from "./utils";
 
 
 @injectable()
-export class OrmModelView<IRenderingArgs> extends SGraphView<IRenderingArgs> {
+export class OrmModelView extends SGraphView {
 
     @inject(EdgeRouterRegistry) override edgeRouterRegistry: EdgeRouterRegistry;
 
-    override render(model: Readonly<OrmModelGraph>, context: RenderingContext, args?: IRenderingArgs): VNode {
+    override render(model: Readonly<OrmModelGraph>, context: RenderingContext): VNode {
         // set model name in toolbar
         const menuModelName = document.getElementById(UITypes.MODEL_NAME);
         if (menuModelName) {
@@ -30,7 +31,7 @@ export class OrmModelView<IRenderingArgs> extends SGraphView<IRenderingArgs> {
 
 @injectable()
 export class RelationshipEdgeView extends PolylineEdgeView {
-    protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+    protected override renderAdditionals(edge: SEdgeImpl, segments: Point[], context: RenderingContext): VNode[] {
         const firstPoint = segments[0];
         const secondPoint = segments[1];
         const secondToLastPoint = segments[segments.length - 2];
@@ -53,7 +54,7 @@ export class RelationshipEdgeView extends PolylineEdgeView {
 
 @injectable()
 export class InheritanceEdgeView extends PolylineEdgeView {
-    protected override renderAdditionals(edge: SEdge, segments: Point[], context: RenderingContext): VNode[] {
+    protected override renderAdditionals(edge: SEdgeImpl, segments: Point[], context: RenderingContext): VNode[] {
         const secondToLastPoint = segments[segments.length - 2];
         const lastPoint = segments[segments.length - 1];
 
