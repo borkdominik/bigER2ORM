@@ -202,8 +202,8 @@
   },
 	"dependencies": {
 		"@vscode/webview-ui-toolkit": "^1.4.0",
+    "@vscode/codicons": "^0.0.35",
 		"sprotty-vscode": "^1.0.0",
-		"sprotty-vscode-webview": "^1.0.0",
 		"vscode-languageclient": "^9.0.1"
 	},
 	"devDependencies": {
