@@ -2,10 +2,14 @@ import * as vscode from 'vscode';
 import { LanguageClient } from 'vscode-languageclient/node';
 import { registerDefaultCommands, registerLspEditCommands } from 'sprotty-vscode';
 import { OrmWebviewPanelManager, createLanguageClient, registerCommands } from './orm-lsp-extension';
+import { OutputChannel } from 'vscode';
 
 let languageClient: LanguageClient;
+export let debugLogChannel: OutputChannel;
 
 export function activate(context: vscode.ExtensionContext) {
+    debugLogChannel = vscode.window.createOutputChannel("Extension Debug");
+
     languageClient = createLanguageClient(context);
     registerCommands(context);
     const webviewViewProvider = new OrmWebviewPanelManager({
