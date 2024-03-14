@@ -70,6 +70,7 @@ export class OrmWebviewPanelManager extends LspWebviewPanelManager  {
     // TODO: replace once new sprotty-vscode release is available
     protected createWebviewPanel(identifier: SprottyDiagramIdentifier,
         options: { localResourceRoots: vscode.Uri[], scriptUri: vscode.Uri, extensionBaseUri: vscode.Uri }): vscode.WebviewPanel {
+        options.localResourceRoots.push(vscode.Uri.joinPath(options.extensionBaseUri, "node_modules"));
         const title = createWebviewTitle(identifier);
         const diagramPanel = vscode.window.createWebviewPanel(
             identifier.diagramType || 'diagram',
