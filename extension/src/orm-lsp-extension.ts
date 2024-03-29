@@ -7,16 +7,12 @@ import { LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-lan
 import { LspWebviewEndpoint, LspWebviewPanelManager } from 'sprotty-vscode/lib/lsp';
 import { addLspLabelEditActionHandler, addWorkspaceEditActionHandler } from 'sprotty-vscode/lib/lsp/editing';
 import { createWebviewHtml } from './orm-webview';
-import { debugLogChannel } from './main';
 
 
 export function createLanguageClient(context: vscode.ExtensionContext): LanguageClient {
     const executable = process.platform === 'win32' ? 'orm-language-server.bat' : 'orm-language-server';
     const languageServerPath = path.join('server', 'orm-language-server', 'bin', executable);
     const serverLauncher = context.asAbsolutePath(languageServerPath);
-    debugLogChannel.appendLine("Paths: ");
-    debugLogChannel.appendLine(languageServerPath);
-    debugLogChannel.appendLine(serverLauncher);
     const serverOptions: ServerOptions = {
         run: {
             command: serverLauncher,

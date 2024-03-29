@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { ActionHandlerRegistry, MoveCommand } from "sprotty";
-import { Action, LayoutAction } from 'sprotty-protocol';
+import { Action } from 'sprotty-protocol';
 import { VscodeLspEditDiagramServer } from "sprotty-vscode-webview/lib/lsp/editing";
 
 @injectable()
