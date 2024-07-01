@@ -11,12 +11,12 @@ on:
       - main
 
 jobs:
-  # build on ubuntu/macos/windows with java 11/17 and Node 16
+  # build on ubuntu/macos/windows with java 11/17 and Node 20
   build:
     strategy:
       matrix:
         java: [ 17 ]
-        node: [ 16 ]
+        node: [ 20 ]
         os: [ ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} (Java ${{ matrix.java }} Node ${{ matrix.node }})
