@@ -15,7 +15,7 @@ export default async function generateCode() {
         placeHolder: 'Select language to generate code for.'
     });
     window.showInformationMessage(`Got: ${language}`);
-    let activeEditor = window.activeTextEditor;
+    const activeEditor = window.activeTextEditor;
 
     // TODO implement other code generators
     if (language === 'Entity Framework') {
@@ -27,7 +27,7 @@ export default async function generateCode() {
         debugLogChannel.appendLine("Can't execute command");
         return;
     }
-    
+
     const folder = await window.showOpenDialog(options);
 
     if (!(folder && folder[0])) {

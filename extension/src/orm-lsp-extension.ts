@@ -44,7 +44,7 @@ export function registerCommands(context: vscode.ExtensionContext) {
 }
 
 
-export class OrmWebviewPanelManager extends LspWebviewPanelManager  {
+export class OrmWebviewPanelManager extends LspWebviewPanelManager {
     protected override createEndpoint(identifier: SprottyDiagramIdentifier): LspWebviewEndpoint {
         const endpoint = super.createEndpoint(identifier);
         addWorkspaceEditActionHandler(endpoint);
@@ -56,7 +56,7 @@ export class OrmWebviewPanelManager extends LspWebviewPanelManager  {
         const extensionPath = this.options.extensionUri.fsPath;
 
         return this.createWebviewPanel(identifier, {
-            localResourceRoots: [ createFileUri(extensionPath, 'pack') ],
+            localResourceRoots: [createFileUri(extensionPath, 'pack')],
             scriptUri: createFileUri(extensionPath, 'pack', 'webview.js'),
             extensionBaseUri: createFileUri(extensionPath)
         });
@@ -64,8 +64,10 @@ export class OrmWebviewPanelManager extends LspWebviewPanelManager  {
 
     // Copies webview-utils.ts/createWebviewPanel, as no other way to inject custom HTML on sprotty-vscode 1.0.0, this is fixed on master branch
     // TODO: replace once new sprotty-vscode release is available
-    protected createWebviewPanel(identifier: SprottyDiagramIdentifier,
-        options: { localResourceRoots: vscode.Uri[], scriptUri: vscode.Uri, extensionBaseUri: vscode.Uri }): vscode.WebviewPanel {
+    protected createWebviewPanel(
+        identifier: SprottyDiagramIdentifier,
+        options: { localResourceRoots: vscode.Uri[], scriptUri: vscode.Uri, extensionBaseUri: vscode.Uri }
+    ): vscode.WebviewPanel {
         options.localResourceRoots.push(vscode.Uri.joinPath(options.extensionBaseUri, "node_modules"));
         const title = createWebviewTitle(identifier);
         const diagramPanel = vscode.window.createWebviewPanel(
@@ -76,7 +78,8 @@ export class OrmWebviewPanelManager extends LspWebviewPanelManager  {
                 localResourceRoots: options.localResourceRoots,
                 enableScripts: true,
                 retainContextWhenHidden: true
-            });
+            }
+        );
         diagramPanel.webview.html = createWebviewHtml(identifier, diagramPanel, {
             scriptUri: options.scriptUri,
             extensionBaseUri: options.extensionBaseUri,

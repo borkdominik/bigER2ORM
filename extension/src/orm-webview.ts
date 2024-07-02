@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
-import { SprottyDiagramIdentifier } from "sprotty-vscode/lib/";
-import { WebviewContainer } from 'sprotty-vscode/lib/';
-
+import { SprottyDiagramIdentifier, WebviewContainer } from "sprotty-vscode/lib/";
 
 
 export function createWebviewHtml(identifier: SprottyDiagramIdentifier, container: WebviewContainer, options: { scriptUri: vscode.Uri, extensionBaseUri: vscode.Uri, title: string; }): string {

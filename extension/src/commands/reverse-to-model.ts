@@ -46,7 +46,7 @@ export default async function reverseToModel() {
     debugLogChannel.appendLine('Model name: ' + modelName);
 
     const args = {"fileInput": fileInput[0].toString(), "fileOutput": fileOutputPath[0].toString(), "modelName": modelName};
-    let answer = await commands.executeCommand("big.orm.command.reverse", args);
+    const answer = await commands.executeCommand("big.orm.command.reverse", args);
     debugLogChannel.appendLine(String(answer));
 
     const filePath = path.join(fileOutputPath[0].path, modelName + ".orm");
