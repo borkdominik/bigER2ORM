@@ -18,6 +18,8 @@ const config = {
         vscode: "commonjs vscode"
     },
     resolve: {
+        conditionNames: ['import', 'require'],
+        mainFields: ['module', 'main'],
         extensions: ['.ts', '.js']
     },
     module: {

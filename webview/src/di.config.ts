@@ -1,14 +1,13 @@
 import { Container, ContainerModule } from "inversify";
-import { LibavoidDiamondAnchor, LibavoidEdge, LibavoidEllipseAnchor, LibavoidRectangleAnchor, LibavoidRouter, RouteType } from 'sprotty-routing-libavoid';
 import 'sprotty/css/command-palette.css';
 import 'sprotty/css/sprotty.css';
 import '../css/diagram.css';
 import {
     configureActionHandler,
     configureModelElement, ConsoleLogger, DiamondNodeView, editFeature, editLabelFeature, ExpandButtonHandler, ExpandButtonView,
-    expandFeature, HtmlRoot, HtmlRootView, labelEditUiModule, loadDefaultModules, LogLevel, overrideViewerOptions,
-    PreRenderedElement, PreRenderedView, RectangularNodeView, SButton, SCompartment, SCompartmentView,
-    SLabel, SLabelView, SModelRoot, SPort, TYPES
+    expandFeature, HtmlRootImpl, HtmlRootView, labelEditUiModule, loadDefaultModules, LogLevel, overrideViewerOptions,
+    PreRenderedElementImpl,
+    PreRenderedView, RectangularNodeView, SButtonImpl, SCompartmentImpl, SCompartmentView, SEdgeImpl, SLabelImpl, SLabelView, SModelRootImpl, SPortImpl, TYPES
 } from "sprotty";
 import { OrmModelGraph, OrmModelNode, OrmModelRelationshipEdge } from "./model";
 import { InheritanceEdgeView, OrmModelView, RelationshipEdgeView, TriangleButtonView } from "./views";
@@ -18,12 +17,6 @@ import toolbarModule from "./toolbar/di.config";
 const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     rebind(TYPES.ILogger).to(ConsoleLogger).inSingletonScope();
     rebind(TYPES.LogLevel).toConstantValue(LogLevel.log);
-    // Router
-    bind(LibavoidRouter).toSelf().inSingletonScope();
-    bind(TYPES.IEdgeRouter).toService(LibavoidRouter);
-    bind(TYPES.IAnchorComputer).to(LibavoidDiamondAnchor).inSingletonScope();
-    bind(TYPES.IAnchorComputer).to(LibavoidEllipseAnchor).inSingletonScope();
-    bind(TYPES.IAnchorComputer).to(LibavoidRectangleAnchor).inSingletonScope();
 
     // change animation speed to 300ms
     rebind(TYPES.CommandStackOptions).toConstantValue({
@@ -40,29 +33,29 @@ const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     configureModelElement(context, 'node:relationship', OrmModelNode, DiamondNodeView);
 
     // Compartments
-    configureModelElement(context, 'comp:element-header', SCompartment, SCompartmentView);
-    configureModelElement(context, 'comp:attributes', SCompartment, SCompartmentView);
-    configureModelElement(context, 'comp:attribute-row', SCompartment, SCompartmentView);
+    configureModelElement(context, 'comp:element-header', SCompartmentImpl, SCompartmentView);
+    configureModelElement(context, 'comp:attributes', SCompartmentImpl, SCompartmentView);
+    configureModelElement(context, 'comp:attribute-row', SCompartmentImpl, SCompartmentView);
 
     // Edges
     configureModelElement(context, 'edge:relationship', OrmModelRelationshipEdge, RelationshipEdgeView, { disable: [editFeature] });
-    configureModelElement(context, 'edge:inheritance', LibavoidEdge, InheritanceEdgeView, { disable: [editFeature] });
+    configureModelElement(context, 'edge:inheritance', SEdgeImpl, InheritanceEdgeView, { disable: [editFeature] });
 
     // Edges
-    configureModelElement(context, 'port', SPort, TriangleButtonView);
+    configureModelElement(context, 'port', SPortImpl, TriangleButtonView);
 
     // Labels
-    configureModelElement(context, 'label:header', SLabel, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:relationship', SLabel, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:text', SLabel, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:key', SLabel, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:required', SLabel, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:header', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:relationship', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:text', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:key', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:required', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
 
     // Additional Sprotty elements
-    configureModelElement(context, 'html', HtmlRoot, HtmlRootView);
-    configureModelElement(context, 'palette', SModelRoot, HtmlRootView);
-    configureModelElement(context, 'pre-rendered', PreRenderedElement, PreRenderedView);
-    configureModelElement(context, ExpandButtonHandler.TYPE, SButton, ExpandButtonView);
+    configureModelElement(context, 'html', HtmlRootImpl, HtmlRootView);
+    configureModelElement(context, 'palette', SModelRootImpl, HtmlRootView);
+    configureModelElement(context, 'pre-rendered', PreRenderedElementImpl, PreRenderedView);
+    configureModelElement(context, ExpandButtonHandler.TYPE, SButtonImpl, ExpandButtonView);
 
     // Action Handlers
     configureActionHandler(context, RefreshAction.KIND, RefreshActionHandler);
@@ -79,22 +72,6 @@ export function createDiagramContainer(widgetId: string): Container {
         baseDiv: widgetId,
         hiddenDiv: widgetId + '_hidden',
         popupOpenDelay: 0
-    });
-
-    // Router options
-    const router = container.get(LibavoidRouter);
-    router.setOptions({
-        routingType: RouteType.Orthogonal,
-        segmentPenalty: 50,
-        // at least height of label to avoid labels overlap if
-        // there two neighbour edges have labels on the position
-        idealNudgingDistance: 24,
-        // 25 - height of label text + label offset. Such shape buffer distance is required to
-        // avoid label over shape
-        shapeBufferDistance: 25,
-        nudgeOrthogonalSegmentsConnectedToShapes: true,
-        // allow or disallow moving edge end from center
-        nudgeOrthogonalTouchingColinearSegments: false,
     });
 
     return container;

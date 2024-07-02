@@ -12,6 +12,10 @@ svg {
 .sprotty-graph.selected {
     border: none;
 }
+
+.sprotty-graph {
+    margin-top: 35px;
+}
   
 text {
     stroke-width: 0;

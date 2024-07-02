@@ -4,7 +4,6 @@ import '../css/toolbar.css';
 import { Container } from 'inversify';
 import { SprottyLspEditStarter } from 'sprotty-vscode-webview/lib/lsp/editing';
 import { createDiagramContainer } from './di.config';
-import { load as loadLibavoidRouter } from 'sprotty-routing-libavoid';
 import { SprottyDiagramIdentifier } from 'sprotty-vscode-protocol';
 import { VscodeDiagramServer, VscodeDiagramWidget } from 'sprotty-vscode-webview';
 import { OrmDiagramServer } from './diagram-server';
@@ -23,6 +22,4 @@ export class OrmSprottyStarter extends SprottyLspEditStarter {
     }
 }
 
-loadLibavoidRouter().then(() => {
-    new OrmSprottyStarter();
-});
+new OrmSprottyStarter().start();
