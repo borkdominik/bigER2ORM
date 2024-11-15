@@ -31,15 +31,21 @@ import java.util.ArrayList
 import com.google.inject.Inject
 import org.eclipse.xtext.resource.SaveOptions
 import org.eclipse.xtext.resource.XtextResourceFactory
-import org.big.orm.generator.hibernate.HibernateOrmModelGenerator
-import org.big.orm.generator.sqlalchemy.SqlAlchemyOrmModelGenerator
+import org.big.orm.generator.hibernate.HibernateGenerator
+import org.big.orm.generator.sqlalchemy.SqlAlchemyGenerator
+import com.google.inject.Injector
+import org.big.orm.generator.sqlalchemy.SqlAlchemyModule
+import com.google.inject.Guice
 
 class ExecutableCommandService implements IExecutableCommandService {
-	
-	IGenerator2 hibernateGenerator = new HibernateOrmModelGenerator();
-	IGenerator2 sqlAlchemyGenerator = new SqlAlchemyOrmModelGenerator();
   	
   	@Inject XtextResourceFactory xtextResourceFactory;
+  	SqlAlchemyGenerator sqlAlchemyGenerator;
+  	
+  	new() {
+  	  var Injector sqlAlchemyInjector = Guice.createInjector(new SqlAlchemyModule());
+      this.sqlAlchemyGenerator = sqlAlchemyInjector.getInstance(SqlAlchemyGenerator);
+  	}
 	
 	override List<String> initialize() {
 		return Lists.newArrayList("big.orm.command.generate", "big.orm.command.reverse");
@@ -77,9 +83,9 @@ class ExecutableCommandService implements IExecutableCommandService {
 			fsa.setOutputPath(outputUrl.getPath());
 
 			if(arguments.get("language").equals("Hibernate")) {
-				hibernateGenerator.doGenerate(r, fsa, null);
+				new HibernateGenerator().doGenerate(r, fsa, null);
 			} else if(arguments.get("language").equals("SQLAlchemy")) {
-				sqlAlchemyGenerator.doGenerate(r, fsa, null);
+				this.sqlAlchemyGenerator.doGenerate(r, fsa, null);
 			} else {
 				return "Unsupported language";
 			}

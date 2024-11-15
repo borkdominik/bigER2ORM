@@ -35,7 +35,7 @@
         eType="#//Attribute" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RelationEntity">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="entity" eType="#//ModelElement"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entity" eType="#//InheritableElement"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="attributeName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Attribute">
@@ -61,9 +61,8 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="RelationshipType">
     <eLiterals name="OneToOne" literal="OneToOne"/>
-    <eLiterals name="OneToMany" value="1" literal="OneToMany"/>
-    <eLiterals name="ManyToOne" value="2" literal="ManyToOne"/>
-    <eLiterals name="ManyToMany" value="3" literal="ManyToMany"/>
+    <eLiterals name="ManyToOne" value="1" literal="ManyToOne"/>
+    <eLiterals name="ManyToMany" value="2" literal="ManyToMany"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="EntityOption"/>
   <eClassifiers xsi:type="ecore:EClass" name="TableNameOption" eSuperTypes="#//EntityOption">
@@ -73,8 +72,9 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="option" eType="#//InheritanceStrategy"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="InheritanceStrategy">
-    <eLiterals name="SINGLE_TABLE" literal="Inheritance.SingleTable"/>
+    <eLiterals name="UNDEFINED" literal="Inheritance.Undefined"/>
     <eLiterals name="JOINED_TABLE" value="1" literal="Inheritance.JoinedTable"/>
-    <eLiterals name="TABLE_PER_CLASS" value="2" literal="Inheritance.TablePerClass"/>
+    <eLiterals name="SINGLE_TABLE" value="2" literal="Inheritance.SingleTable"/>
+    <eLiterals name="TABLE_PER_CLASS" value="3" literal="Inheritance.TablePerClass"/>
   </eClassifiers>
 </ecore:EPackage>

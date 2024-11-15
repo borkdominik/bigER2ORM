@@ -264,7 +264,7 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 				]).trace(relationship.source, ATTRIBUTE__NAME, -1),
 				(new SLabel [
 					id = sourceId + ".datatype"
-					text = relationship.target.entity.name + (relationship.type.equals(RelationshipType.ONE_TO_MANY) || relationship.type.equals(RelationshipType.MANY_TO_MANY) ? "[]" : "")
+					text = relationship.target.entity.name + (relationship.type.equals(RelationshipType.MANY_TO_MANY) ? "[]" : "")
 					type = ATTRIBUTE_LABEL_TEXT
 				])
 			]

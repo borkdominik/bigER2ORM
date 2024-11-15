@@ -33,7 +33,7 @@ import org.big.orm.ormModel.EntityOption
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
-class HibernateOrmModelGenerator extends AbstractGenerator {
+class HibernateGenerator extends AbstractGenerator {
 	
 	extension IQualifiedNameProvider = new DefaultDeclarativeQualifiedNameProvider();
 

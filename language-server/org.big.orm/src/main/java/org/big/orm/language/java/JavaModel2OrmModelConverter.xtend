@@ -181,7 +181,6 @@ class JavaModel2OrmModelConverter {
 					case !relationship.annotations.filter[name.equals("ManyToOne")].empty : RelationshipType.MANY_TO_ONE
 					case !relationship.annotations.filter[name.equals("ManyToMany")].empty : RelationshipType.MANY_TO_MANY
 					case !relationship.annotations.filter[name.equals("OneToOne")].empty : RelationshipType.ONE_TO_ONE
-					case !relationship.annotations.filter[name.equals("OneToMany")].empty : RelationshipType.ONE_TO_MANY
 				}
 				ormRelationship.unidirectional = true
 				

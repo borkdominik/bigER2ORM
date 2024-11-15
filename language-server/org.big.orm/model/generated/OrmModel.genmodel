@@ -19,13 +19,13 @@
     </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="OrmModel.ecore#//RelationshipType">
       <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/OneToOne"/>
-      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/OneToMany"/>
       <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/ManyToOne"/>
       <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//RelationshipType/ManyToMany"/>
     </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="OrmModel.ecore#//InheritanceStrategy">
-      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//InheritanceStrategy/SINGLE_TABLE"/>
+      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//InheritanceStrategy/UNDEFINED"/>
       <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//InheritanceStrategy/JOINED_TABLE"/>
+      <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//InheritanceStrategy/SINGLE_TABLE"/>
       <genEnumLiterals ecoreEnumLiteral="OrmModel.ecore#//InheritanceStrategy/TABLE_PER_CLASS"/>
     </genEnums>
     <genClasses ecoreClass="OrmModel.ecore#//OrmModel">

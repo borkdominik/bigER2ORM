@@ -68,7 +68,7 @@ ManyToOne relationship CertificateCourse {
     target Course["certificates"]
 }
 
-ManyToMany relationship LecturerCourse {
+ManyToMany relationship CoursesLecturers {
     source Course["lecturers"]
     target Lecturer["courses"]
 }

@@ -39,7 +39,7 @@ Relationship:
 	'}';
 
 RelationEntity:
-	entity=[ModelElement] ('[' 
+	entity=[InheritableElement] ('[' 
 		(attributeName=STRING)?
 	']')?;
 	
@@ -68,7 +68,6 @@ enum AttributeType:
 	
 enum RelationshipType:
 	OneToOne = 'OneToOne' |
-	OneToMany = 'OneToMany' |
 	ManyToOne = 'ManyToOne' |
 	ManyToMany = 'ManyToMany'
 	;
@@ -86,7 +85,8 @@ InheritanceOption:
 ;
 	
 enum InheritanceStrategy:
-	SINGLE_TABLE = 'Inheritance.SingleTable' |
+	UNDEFINED = 'Inheritance.Undefined' |
 	JOINED_TABLE = 'Inheritance.JoinedTable' |
+	SINGLE_TABLE = 'Inheritance.SingleTable' |
 	TABLE_PER_CLASS = 'Inheritance.TablePerClass'
 ;
