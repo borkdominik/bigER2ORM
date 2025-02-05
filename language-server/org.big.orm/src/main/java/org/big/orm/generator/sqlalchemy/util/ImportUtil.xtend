@@ -24,12 +24,12 @@ import com.google.inject.Singleton
 import com.google.inject.Inject
 import org.big.orm.ormModel.Attribute
 import org.eclipse.emf.ecore.resource.Resource
+import org.big.orm.generator.common.CommonUtil
 
 @Singleton
 class ImportUtil {
 	
-	@Inject extension AttributeUtil attributeUtil;
-	@Inject extension InheritableUtil inheritableUtil;
+	@Inject extension CommonUtil commonUtil;
 	
 	def List<String> generateImports(Relationship r) {
 		val imports = new TreeSet<String>();
@@ -37,7 +37,7 @@ class ImportUtil {
 		val finalFromImports = new TreeSet<String>();
 		
 		addFromImport(importFroms, "base", "Base");
-		addFromImport(importFroms, "sqlalchemy", "ForeignKey");
+		addFromImport(importFroms, "sqlalchemy", "ForeignKeyConstraint");
 		
 		if (r.attributes.empty){
 			addFromImport(importFroms, "sqlalchemy", "Table");
@@ -68,10 +68,17 @@ class ImportUtil {
 			
 			// INHERITE TYPES FOR KEYS
 			
-			if (r.target.entity.allAttributes.filter(DataAttribute).filter[type == AttributeType.ID].head.datatype == DataType.UUID ||
-				r.source.entity.allAttributes.filter(DataAttribute).filter[type == AttributeType.ID].head.datatype == DataType.UUID) {
+			val List<DataAttribute> keyAttributes = new ArrayList<DataAttribute>();
+			keyAttributes.addAll(r.source.entity.keyAttributesAsDataAttributes)
+			keyAttributes.addAll(r.target.entity.keyAttributesAsDataAttributes)
+			
+			if (!keyAttributes.filter[datatype === DataType.UUID].empty) {
 				imports.add("import uuid");
 				addFromImport(importFroms, "sqlalchemy", "UUID");
+			}
+			
+			if (!keyAttributes.filter[datatype === DataType.STRING].empty) {
+				addFromImport(importFroms, "sqlalchemy", "String");
 			}
 		}
 		
@@ -140,6 +147,7 @@ class ImportUtil {
 				if (strategy === InheritanceStrategy.JOINED_TABLE && e.extends instanceof Entity) {
 					addFromImport(importFroms, "sqlalchemy", "ForeignKeyConstraint");
 					if (e !== e.rootElement) {
+						addFromImport(importFroms, "sqlalchemy.orm", "column_property")
 						var ArrayList<Attribute> joinedKeyAttributes = new ArrayList<Attribute>();
 						joinedKeyAttributes.add(e.keyAttribute)
 						addImportsForAttributes(joinedKeyAttributes, imports, importFroms)
@@ -162,10 +170,11 @@ class ImportUtil {
 			addFromImport(importFroms, "sqlalchemy.orm", "Mapped");
 			val xToOneSourceRelations = elementSourceRelations.filter[relation | (relation.type == RelationshipType.MANY_TO_ONE) || (relation.type == RelationshipType.ONE_TO_ONE)];
 			if (!xToOneSourceRelations.empty){
-				addFromImport(importFroms, "sqlalchemy", "ForeignKey");
+				addFromImport(importFroms, "sqlalchemy", "ForeignKeyConstraint");
 				addFromImport(importFroms, "sqlalchemy.orm", "mapped_column");
 				for (Relationship xToOneSourceRelation : xToOneSourceRelations){
-					if (xToOneSourceRelation.target.entity.allAttributes.filter(DataAttribute).filter[type == AttributeType.ID].head.datatype == DataType.UUID) {
+					var DataAttribute idAttribute = xToOneSourceRelation.target.entity.allAttributes.filter(DataAttribute).filter[type == AttributeType.ID].head
+					if (idAttribute !== null && idAttribute.datatype === DataType.UUID) {
 						imports.add("import uuid");
 						addFromImport(importFroms, "sqlalchemy", "UUID");
 					}
@@ -186,6 +195,10 @@ class ImportUtil {
 		for (Relationship r: elementTargetRelations.filter[relation | relation.type == RelationshipType.MANY_TO_MANY && relation.attributes.empty]) {
 			var String tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.name)
 			addFromImport(importFroms, "entity." + tableName + "_table", tableName);
+		}
+		
+		if (!elementSourceRelations.filter[relation | relation.type === RelationshipType.ONE_TO_ONE].empty) {
+			addFromImport(importFroms, "sqlalchemy", "UniqueConstraint")
 		}
 		
 		

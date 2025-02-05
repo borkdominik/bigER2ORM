@@ -1,6 +1,5 @@
 package org.big.orm.generator.sqlalchemy.util
 
-import org.eclipse.emf.ecore.resource.Resource
 import org.big.orm.ormModel.InheritableElement
 import org.big.orm.ormModel.MappedClass
 import org.big.orm.ormModel.InheritanceStrategy
@@ -13,21 +12,24 @@ import com.google.common.base.CaseFormat
 import com.google.inject.Singleton
 import com.google.inject.Inject
 import org.big.orm.ormModel.Attribute
+import org.big.orm.generator.common.CommonUtil
+import java.util.Map
+import java.util.HashMap
 
 @Singleton
 class InheritableUtil {
 	
-	Resource resource
-	
 	@Inject extension ImportUtil importUtil;
 	@Inject extension AttributeUtil attributeUtil;
 	@Inject extension RelationshipUtil relationshipUtil;
+	@Inject extension CommonUtil commonUtil;
+	Map<InheritableElement, List<CharSequence>> globalTableArgs = new HashMap<InheritableElement, List<CharSequence>>();
+	Map<InheritableElement, List<CharSequence>> globalMapperArgs = new HashMap<InheritableElement, List<CharSequence>>();
 	
-	
-	def setResource(Resource resource){
-		this.resource = resource
+	def reset(){
+		globalTableArgs.clear;
+		globalMapperArgs.clear;
 	}
-	
 	
 	def compile(InheritableElement e) 
 	'''
@@ -42,6 +44,9 @@ class InheritableUtil {
 		__tablename__ = '«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»'
 		
 		«ENDIF»
+		«IF (e instanceof Entity) && (e as Entity).inheritanceStrategy === InheritanceStrategy.SINGLE_TABLE && (e as Entity).rootElement !== e»
+		__tablename__ = «(e as Entity).rootElement.name».__tablename__
+		«ENDIF»
 		«IF (e instanceof Entity) && (e as Entity).inheritanceStrategy === InheritanceStrategy.TABLE_PER_CLASS»
 		«(e as Entity).compileTablePerClassInheritedAttributes»
 		«ENDIF»
@@ -49,11 +54,11 @@ class InheritableUtil {
 		«(e as Entity).compileJoinedTableInheritedAttributes»
 		«ENDIF»
 		«FOR a : e.attributes.filter(DataAttribute)»
-		«a.compileToSqlAlchemyAttribute»
+		«a.compileToSqlAlchemyAttribute(null)»
 		«ENDFOR»
 		«FOR a : e.attributes.filter(EmbeddedAttribute)»
 		
-		«a.compileToSqlAlchemyAttribute»
+		«a.compileToSqlAlchemyAttribute(null)»
 		«ENDFOR»
 		«IF (e instanceof Entity)»
 		«e.compileEntityBody»
@@ -64,6 +69,22 @@ class InheritableUtil {
 	'''
 	«e.compileRelationships»
 	«e.compileEntityInheritance»
+	«IF (!e.mapperArgs.empty)»
+	
+	__mapper_args__ = {
+		«FOR mapperArg : e.mapperArgs»
+		«mapperArg»,
+		«ENDFOR»
+	}
+	«ENDIF»
+	«IF (!e.tableArgs.empty)»
+	
+	__table_args__ = (
+		«FOR tableArg : e.tableArgs»
+		«tableArg»,
+		«ENDFOR»
+	)
+	«ENDIF»
 	'''
 	
 	def CharSequence compileEntityInheritance(Entity e) {
@@ -78,39 +99,27 @@ class InheritableUtil {
 			default: ''''''
 		}
 	}
-	
-	private def CharSequence compileSingleTableInheritance (Entity e) {		
-		if (e.rootElement === e && !resource.allContents.toIterable.filter(Entity).filter[elem | elem.extends === e].empty) {
+	//  && (e.eContainer as OrmModel).elements.filter(Entity).filter[elem | elem.extends === e].empty
+	private def CharSequence compileSingleTableInheritance (Entity e) {
+		if (e.rootElement === e) {
+			e.mapperArgs.add('''"polymorphic_identity": "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»"''')
+			e.mapperArgs.add('''"polymorphic_on": dtype''')
 			'''
 			dtype: Mapped[str] = mapped_column(String(31), nullable=False)
-			
-			__mapper_args__ = {
-				"polymorphic_identity": "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»",
-				"polymorphic_on": dtype,
-			}
 			'''
 		} else {
-			'''
-			
-			__mapper_args__ = {
-				"polymorphic_identity": "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»"
-			}
-			'''
+			e.mapperArgs.add('''"polymorphic_identity": "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»"''')
+			e.tableArgs.add('''{'extend_existing': True}''')
+			''''''
 		}
 	}
 	
 	private def CharSequence compileJoinedTableInheritedAttributes (Entity e) {
 		if (e.rootElement !== e) {
 			var Attribute keyAttribute = e.keyAttribute;
-			if (keyAttribute instanceof DataAttribute) {
-				'''
-				«keyAttribute.compileToSqlAlchemyAttribute»
-				'''
-			} else if (keyAttribute instanceof EmbeddedAttribute) {
-				'''
-				«keyAttribute.compileToSqlAlchemyAttribute»
-				'''
-			}
+			'''
+			«keyAttribute.compileToSqlAlchemyAttribute(e.rootElement)»
+			'''
 		} else {
 			''''''
 		}
@@ -120,30 +129,18 @@ class InheritableUtil {
 		if (e.rootElement !== e){
 			var List<String> lowUnderKeyAttributeNames = e.keyAttributesAsDataAttributes.map[attribute | CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)]
 			var String lowUnderEntityName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)
-			'''
-			__mapper_args__ = {
-				"polymorphic_identity": "«lowUnderEntityName»",
-				"inherit_condition": «String.join(" and ", lowUnderKeyAttributeNames.map[name | "(" + name + " == " + e.rootElement.name + "." + name + ")"])»
-			}
-			
-			__table_args__ = (
-				ForeignKeyConstraint([«String.join(", ", lowUnderKeyAttributeNames)»], [«String.join(", ", lowUnderKeyAttributeNames.map[name | e.rootElement.name + "." + name])»], name="fk_«lowUnderEntityName»_id"),
-			)
-			'''
+			e.mapperArgs.add('''"polymorphic_identity": "«lowUnderEntityName»"''')
+			e.mapperArgs.add('''"inherit_condition": «String.join(" and ", lowUnderKeyAttributeNames.map[name | "(" + name + " == " + e.rootElement.name + "." + name + ")"])»''')
+			e.tableArgs.add('''ForeignKeyConstraint([«String.join(", ", lowUnderKeyAttributeNames)»], [«String.join(", ", lowUnderKeyAttributeNames.map[name | e.rootElement.name + "." + name])»], name="fk_«lowUnderEntityName»_id")''')
+			''''''
 		} else {
 			''''''
 		}
 	}
 	
 	private def CharSequence compileTablePerClassInheritanceArgs (Entity e) {
-		if (e.extends !== null) {
-			'''
-
-			__mapper_args__ = {"polymorphic_identity": "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»"«(e.rootElement !== e) ? ", \"concrete\": True"»}
-			'''
-		} else {
-			''''''
-		}
+		e.mapperArgs.add('''"polymorphic_identity": "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»"«(e.rootElement !== e) ? ''', "concrete": True'''»''')
+		''''''
 	}
 	
 	private def CharSequence compileTablePerClassInheritedAttributes (Entity e) {
@@ -159,13 +156,6 @@ class InheritableUtil {
 		}
 	}
 	
-	def Entity getRootElement(Entity e) {
-		if (e.extends !== null && e.extends instanceof Entity) {
-			return (e.extends as Entity).rootElement
-		}
-		return e
-	}
-	
 	
 	private def List<CharSequence> combineInheritedAttributes(InheritableElement i)
 	{
@@ -177,11 +167,11 @@ class InheritableUtil {
 		}
 		
 		for (attribute : i.attributes.filter(DataAttribute)) {
-			attributes.add(attribute.compileToSqlAlchemyAttribute)
+			attributes.add(attribute.compileToSqlAlchemyAttribute(null))
 		}
 		
 		for (attribute : i.attributes.filter(EmbeddedAttribute)) {
-			attributes.add(attribute.compileToSqlAlchemyAttribute)
+			attributes.add(attribute.compileToSqlAlchemyAttribute(null))
 		}
 		return attributes
 	}
@@ -205,5 +195,17 @@ class InheritableUtil {
 		} else {
 			return ""
 		}
+	}
+	
+	def List<CharSequence> getTableArgs(InheritableElement i) {
+		var List<CharSequence> list = globalTableArgs.getOrDefault(i, new ArrayList<CharSequence>());
+		globalTableArgs.putIfAbsent(i, list);
+		return list
+	}
+	
+	def List<CharSequence> getMapperArgs(InheritableElement i) {
+		var List<CharSequence> list = globalMapperArgs.getOrDefault(i, new ArrayList<CharSequence>());
+		globalMapperArgs.putIfAbsent(i, list);
+		return list
 	}
 }

@@ -14,23 +14,24 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class StudentStudyProgram {
+public class StudentCardStudyProgram {
 
   @EmbeddedId
-  private StudentStudyProgramId id;
+  private StudentCardStudyProgramId id;
 
-  @MapsId("studentId")
+  @MapsId("studentCardId")
   @ManyToOne(optional = false)
   @JoinColumns(value = {
-    @JoinColumn(name = "student_id", referencedColumnName = "id"),
-  }, foreignKey = @ForeignKey(name = "fk_student_study_program_student"))
-  private Student student;
+    @JoinColumn(name = "student_card_card_nr", referencedColumnName = "card_nr"),
+    @JoinColumn(name = "student_card_card_version", referencedColumnName = "card_version"),
+  }, foreignKey = @ForeignKey(name = "fk_student_card_study_program_student_card"))
+  private StudentCard studentCard;
 
   @MapsId("studyProgramId")
   @ManyToOne(optional = false)
   @JoinColumns(value = {
     @JoinColumn(name = "study_program_id", referencedColumnName = "id"),
-  }, foreignKey = @ForeignKey(name = "fk_student_study_program_study_program"))
+  }, foreignKey = @ForeignKey(name = "fk_student_card_study_program_study_program"))
   private StudyProgram studyProgram;
 
   @Column(name = "finished")

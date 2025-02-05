@@ -1,5 +1,6 @@
 package entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.PrimaryKeyJoinColumns;
@@ -9,9 +10,10 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@PrimaryKeyJoinColumns(value = {}, foreignKey = @ForeignKey(name = "fk_student_card"))
+@PrimaryKeyJoinColumns(value = {}, foreignKey = @ForeignKey(name = "fk_graduate_student_card_id"))
 public class GraduateStudentCard extends StudentCard {
-	
-	private String graduationDate;
-	
+
+  @Column(name = "graduation_date")
+  private String graduationDate;
+
 }

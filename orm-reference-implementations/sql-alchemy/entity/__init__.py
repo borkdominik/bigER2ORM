@@ -7,6 +7,7 @@ from entity.person import Person
 from entity.recognized_certificate import RecognizedCertificate
 from entity.student import Student
 from entity.student_card import StudentCard
+from entity.student_card_study_program import StudentCardStudyProgram
 from entity.student_study_program import StudentStudyProgram
 from entity.study_program import StudyProgram
 
@@ -20,6 +21,7 @@ __all__ = [
     'RecognizedCertificate',
     'Student',
     'StudentCard',
+    'StudentCardStudyProgram',
     'StudentStudyProgram',
     'StudyProgram',
 ]

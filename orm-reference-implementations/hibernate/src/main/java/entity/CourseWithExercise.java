@@ -3,6 +3,7 @@ package entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CourseWithExercise extends Course {
+
   @ManyToOne
-  @JoinColumn(name = "tutor_id", foreignKey = @ForeignKey(name = "FK_TUTOR"))
+  @JoinColumns(value = {
+    @JoinColumn(name = "tutor_id", referencedColumnName = "id"),
+  }, foreignKey = @ForeignKey(name = "fk_course_with_exercise_tutor"))
   private Student tutor;
+
 }

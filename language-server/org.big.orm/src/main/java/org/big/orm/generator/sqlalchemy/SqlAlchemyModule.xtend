@@ -6,6 +6,8 @@ import org.big.orm.generator.sqlalchemy.util.EmbeddableUtil
 import org.big.orm.generator.sqlalchemy.util.ImportUtil
 import org.big.orm.generator.sqlalchemy.util.InheritableUtil
 import org.big.orm.generator.sqlalchemy.util.RelationshipUtil
+import org.big.orm.generator.sqlalchemy.util.InitUtil
+import org.big.orm.generator.common.CommonUtil
 
 class SqlAlchemyModule extends AbstractModule {
 	
@@ -15,5 +17,7 @@ class SqlAlchemyModule extends AbstractModule {
       bind(ImportUtil);
       bind(InheritableUtil);
       bind(RelationshipUtil);
+      bind(InitUtil);
+      bind(CommonUtil);
    } 
 }

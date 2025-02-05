@@ -7,26 +7,16 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import org.big.orm.ormModel.Entity
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
-import org.big.orm.ormModel.Embeddable
-import org.big.orm.ormModel.DataAttribute
-import org.big.orm.ormModel.EmbeddedAttribute
-import org.big.orm.ormModel.AttributeType
 import org.big.orm.ormModel.Relationship
-import org.big.orm.ormModel.DataType
-import java.util.TreeSet
 import org.big.orm.ormModel.ModelElement
 import org.big.orm.ormModel.RelationshipType
-import java.util.ArrayList
 import org.big.orm.ormModel.OrmModel
-import com.google.common.base.CaseFormat
-import org.big.orm.ormModel.MappedClass
-import org.big.orm.ormModel.InheritableElement
-import org.big.orm.ormModel.InheritanceOption
-import org.big.orm.ormModel.InheritanceStrategy
-import org.big.orm.ormModel.EntityOption
+import com.google.inject.Inject
+import org.big.orm.generator.hibernate.util.InheritableUtil
+import org.big.orm.generator.hibernate.util.RelationshipUtil
+import org.big.orm.generator.hibernate.util.InitUtil
 
 /**
  * Generates code from your model files on save.
@@ -36,7 +26,10 @@ import org.big.orm.ormModel.EntityOption
 class HibernateGenerator extends AbstractGenerator {
 	
 	extension IQualifiedNameProvider = new DefaultDeclarativeQualifiedNameProvider();
-
+	
+	@Inject extension InheritableUtil inheritableUtil;
+	@Inject extension RelationshipUtil relationshipUtil;
+	@Inject extension InitUtil initUtil;
 	
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
@@ -50,7 +43,7 @@ class HibernateGenerator extends AbstractGenerator {
         	System.err.println("Entity to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".java");
         	fsa.generateFile(
             	modelName + "/src/main/java/entity/" + e.name + ".java",
-            	e.compile);
+            	new StringBuilder(e.compile.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "  ")));
         }
         
         // Generate Files for Many-to-many with defined join object
@@ -58,10 +51,10 @@ class HibernateGenerator extends AbstractGenerator {
         	System.err.println("Relationship to generate additional files: " + r.name + " as " + r.fullyQualifiedName.toString("/") + ".java");
         	fsa.generateFile(
             	modelName + "/src/main/java/entity/" + r.name + ".java",
-            	r.compileJoinEntity);
+            	new StringBuilder(r.compileJoinEntity.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "  ")));
            	fsa.generateFile(
             	modelName + "/src/main/java/entity/" + r.name + "Id.java",
-            	r.compileJoinId);
+            	new StringBuilder(r.compileJoinId.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "  ")));
         }
         
         // Generate persistance file
@@ -72,328 +65,4 @@ class HibernateGenerator extends AbstractGenerator {
         );
         
 	}
-	
-	private def compile(ModelElement e) 
-	'''
-    package entity;
-    
-    «FOR i : e.generateImports»
-    import «i»;
-    «ENDFOR»
-    
-    «IF e instanceof Entity»
-    @Entity
-    «ENDIF»
-    «IF e instanceof Embeddable»
-    @Embeddable
-    «ENDIF»
-    «IF e instanceof MappedClass»
-    @MappedSuperclass
-    «ENDIF»
-    @Getter
-    @Setter
-    «IF e instanceof Entity»
-    «FOR entityOption: e.options»
-    «entityOption.compileEntityOption»
-    «ENDFOR»
-    «IF e.extends !== null && e.extends instanceof Entity && !(e.extends as Entity).options.filter(InheritanceOption).filter[option == InheritanceStrategy.JOINED_TABLE].empty»
-    @PrimaryKeyJoinColumns(value = {}, foreignKey = @ForeignKey(name = "fk_«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.extends.name)»"))
-    «ENDIF»
-    «ENDIF»
-    public «IF e instanceof MappedClass»abstract «ENDIF»class «e.name» «IF e instanceof InheritableElement && (e as InheritableElement).extends !== null »extends «(e as InheritableElement).extends.name» «ENDIF»«IF e instanceof Embeddable»implements Serializable «ENDIF»{
-    	
-    	«FOR a : e.attributes»
-    	«IF a instanceof DataAttribute»
-    	«a.compile»
-    	«ENDIF»
-    	«IF a instanceof EmbeddedAttribute»
-    	«a.compile»
-    	«ENDIF»
-    	«ENDFOR»
-    	«FOR r : (e.eContainer as OrmModel).relationships»
-    	«IF r.source.entity.name.equals(e.name)»
-    	«r.compileSource»
-    	
-    	«ENDIF»
-    	«IF r.target.entity.name.equals(e.name) && !r.unidirectional»
-    	«r.compileTarget»
-    	
-    	«ENDIF»
-    	«ENDFOR»
-    }
-	'''
-	
-	private def compileEntityOption(EntityOption entityOption)
-	'''
-	«IF entityOption instanceof InheritanceOption»
-	@Inheritance(strategy = «entityOption.option.compile»)
-	«ENDIF»
-	'''
-	
-	private def compileSource(Relationship r)
-	'''
-	«IF r.type.equals(RelationshipType.MANY_TO_ONE)»
-	@ManyToOne«IF r.sourceRequired»(optional = false)«ENDIF»
-	@JoinColumn(name = "«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.attributeName)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.attributeName)»"))
-	private «r.target.entity.name» «r.source.attributeName»;
-    «ELSEIF (r.type.equals(RelationshipType.MANY_TO_MANY) && r.attributes.empty)»
-	@ManyToMany
-	@JoinTable(
-		name = "«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.attributeName)»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.attributeName)»",
-		joinColumns = @JoinColumn(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.entity.name)»")),
-		inverseJoinColumns = @JoinColumn(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.target.entity.name)»")))
-	private List<«r.target.entity.name»> «r.source.attributeName»;
-    «ELSEIF (r.type.equals(RelationshipType.MANY_TO_MANY) && !r.attributes.empty)»
-	@OneToMany(mappedBy = "«r.source.entity.name.toFirstLower»")
-	private List<«r.name»> «r.source.attributeName»;
-    «ENDIF»
-	'''
-	
-	
-	private def compileTarget(Relationship r)
-	'''
-    «IF r.type.equals(RelationshipType.MANY_TO_ONE)»
-    @OneToMany(mappedBy = "«r.source.attributeName»")
-    private List<«r.source.entity.name»> «r.target.attributeName»;
-    «ELSEIF (r.type.equals(RelationshipType.MANY_TO_MANY) && r.attributes.empty)»
-    @ManyToMany(mappedBy = "«r.source.attributeName»")
-    private List<«r.source.entity.name»> «r.target.attributeName»;
-	«ELSEIF (r.type.equals(RelationshipType.MANY_TO_MANY) && !r.attributes.empty)»
-    @OneToMany(mappedBy = "«r.target.entity.name.toFirstLower»")
-    private List<«r.name»> «r.target.attributeName»;
-	«ENDIF»
-	'''
-	
-	private def compileJoinEntity(Relationship r)
-	'''
-	package entity;
-	
-	import jakarta.persistence.EmbeddedId;
-	import jakarta.persistence.Entity;
-	import jakarta.persistence.ForeignKey;
-	import jakarta.persistence.JoinColumn;
-	import jakarta.persistence.ManyToOne;
-	import jakarta.persistence.MapsId;
-	import lombok.Getter;
-	import lombok.Setter;
-	
-	@Entity
-	@Getter
-	@Setter
-	public class «r.name» {
-	
-		@EmbeddedId
-		private «r.name»Id id;
-	
-		@ManyToOne
-		@MapsId("«r.source.entity.name.toFirstLower»Id")
-		@JoinColumn(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.source.entity.name)»"))
-		private «r.source.entity.name» «r.source.entity.name.toFirstLower»;
-	
-		@ManyToOne
-		@MapsId("«r.target.entity.name.toFirstLower»Id")
-		@JoinColumn(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)»_id", foreignKey = @ForeignKey(name = "FK_«CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, r.target.entity.name)»"))
-		private «r.target.entity.name» «r.target.entity.name.toFirstLower»;
-	
-		«FOR a : r.attributes»
-		«IF a instanceof DataAttribute»
-		«a.compile»
-		«ENDIF»
-		«IF a instanceof EmbeddedAttribute»
-		«a.compile»
-		«ENDIF»
-		«ENDFOR»
-	}
-	'''
-	
-	private def compileJoinId(Relationship r)
-	'''
-	package entity;
-	
-	import jakarta.persistence.Column;
-	import jakarta.persistence.Embeddable;
-	import java.io.Serializable;
-	import java.util.UUID;
-	import lombok.Getter;
-	import lombok.Setter;
-	
-	@Embeddable
-	@Getter
-	@Setter
-	public class «r.name»Id implements Serializable {
-	
-		@Column(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name)»_id")
-		private UUID «r.source.entity.name.toFirstLower»Id;
-	
-		@Column(name = "«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)»_id")
-		private UUID «r.target.entity.name.toFirstLower»Id;
-	}
-	'''
-	
-	
-	private def compile(DataAttribute a)
-	'''
-	«IF a.type.equals(AttributeType.ID)»
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	«ENDIF»
-	«IF a.type.equals(AttributeType.REQUIRED)»
-	@Column(nullable = false)
-	«ENDIF»
-	private «a.datatype» «a.name»;
-	
-	'''
-	
-	private def compile(EmbeddedAttribute a)
-	'''
-	«IF a.type.equals(AttributeType.ID)»
-	@EmbeddedId
-	«ELSE»
-	@Embedded
-	«ENDIF»
-	private «a.embeddedType.name» «a.name»;
-	
-	'''
-	
-	private def compile(InheritanceStrategy strategy) {
-		switch strategy{
-			case InheritanceStrategy.JOINED_TABLE: "InheritanceType.JOINED"
-			case InheritanceStrategy.SINGLE_TABLE: "InheritanceType.SINGLE_TABLE"
-			case InheritanceStrategy.TABLE_PER_CLASS: "InheritanceType.TABLE_PER_CLASS"
-		}
-	}
-	
-	private def generateImports(ModelElement e) {
-		val imports = new TreeSet<String>();
-		
-		if(e instanceof Entity){	
-			imports.add("jakarta.persistence.Entity");
-			
-			// INHERITANCE
-			if (!e.options.filter(InheritanceOption).empty) {
-				imports.add("jakarta.persistence.Inheritance");	
-				imports.add("jakarta.persistence.InheritanceType")
-			}
-			
-			// INHERITANCE ON JOINED STRATEGY
-			if (e.extends !== null && e.extends instanceof Entity) {
-				if (!(e.extends as Entity).options.filter(InheritanceOption).filter[option == InheritanceStrategy.JOINED_TABLE].empty) {
-					imports.add("jakarta.persistence.ForeignKey");
-					imports.add("jakarta.persistence.PrimaryKeyJoinColumns")
-				}
-			}
-			
-		} else if (e instanceof Embeddable) {
-			imports.add("jakarta.persistence.Embeddable");
-			imports.add("java.io.Serializable");
-		} else if (e instanceof MappedClass) {
-			imports.add("jakarta.persistence.MappedSuperclass");
-		}
-		
-		imports.add("lombok.Getter");
-		imports.add("lombok.Setter");
-		
-		if(!e.attributes.filter(DataAttribute).filter[datatype.equals(DataType.UUID)].empty){
-			imports.add("java.util.UUID");
-		}
-		
-		if(!e.attributes.filter(DataAttribute).filter[type.equals(AttributeType.ID)].empty){
-			imports.add("jakarta.persistence.Id");
-			imports.add("jakarta.persistence.GenerationType");
-			imports.add("jakarta.persistence.GeneratedValue");
-		}
-		
-		if(!e.attributes.filter(DataAttribute).filter[type.equals(AttributeType.REQUIRED)].empty){
-			imports.add("jakarta.persistence.Column");
-		}
-		
-		if(!e.attributes.filter(EmbeddedAttribute).filter[type.equals(AttributeType.ID)].empty){
-			imports.add("jakarta.persistence.EmbeddedId");
-		}
-		
-		if(!e.attributes.filter(EmbeddedAttribute).filter[!type.equals(AttributeType.ID)].empty){
-			imports.add("jakarta.persistence.Embedded");
-		}
-		
-		
-		
-		// PREPARE RELATIONS
-		
-		
-		val elementSourceRelations = new ArrayList<Relationship>();
-		val elementTargetRelations = new ArrayList<Relationship>();
-		
-		for(r : (e.eContainer as OrmModel).relationships){
-			if (r.source.entity.name.equals(e.name)) {
-				elementSourceRelations.add(r)
-			}
-			if (r.target.entity.name.equals(e.name) && !r.unidirectional){
-				elementTargetRelations.add(r)
-			}
-		}
-		
-		//SOURCE
-		
-		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_ONE)].empty){
-			imports.add("jakarta.persistence.ManyToOne");
-			imports.add("jakarta.persistence.JoinColumn");
-			imports.add("jakarta.persistence.ForeignKey");
-		}
-		
-		//MANY-TO-MANY directly defined
-		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[attributes.empty].empty){
-			imports.add("jakarta.persistence.ManyToMany");
-			imports.add("jakarta.persistence.JoinTable");
-			imports.add("jakarta.persistence.JoinColumn");
-			imports.add("jakarta.persistence.ForeignKey");
-			imports.add("java.util.List");
-		}
-		
-		//MANY-TO-MANY using join entity
-		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[!attributes.empty].empty){
-			imports.add("jakarta.persistence.OneToMany");
-			imports.add("java.util.List");
-		}
-		
-		//TARGET
-		
-		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_ONE)].empty){
-			imports.add("jakarta.persistence.OneToMany");		
-			imports.add("java.util.List");
-		}
-		
-		//MANY-TO-MANY directly defined
-		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[attributes.empty].empty){
-			imports.add("jakarta.persistence.ManyToMany");		
-			imports.add("java.util.List");
-		}
-		//MANY-TO-MANY using join entity
-		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[!attributes.empty].empty){
-			imports.add("jakarta.persistence.OneToMany");
-			imports.add("java.util.List");
-		}
-		
-		return imports;
-		}
-		
-		// TODO: Allow for db connection infos in code generation
-		private def compilePersistenceFile()
-		'''
-		<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-		<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
-		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		  xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/orm/orm_3_1.xsd"
-		  version="3.1">
-		  <persistence-unit name="default">
-		    <properties>
-		      <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-		      <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/java"/>
-		      <property name="jakarta.persistence.jdbc.user" value="postgres"/>
-		      <property name="jakarta.persistence.jdbc.password" value="postgres"/>
-		      <property name="hibernate.hbm2ddl.auto" value="create"/>
-		      <property name="hibernate.physical_naming_strategy" value="org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy"/>
-		    </properties>
-		  </persistence-unit>
-		</persistence>
-		'''
 }

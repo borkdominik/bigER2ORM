@@ -37,8 +37,8 @@ class SqlAlchemyGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("SqlAlchemy generator called!");
-		this.inheritableUtil.resource = resource
-		this.relationshipUtil.resource = resource
+		
+		inheritableUtil.reset;
 		
 		var modelName = resource.allContents.toIterable.filter(OrmModel).head.name;
 		

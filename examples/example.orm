@@ -75,16 +75,27 @@ ManyToMany relationship CoursesLecturers {
 
 ManyToMany relationship StudentStudyProgram {
     source Student["studies"]
-    target StudyProgram["students"]
+    target StudyProgram["students"] 
     finished Boolean
 }
 
-ManyToOne relationship unidirectional CourseWithExercise_Student {
+ManyToOne relationship unidirectional CourseWithExerciseStudent {
     source CourseWithExercise["tutor"]
     target Student
 }
 
-ManyToOne relationship unidirectional RecognizedCertificate_OriginalCertificate {
+ManyToOne relationship unidirectional RecognizedCertificateOriginalCertificate {
     source RecognizedCertificate["originalCertificate"] required
     target Certificate
+}
+
+OneToOne relationship StudentStudentCard {
+    source Student["studentCard"]
+    target StudentCard["student"] 
+}
+
+ManyToMany relationship StudentCardStudyProgram {
+    source StudentCard["studyPrograms"]
+    target StudyProgram["studentCards"]
+    finished Boolean 
 }

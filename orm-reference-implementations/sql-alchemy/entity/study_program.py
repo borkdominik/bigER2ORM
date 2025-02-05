@@ -7,3 +7,4 @@ class StudyProgram(Base, NamedElement):
     __tablename__ = 'study_program'
 
     students: Mapped[list["StudentStudyProgram"]] = relationship(back_populates="study_program")
+    student_cards: Mapped[list["StudentCardStudyProgram"]] = relationship(back_populates="study_program")

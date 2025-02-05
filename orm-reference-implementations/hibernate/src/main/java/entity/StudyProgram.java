@@ -13,4 +13,8 @@ public class StudyProgram extends NamedElement {
 
   @OneToMany(mappedBy = "studyProgram")
   private List<StudentStudyProgram> students;
+
+  @OneToMany(mappedBy = "studyProgram")
+  private List<StudentCardStudyProgram> studentCards;
+
 }

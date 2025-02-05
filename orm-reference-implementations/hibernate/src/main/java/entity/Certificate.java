@@ -1,5 +1,6 @@
 package entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
@@ -8,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import java.util.UUID;
 import lombok.Getter;
@@ -21,16 +23,22 @@ public class Certificate {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(name = "id")
   private UUID id;
 
+  @Column(name = "grade")
   private Integer grade;
-  
+
   @ManyToOne
-  @JoinColumn(name = "student_id", foreignKey = @ForeignKey(name = "FK_STUDENT"))
+  @JoinColumns(value = {
+    @JoinColumn(name = "student_id", referencedColumnName = "id"),
+  }, foreignKey = @ForeignKey(name = "fk_certificate_student"))
   private Student student;
 
   @ManyToOne
-  @JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "FK_COURSE"))
+  @JoinColumns(value = {
+    @JoinColumn(name = "course_id", referencedColumnName = "id"),
+  }, foreignKey = @ForeignKey(name = "fk_certificate_course"))
   private Course course;
 
 }

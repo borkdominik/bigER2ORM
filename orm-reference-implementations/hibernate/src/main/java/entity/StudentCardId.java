@@ -1,5 +1,6 @@
 package entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import lombok.Getter;
@@ -10,8 +11,10 @@ import lombok.Setter;
 @Setter
 public class StudentCardId implements Serializable {
 
-	private String cardNr;
+  @Column(name = "card_nr")
+  private String cardNr;
 
-	private String cardVersion;
-	
+  @Column(name = "card_version")
+  private String cardVersion;
+
 }

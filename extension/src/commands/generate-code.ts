@@ -23,6 +23,11 @@ export default async function generateCode() {
         return;
     }
 
+    if (language === undefined) {
+        debugLogChannel.appendLine("No language selected by user. Aborting.");
+        return;
+    }
+
     if (!activeEditor || !activeEditor.document || activeEditor.document.languageId !== 'bigorm') {
         debugLogChannel.appendLine("Can't execute command");
         return;

@@ -10,6 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Lecturer extends Person {
+
   @ManyToMany(mappedBy = "lecturers")
   private List<Course> courses;
+
 }

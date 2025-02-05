@@ -13,9 +13,13 @@ class Person(ConcreteBase, Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4())
     name: Mapped[str] = mapped_column(String(255), nullable=True)
 
-    address: Mapped[Address] = composite(mapped_column("street", String(255), nullable=True),
+    address: Mapped[Address] = composite(
+            mapped_column("street", String(255), nullable=True),
             mapped_column("city", String(255), nullable=True),
             mapped_column("post_code", Integer, nullable=True),
-            mapped_column("country", String(255), nullable=True))
+            mapped_column("country", String(255), nullable=True)
+    )
 
-    __mapper_args__ = {"polymorphic_identity": "person"}
+    __mapper_args__ = {
+        "polymorphic_identity": "person",
+    }

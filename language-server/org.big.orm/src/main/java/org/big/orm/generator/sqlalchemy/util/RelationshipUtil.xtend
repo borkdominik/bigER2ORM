@@ -5,29 +5,34 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import java.util.ArrayList
 import java.util.List
-import java.util.Map
 import org.big.orm.ormModel.DataAttribute
 import org.big.orm.ormModel.EmbeddedAttribute
 import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.OrmModelFactory
 import org.big.orm.ormModel.Relationship
 import org.big.orm.ormModel.RelationshipType
-import org.eclipse.emf.ecore.resource.Resource
-import org.big.orm.ormModel.RelationEntity
+import org.big.orm.ormModel.OrmModel
+import org.big.orm.generator.common.CommonUtil
 
 @Singleton
 class RelationshipUtil {
 	
-		
-	Resource resource
-	
 	@Inject extension ImportUtil importUtil;
 	@Inject extension AttributeUtil attributeUtil;
-	
-	def setResource(Resource resource){
-		this.resource = resource
-	}
+	@Inject extension CommonUtil commonUtil;
+	@Inject extension InheritableUtil inheritableUtil;
 		
+		
+	def CharSequence compileRelationships(Entity e)
+	'''
+	«FOR r : (e.eContainer as OrmModel).relationships.filter[source.entity === e]»
+	«compileRelationshipForSource(r)»
+	«ENDFOR»
+	«FOR r : (e.eContainer as OrmModel).relationships.filter[target.entity === e && !unidirectional]»
+	«compileRelationshipForTarget(r)»
+	«ENDFOR»
+	'''
+	
 	
 	def CharSequence compileAdditionTablesForManyToMany(Relationship r)
 	'''
@@ -43,21 +48,30 @@ class RelationshipUtil {
 	«ENDIF»
 	'''
 	
+	
 	private def CharSequence compileManyToManyTableWithoutAttributes(Relationship r) {
 	var String tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.name)
 	
-	var String lowUnderSourceTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name)
-	var String lowUnderTargetTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)
+	val String lowUnderSourceTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name)
+	val String lowUnderTargetTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)
+	val String lowUnderSourceAttributeName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.attributeName)
+	val String lowUnderTargetAttributeName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.attributeName)
 	
-	var String lowUnderSourceIdName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.keyAttributesAsDataAttributes.head.name)
-	var String lowUnderTargetIdName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.keyAttributesAsDataAttributes.head.name)
+	var List<String> lowUnderSourceIdNames = r.source.entity.keyAttributesAsDataAttributes.map[attribute | CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)]
+	var List<String> lowUnderTargetIdNames = r.target.entity.keyAttributesAsDataAttributes.map[attribute | CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)]
 	
 	'''
 	«tableName» = Table(
 		"«tableName»",
 		Base.metadata,
-		Column("«lowUnderSourceTableName»_«lowUnderSourceIdName»", ForeignKey("«lowUnderSourceTableName».«lowUnderSourceIdName»", name="fk_«tableName»_«lowUnderSourceTableName»_«lowUnderSourceIdName»"), nullable=False),
-		Column("«lowUnderTargetTableName»_«lowUnderTargetIdName»", ForeignKey("«lowUnderTargetTableName».«lowUnderTargetIdName»", name="fk_«tableName»_«lowUnderTargetTableName»_«lowUnderTargetIdName»"), nullable=False)
+		«FOR attributeName : lowUnderSourceIdNames»
+		Column("«lowUnderSourceTableName»_«attributeName»", nullable=False),
+		«ENDFOR»
+		«FOR attributeName : lowUnderTargetIdNames»
+		Column("«lowUnderTargetTableName»_«attributeName»", nullable=False),
+		«ENDFOR»
+		ForeignKeyConstraint([«String.join(", ", lowUnderSourceIdNames.map[attributeName | '''"«lowUnderSourceTableName»_«attributeName»"'''])»], [«String.join(", ", lowUnderSourceIdNames.map[attributeName | '''"«lowUnderSourceTableName».«attributeName»"'''])»], name="fk_«tableName»_«lowUnderSourceAttributeName»"),
+		ForeignKeyConstraint([«String.join(", ", lowUnderTargetIdNames.map[attributeName | '''"«lowUnderTargetTableName»_«attributeName»"'''])»], [«String.join(", ", lowUnderTargetIdNames.map[attributeName | '''"«lowUnderTargetTableName».«attributeName»"'''])»], name="fk_«tableName»_«lowUnderTargetAttributeName»")
 	)
 	'''
 	}
@@ -70,59 +84,50 @@ class RelationshipUtil {
 	var Relationship targetRelationship = createJoinRelationship(joinEntity, r.target)
 	
 	var List<String> keyAttributes = new ArrayList<String>();
-	val String lowUnderSourceAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name);
-	val String lowUnderTargetAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name);
-	keyAttributes.addAll(r.source.entity.keyAttributesAsDataAttributes.map[keyAttribute | "\"" + lowUnderSourceAttributeName + "_" + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name) + "\""])
-	keyAttributes.addAll(r.target.entity.keyAttributesAsDataAttributes.map[keyAttribute | "\"" + lowUnderTargetAttributeName + "_" + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name) + "\""])
+	val String lowUnderSourceAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, sourceRelationship.source.attributeName);
+	val String lowUnderTargetAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, targetRelationship.source.attributeName);
+	
+	// NOTE: To match ordering of Hibernate, need to sort based on keyAttribute name
+	val List<String> dataKeys = new ArrayList<String>()
+	val List<String> embeddedKeys = new ArrayList<String>()
+	
+	val List<DataAttribute> sourceKeys = r.source.entity.keyAttributesAsDataAttributes;
+	val List<DataAttribute> targetKeys = r.target.entity.keyAttributesAsDataAttributes;
+	
+	(sourceKeys.length > 1 ? embeddedKeys : dataKeys).addAll(sourceKeys.map[keyAttribute | '''"«lowUnderSourceAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»"''']);
+	(targetKeys.length > 1 ? embeddedKeys : dataKeys).addAll(targetKeys.map[keyAttribute | '''"«lowUnderTargetAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»"''']);
+	
+	keyAttributes.addAll(dataKeys.sort)
+	keyAttributes.addAll(embeddedKeys.sort)
+	
+	joinEntity.tableArgs.add('''PrimaryKeyConstraint(«String.join(", ", keyAttributes)»)''')
 	
 	'''
 	class «r.name»(Base):
 		__tablename__ = "«tableName»"
-		«compileManyToOneForSource(sourceRelationship)»
-		«compileManyToOneForSource(targetRelationship)»
+		«compileXToOneForSource(sourceRelationship)»
+		«compileXToOneForSource(targetRelationship)»
 		
 		«FOR a : r.attributes.filter(DataAttribute)»
-		«a.compileToSqlAlchemyAttribute»
+		«a.compileToSqlAlchemyAttribute(null)»
 		«ENDFOR»
 		«FOR a : r.attributes.filter(EmbeddedAttribute)»
-		«a.compileToSqlAlchemyAttribute»
+		«a.compileToSqlAlchemyAttribute(null)»
 		«ENDFOR»
 		
 		__table_args__ = (
-			PrimaryKeyConstraint(«String.join(", ", keyAttributes)»),
+			«FOR tableArg : joinEntity.tableArgs»
+			«tableArg»,
+			«ENDFOR»
 		)
-		'''
-	}
-	
-	private def Relationship createJoinRelationship(Entity joinEntity, RelationEntity relationEntity) {
-		var Relationship relationship = OrmModelFactory.eINSTANCE.createRelationship()
-		relationship.source = OrmModelFactory.eINSTANCE.createRelationEntity()
-		relationship.target = OrmModelFactory.eINSTANCE.createRelationEntity()
-		relationship.sourceRequired = true
-		relationship.source.entity = joinEntity
-		relationship.source.attributeName = relationEntity.entity.name
-		relationship.target.entity = relationEntity.entity
-		relationship.target.attributeName = relationEntity.attributeName
-		relationship.unidirectional = false
-		return relationship
-	}
-		
-	
-	def CharSequence compileRelationships(Entity e)
 	'''
-	«FOR r : resource.allContents.toIterable.filter(Relationship).filter[source.entity === e]»
-	«compileRelationshipForSource(r)»
-	«ENDFOR»
-	«FOR r : resource.allContents.toIterable.filter(Relationship).filter[target.entity === e && !unidirectional]»
-	«compileRelationshipForTarget(r)»
-	«ENDFOR»
-	'''
+	}
 	
 	private def CharSequence compileRelationshipForSource(Relationship r){
 		switch r.type {
 			case RelationshipType.MANY_TO_MANY: r.attributes.empty ? compileManyToManyForSourceWithJoinTable(r) : compileManyToManyForSourceWithJoinEntity(r)
-			case RelationshipType.MANY_TO_ONE: compileManyToOneForSource(r)
-			case RelationshipType.ONE_TO_ONE: compileOneToOneForSource(r)
+			case RelationshipType.MANY_TO_ONE: compileXToOneForSource(r)
+			case RelationshipType.ONE_TO_ONE: compileXToOneForSource(r)
 			default: ''''''
 		}
 	}
@@ -145,42 +150,32 @@ class RelationshipUtil {
 	'''
 	}
 	
-	private def CharSequence compileManyToOneForSource(Relationship r) {
+	private def CharSequence compileXToOneForSource(Relationship r) {
 	val String lowUnderSourceTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name);
 	val String lowUnderSourceAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.attributeName);
 	var String lowUnderTargetAttributeName = ""
 	if (!r.unidirectional) {
 		lowUnderTargetAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.attributeName);	
 	}
-	var List<Map.Entry<DataAttribute, String>> keyAttributesWithFK = new ArrayList<Map.Entry<DataAttribute, String>>()
-	for (keyAttribute : r.target.entity.getKeyAttributesAsDataAttributes()){
-		keyAttributesWithFK.add(
-			Map.entry(
-				keyAttribute, 
-				"\"fk_" + lowUnderSourceTableName + "_" + lowUnderSourceAttributeName + "_" + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name) + "\""
-			)
-		)
+	val String lowUnderTargetTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name);
+	var List<DataAttribute> keyAttributes = r.target.entity.keyAttributesAsDataAttributes
+	var String sourceIdAttributes = String.join(", ", keyAttributes.map[keyAttribute | '''«lowUnderSourceAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»'''])
+	var String targetIdAttributes = String.join(", ", keyAttributes.map[keyAttribute | '''"«lowUnderTargetTableName».«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»"'''])
+	r.source.entity.tableArgs.add('''ForeignKeyConstraint([«sourceIdAttributes»], [«targetIdAttributes»], name="fk_«lowUnderSourceTableName»_«lowUnderSourceAttributeName»")''')
+	
+	if (r.type === RelationshipType.ONE_TO_ONE) {
+		val String attributeNames = String.join(", ", keyAttributes.map[keyAttribute | '''«lowUnderTargetTableName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»'''])
+		val String uniqueConstraintName = '''«lowUnderSourceTableName»_«String.join("_", keyAttributes.map[keyAttribute | '''«lowUnderTargetTableName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»'''])»_key'''
+		r.source.entity.tableArgs.add('''UniqueConstraint(«attributeNames», name="«uniqueConstraintName»")''')
 	}
-	
-	var String targetTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)
-	val String foreignKeysListJoined = String.join(", ", keyAttributesWithFK.map[attributeEntry | lowUnderSourceAttributeName + "_" + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attributeEntry.key.name)].toList)
-	
 	'''
 	
-	«FOR keyAttributeWithFK : keyAttributesWithFK»
-	«lowUnderSourceAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttributeWithFK.key.name)»: Mapped[«keyAttributeWithFK.key.typeString»] = mapped_column(UUID(as_uuid=True),
-	                                         ForeignKey("«targetTableName».«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttributeWithFK.key.name)»", name=«keyAttributeWithFK.value»)«IF r.sourceRequired»)«ELSE»,
-	                                         nullable=True)«ENDIF»
+	«FOR keyAttribute : keyAttributes»
+	«lowUnderSourceAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»: Mapped[«keyAttribute.typeString»] = mapped_column(«keyAttribute.mappedTypeString»«IF r.sourceRequired»)«ELSE», nullable=True)«ENDIF»
 	«ENDFOR»
-	«lowUnderSourceAttributeName»: Mapped["«r.target.entity.name»"] = relationship(foreign_keys=[«foreignKeysListJoined»]«IF !r.unidirectional», back_populates="«lowUnderTargetAttributeName»"«ENDIF»)
+	«lowUnderSourceAttributeName»: Mapped["«r.target.entity.name»"] = relationship(foreign_keys=[«sourceIdAttributes»]«IF !r.unidirectional», back_populates="«lowUnderTargetAttributeName»"«ENDIF»)
 	'''	
 	}
-	
-	
-	private def CharSequence compileOneToOneForSource(Relationship r)
-	'''
-	# One to X for source is not implemented yet
-	'''
 	
 	private def CharSequence compileRelationshipForTarget(Relationship r){
 		switch r.type {

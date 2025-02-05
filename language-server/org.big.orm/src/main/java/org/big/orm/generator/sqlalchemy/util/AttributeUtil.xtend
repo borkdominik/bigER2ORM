@@ -3,40 +3,75 @@ package org.big.orm.generator.sqlalchemy.util
 import org.big.orm.ormModel.DataAttribute
 import org.big.orm.ormModel.Attribute
 import org.big.orm.ormModel.EmbeddedAttribute
-import java.util.List
-import org.big.orm.ormModel.InheritableElement
-import java.util.ArrayList
 import com.google.common.base.CaseFormat
 import org.big.orm.ormModel.AttributeType
-import org.big.orm.ormModel.Embeddable
 import com.google.inject.Singleton
+import java.util.ArrayList
+import java.util.List
+import org.big.orm.ormModel.DataType
+import org.big.orm.ormModel.Entity
 
 @Singleton
 class AttributeUtil {
 	
-	def compileToSqlAlchemyAttribute(DataAttribute a)
-	'''
-	«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»: Mapped[«a.typeString»] = mapped_column(«a.mappedTypeString»«a.additionalAttributeTypeProperties»)
-	'''
+	def compileToSqlAlchemyAttribute(Attribute a, Entity columnPropertyForEntity){
+		if (a instanceof DataAttribute) {
+			a.compileToSqlAlchemyAttribute(columnPropertyForEntity)
+		} else if (a instanceof EmbeddedAttribute) {
+			a.compileToSqlAlchemyAttribute(columnPropertyForEntity)
+		}
+	}
 	
-	def compileToSqlAlchemyAttribute(EmbeddedAttribute a)
+	private def compileToSqlAlchemyAttribute(DataAttribute a, Entity columnPropertyForEntity)
 	'''
-	«IF a.type === AttributeType.ID»
-	«FOR attribute : a.embeddedType.attributes»
-	«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)»: Mapped[«(attribute as DataAttribute).typeString»] = «(attribute as DataAttribute).embeddedDataAttributeToMappedColumn(true)»
-	«ENDFOR»
-	«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»: Mapped[«a.embeddedType.name»] = composite(«String.join(", ", a.embeddedType.attributes.filter(DataAttribute).map[value | "\"" + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, value.name) + "\""])»)
-	«ELSE»
-	«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»: Mapped[«a.embeddedType.name»] = composite(«a.embeddedType.compileCombinedCompositeColumns»)
-	«ENDIF»
+	«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»: Mapped[«a.typeString»] = «a.dataAttributeToMappedColumn(columnPropertyForEntity, a.type===AttributeType.ID, false, (a.type===AttributeType.ID && a.datatype===DataType.UUID), a.type===AttributeType.NONE)»
 	'''
 	
-	private def compileCombinedCompositeColumns(Embeddable e)
-	'''«e.attributes.filter(DataAttribute).map[value | value.embeddedDataAttributeToMappedColumn(false)].join(",\n		")»'''
+	def compileToSqlAlchemyAttribute(EmbeddedAttribute a, Entity columnPropertyForEntity){
+		if(a.type === AttributeType.ID){
+			'''
+			«FOR attribute : a.embeddedType.attributes»
+			«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)»: Mapped[«(attribute as DataAttribute).typeString»] = «(attribute as DataAttribute).dataAttributeToMappedColumn(columnPropertyForEntity, true, true, false, false)»
+			«ENDFOR»
+			«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»: Mapped[«a.embeddedType.name»] = composite(«String.join(", ", a.embeddedType.attributes.filter(DataAttribute).map[value | '''"«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, value.name)»"'''])»)
+			'''
+		} else {
+			'''
+			«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»: Mapped[«a.embeddedType.name»] = composite(
+					«FOR attribute : a.embeddedType.attributes.filter(DataAttribute) SEPARATOR ","»
+					«attribute.dataAttributeToMappedColumn(null, false, true, false, a.type===AttributeType.NONE)»
+					«ENDFOR»
+			)
+			'''
+		}
+	}
+
+
+	private def dataAttributeToMappedColumn(DataAttribute a, Entity columnPropertyForEntity, Boolean id, Boolean compileName, Boolean autoGenerateID, Boolean nullable){
+		if (columnPropertyForEntity !== null) {
+			'''column_property(mapped_column(«a.compileDataAttributeMappedColumnProperties(id, compileName, autoGenerateID, nullable)»), «columnPropertyForEntity.name».«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»)'''
+		} else {
+			'''mapped_column(«a.compileDataAttributeMappedColumnProperties(id, compileName, autoGenerateID, nullable)»)'''
+		}
+	}
 	
-	
-	private def embeddedDataAttributeToMappedColumn(DataAttribute a, Boolean id)
-	'''mapped_column("«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»", «a.mappedTypeString»«IF id», primary_key=True«ELSE», nullable=True«ENDIF»)'''
+	private def compileDataAttributeMappedColumnProperties(DataAttribute a, Boolean id, Boolean compileName, Boolean autoGenerateID, Boolean nullable){
+		var List<CharSequence> properties = new ArrayList<CharSequence>();
+		if (compileName){
+			properties.add('''"«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»"''')
+		}
+		properties.add(a.mappedTypeString)
+		if (id){
+			properties.add('''primary_key=True''')
+		}
+		if(autoGenerateID){
+			properties.add('''default=uuid.uuid4()''')
+		}
+		if(nullable){
+			properties.add('''nullable=True''')
+		}
+		'''«FOR property : properties SEPARATOR ", "»«property»«ENDFOR»'''	
+	}
 	
 		
 	def compileToDataclassAttribute(Attribute a)
@@ -54,14 +89,6 @@ class AttributeUtil {
 			}
 	}
 	
-	def String getAdditionalAttributeTypeProperties(DataAttribute a){
-		return switch (a.type){
-				case NONE: ", nullable=True"
-				case ID: ", primary_key=True, default=uuid.uuid4()"
-				case REQUIRED: ""
-			}
-	}
-	
 	def String getTypeString(Attribute a){
 		if (a instanceof EmbeddedAttribute){
 			return a.embeddedType.name
@@ -73,36 +100,5 @@ class AttributeUtil {
 				case UUID: "uuid.UUID"
 			}
 		}
-	}
-	
-	def List<DataAttribute> getKeyAttributesAsDataAttributes(InheritableElement i){
-		var Attribute keyAttribute = i.keyAttribute
-		if (keyAttribute instanceof EmbeddedAttribute){
-			return keyAttribute.embeddedType.attributes.filter(DataAttribute).toList
-		} else {
-			var ArrayList<DataAttribute> dataAttributeList = new ArrayList<DataAttribute>();
-			dataAttributeList.add((keyAttribute as DataAttribute))
-			return dataAttributeList
-		}
-	}
-	
-	
-	def Attribute getKeyAttribute(InheritableElement i){
-		var List<Attribute> keyAttributes = i.allAttributes.filter[type === AttributeType.ID].toList
-		if (keyAttributes.length != 1) {
-			throw new Exception("There should always only be one ID for each inheritable.")
-		}
-		return keyAttributes.head
-	}
-	
-	
-		
-	def List<Attribute> getAllAttributes(InheritableElement i) {
-		val attributes = new ArrayList<Attribute>()
-		attributes.addAll(i.attributes)
-		if (i.extends !== null) {
-			attributes.addAll(i.extends.allAttributes)
-		}
-		return attributes
 	}
 }

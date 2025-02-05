@@ -37,6 +37,13 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 	}
 	
 	@Check
+	public void checkRelationshipNameOnlyContainsCharacters(Relationship relationship) {
+		if (!relationship.getName().matches("[a-zA-Z]+")) {
+			warning("Relationship names shall only contain letters (A-Z, a-z)", OrmModelPackage.Literals.RELATIONSHIP__NAME, "invalidRelationship");
+		}
+	}
+	
+	@Check
 	public void checkRelationshipRequiredOnlyOnManyToOne(Relationship relationship) {
 		if (relationship.isSourceRequired() && relationship.getType() != RelationshipType.MANY_TO_ONE) {
 			warning("Required relationships only work for ManyToOne currently", OrmModelPackage.Literals.RELATIONSHIP__NAME, "invalidRelationship");
