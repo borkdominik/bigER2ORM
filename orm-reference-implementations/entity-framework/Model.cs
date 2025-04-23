@@ -1,14 +1,18 @@
-using csharp_example.entity;
+using university.entity;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-public class SchoolContext : DbContext
+public class UniversityContext : DbContext
 {
-    public DbSet<Student> Student { get; set; }
-    public DbSet<Course> Course { get; set; }
     public DbSet<Certificate> Certificate { get; set; }
-    public DbSet<RecognizedCertificate> RecognizedCertificate { get; set; }
+    public DbSet<Course> Course { get; set; }
+    public DbSet<CourseWithExercise> CourseWithExercise { get; set; }
+    public DbSet<GraduateStudentCard> GraduateStudentCard { get; set; }
     public DbSet<Lecturer> Lecturer { get; set; }
+    public DbSet<Person> Person { get; set; }
+    public DbSet<RecognizedCertificate> RecognizedCertificate { get; set; }
+    public DbSet<Student> Student { get; set; }
+    public DbSet<StudentCard> StudentCard { get; set; }
     public DbSet<StudyProgram> StudyProgram { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -16,94 +20,136 @@ public class SchoolContext : DbContext
             .UseNpgsql("Host=localhost;Database=csharp;Username=postgres;Password=postgres")
             .UseSnakeCaseNamingConvention();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Conventions.Remove(typeof(ForeignKeyIndexConvention));
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Student>()
-            .HasKey(s => s.Id)
-            .HasName("student_pkey");
 
-        modelBuilder.Entity<Course>()
-            .HasKey(s => s.Id)
-            .HasName("course_pkey");
+        // INHERTIANCE
 
-        // TODO: PKEY cant be set due to bug, EF does not support this on Tpt
+        // Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
+        modelBuilder.Entity<StudentCard>().UseTptMappingStrategy();
+
+        modelBuilder.Entity<GraduateStudentCard>()
+            .HasOne<StudentCard>()
+            .WithOne()
+            .HasForeignKey<GraduateStudentCard>(e => new { e.CardNr, e.CardVersion })
+            .HasPrincipalKey<StudentCard>(e => new { e.CardNr, e.CardVersion })
+            .HasConstraintName("fk_graduate_student_card_id")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
         modelBuilder.Entity<Certificate>().UseTptMappingStrategy();
 
-        modelBuilder.Entity<Lecturer>()
-            .HasKey(s => s.Id)
-            .HasName("lecturer_pkey");
-
-        modelBuilder.Entity<StudyProgram>()
-            .HasKey(s => s.Id)
-            .HasName("study_program_pkey");
-
-        modelBuilder.Entity<Certificate>()
-            .HasOne(certificate => certificate.Course)
-            .WithMany(course => course.Certificates)
-            .HasForeignKey(certificate => certificate.CourseId)
-            .HasConstraintName("fk_course");
-
-        modelBuilder.Entity<Certificate>()
-            .HasOne(certificate => certificate.Student)
-            .WithMany(student => student.Certificates)
-            .HasForeignKey(certificate => certificate.StudentId)
-            .HasConstraintName("fk_student");
+        modelBuilder.Entity<RecognizedCertificate>()
+            .HasOne<Certificate>()
+            .WithOne()
+            .HasForeignKey<RecognizedCertificate>(e => new { e.Id })
+            .HasPrincipalKey<Certificate>(e => new { e.Id })
+            .HasConstraintName("fk_recognized_certificate_id")
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Course>()
-            .HasMany(course => course.Lecturers)
-            .WithMany(lecturer => lecturer.Courses)
+            .HasDiscriminator<string>("dtype")
+            .HasValue<Course>("Course")
+            .HasValue<CourseWithExercise>("CourseWithExercise");
+
+        modelBuilder.Entity<Course>()
+            .Property("dtype")
+            .HasMaxLength(31);
+
+        modelBuilder.Entity<Person>().UseTpcMappingStrategy();
+
+        // END INHERITANCE
+
+        // RELATIONSHIPS
+
+        modelBuilder.Entity<Certificate>()
+            .HasOne(e => e.Student)
+            .WithMany(e => e.Certificates)
+            .HasForeignKey(e => new { e.StudentId })
+            .HasConstraintName("fk_certificate_student")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Certificate>()
+            .HasOne(e => e.Course)
+            .WithMany(e => e.Certificates)
+            .HasForeignKey(e => new { e.CourseId })
+            .HasConstraintName("fk_certificate_course")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<Course>()
+            .HasMany(e => e.Lecturers)
+            .WithMany(e => e.Courses)
             .UsingEntity<Dictionary<string, object>>(
                 "courses_lecturers",
-                j => j
+                e => e
                     .HasOne<Lecturer>()
                     .WithMany()
-                    .HasForeignKey("lecturer_id")
-                    .HasConstraintName("fk_lecturer")
+                    .HasForeignKey(["lecturer_id"])
+                    .HasConstraintName("fk_courses_lecturers_courses")
                     .OnDelete(DeleteBehavior.NoAction),
-                j => j
+                e => e
                     .HasOne<Course>()
                     .WithMany()
-                    .HasForeignKey("course_id")
-                    .HasConstraintName("fk_course")
+                    .HasForeignKey(["course_id"])
+                    .HasConstraintName("fk_courses_lecturers_lecturers")
                     .OnDelete(DeleteBehavior.NoAction)
             )
             .HasNoKey();
 
         modelBuilder.Entity<StudentStudyProgram>()
-            .HasKey(s => new { s.StudentId, s.StudyProgramId })
-            .HasName("student_study_program_pkey");
-
-        modelBuilder.Entity<StudentStudyProgram>()
-            .HasOne(s => s.Student)
-            .WithMany(s => s.Studies)
-            .HasForeignKey(s => s.StudentId)
-            .HasConstraintName("fk_student")
+            .HasOne(e => e.Student)
+            .WithMany(e => e.Studies)
+            .HasForeignKey(e => new { e.StudentId })
+            .HasConstraintName("fk_student_study_program_student")
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<StudentStudyProgram>()
-            .HasOne(s => s.StudyProgram)
-            .WithMany(s => s.Students)
-            .HasForeignKey(s => s.StudyProgramId)
-            .HasConstraintName("fk_study_program")
+            .HasOne(e => e.StudyProgram)
+            .WithMany(e => e.Students)
+            .HasForeignKey(e => new { e.StudyProgramId })
+            .HasConstraintName("fk_student_study_program_study_program")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<CourseWithExercise>()
+            .HasOne(e => e.Tutor)
+            .WithMany()
+            .HasForeignKey(e => new { e.TutorId })
+            .HasConstraintName("fk_course_with_exercise_tutor")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<RecognizedCertificate>()
+            .HasOne(e => e.OriginalCertificate)
+            .WithMany()
+            .HasForeignKey(e => new { e.OriginalCertificateId })
+            .HasConstraintName("fk_recognized_certificate_original_certificate")
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Student>()
-            .OwnsOne(
-                s => s.Address,
-                a => {
-                    a.Property(s => s.Street).HasColumnName("street");
-                    a.Property(s => s.City).HasColumnName("city");
-                    a.Property(s => s.PostCode).HasColumnName("post_code");
-                    a.Property(s => s.Country).HasColumnName("country");
-                }
-            );
-
-        modelBuilder.Entity<RecognizedCertificate>()
-            .HasOne(s => s.OriginalCertificate)
-            .WithMany()
-            .HasForeignKey(s => s.OriginalCertificateId)
-            .HasConstraintName("fk_original_certificate")
+            .HasOne(e => e.StudentCard)
+            .WithOne(e => e.Student)
+            .HasForeignKey<Student>(e => new { e.StudentCardCardNr, e.StudentCardCardVersion })
+            .HasConstraintName("fk_student_student_card")
             .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<StudentCardStudyProgram>()
+            .HasOne(e => e.StudentCard)
+            .WithMany(e => e.StudyPrograms)
+            .HasForeignKey(e => new { e.StudentCardCardNr, e.StudentCardCardVersion })
+            .HasConstraintName("fk_student_card_study_program_student_card")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<StudentCardStudyProgram>()
+            .HasOne(e => e.StudyProgram)
+            .WithMany(e => e.StudentCards)
+            .HasForeignKey(e => new { e.StudyProgramId })
+            .HasConstraintName("fk_student_card_study_program_study_program")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // END RELATIONSHIPS
     }
 }

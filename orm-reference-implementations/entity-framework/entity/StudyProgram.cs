@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace csharp_example.entity
+namespace university.entity
 {
-    public class StudyProgram
+    [Table("study_program")]
+    public class StudyProgram : NamedElement
     {
-        public Guid Id { get; set; }
-
-        [Column(TypeName = "Varchar(255)")]
-        public string? Name { get; set; }
-
         public List<StudentStudyProgram>? Students { get; set; }
+
+        public List<StudentCardStudyProgram>? StudentCards { get; set; }
+
     }
 }

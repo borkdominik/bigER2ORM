@@ -1,18 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace csharp_example.entity
+namespace university.entity
 {
-    public class Student
+    [Table("student")]
+    public class Student : Person
     {
-        public Guid Id { get; set; }
+        public List<StudentStudyProgram>? Studies { get; set; }
 
         [Column(TypeName = "Varchar(255)")]
-        public string? Name { get; set; }
+        public string? StudentCardCardNr { get; set; }
+        [Column(TypeName = "Varchar(255)")]
+        public string? StudentCardCardVersion { get; set; }
+        public StudentCard? StudentCard { get; set; }
 
         public List<Certificate>? Certificates { get; set; }
 
-        public List<StudentStudyProgram>? Studies { get; set; }
-
-        public Address? Address { get; set; }
     }
 }

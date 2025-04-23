@@ -5,7 +5,6 @@ import com.google.inject.Singleton
 @Singleton
 class InitUtil {
 	
-	// TODO: Allow for db connection infos in code generation
 	def compilePersistenceFile()
 	'''
 	<?xml version="1.0" encoding="UTF-8" standalone="yes"?>

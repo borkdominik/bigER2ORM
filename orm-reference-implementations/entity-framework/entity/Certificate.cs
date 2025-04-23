@@ -1,11 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace csharp_example.entity
+namespace university.entity
 {
     [Table("certificate")]
+    [PrimaryKey(nameof(Id))]
     public class Certificate
     {
         public Guid Id { get; set; }
+
+        public int? Grade { get; set; }
 
         public Guid? StudentId { get; set; }
         public Student? Student { get; set; }
@@ -13,6 +17,5 @@ namespace csharp_example.entity
         public Guid? CourseId { get; set; }
         public Course? Course { get; set; }
 
-        public int? Grade { get; set; }
     }
 }

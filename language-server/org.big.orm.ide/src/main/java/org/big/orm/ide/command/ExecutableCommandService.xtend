@@ -30,18 +30,21 @@ import java.util.ArrayList
 import com.google.inject.Inject
 import org.eclipse.xtext.resource.SaveOptions
 import org.eclipse.xtext.resource.XtextResourceFactory
-import org.big.orm.generator.hibernate.HibernateGenerator
 import org.big.orm.generator.sqlalchemy.SqlAlchemyGenerator
 import com.google.inject.Injector
 import org.big.orm.generator.sqlalchemy.SqlAlchemyModule
 import com.google.inject.Guice
+import org.big.orm.generator.hibernate.HibernateGenerator
 import org.big.orm.generator.hibernate.HibernateModule
+import org.big.orm.generator.entityframework.EntityFrameworkGenerator
+import org.big.orm.generator.entityframework.EntityFrameworkModule
 
 class ExecutableCommandService implements IExecutableCommandService {
   	
   	@Inject XtextResourceFactory xtextResourceFactory;
   	SqlAlchemyGenerator sqlAlchemyGenerator;
   	HibernateGenerator hibernateGenerator;
+  	EntityFrameworkGenerator entityFrameworkGenerator;
   	
   	new() {
   	  var Injector sqlAlchemyInjector = Guice.createInjector(new SqlAlchemyModule());
@@ -49,6 +52,9 @@ class ExecutableCommandService implements IExecutableCommandService {
       
       var Injector hibernateInjector = Guice.createInjector(new HibernateModule());
       this.hibernateGenerator = hibernateInjector.getInstance(HibernateGenerator);
+      
+      var Injector entityFrameworkInjector = Guice.createInjector(new EntityFrameworkModule());
+      this.entityFrameworkGenerator = entityFrameworkInjector.getInstance(EntityFrameworkGenerator);
   	}
 	
 	override List<String> initialize() {
@@ -100,6 +106,8 @@ class ExecutableCommandService implements IExecutableCommandService {
 			this.hibernateGenerator.doGenerate(r, fsa, null);
 		} else if(arguments.get("language").equals("SQLAlchemy")) {
 			this.sqlAlchemyGenerator.doGenerate(r, fsa, null);			
+		} else if(arguments.get("language").equals("Entity Framework")) {
+			this.entityFrameworkGenerator.doGenerate(r, fsa, null);			
 		} else {
 			return "Unsupported language";
 		}

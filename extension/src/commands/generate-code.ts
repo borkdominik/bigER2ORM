@@ -17,12 +17,6 @@ export default async function generateCode() {
     window.showInformationMessage(`Got: ${language}`);
     const activeEditor = window.activeTextEditor;
 
-    // TODO implement other code generators
-    if (language === 'Entity Framework') {
-        debugLogChannel.appendLine("Only hibernate & SqlAlchemy supported currently");
-        return;
-    }
-
     if (language === undefined) {
         debugLogChannel.appendLine("No language selected by user. Aborting.");
         return;

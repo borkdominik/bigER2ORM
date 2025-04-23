@@ -200,8 +200,8 @@ class RelationshipUtil {
 		joinEntityId.name = r.name + "Id"
 		(r.eContainer as OrmModel).elements.add(joinEntityId)
 		
-		var Attribute sourceKeyAttribute = r.source.entity.keyAttribute.copyAttribute
-		var Attribute targetKeyAttribute = r.target.entity.keyAttribute.copyAttribute
+		var Attribute sourceKeyAttribute = r.source.entity.keyAttribute.copyAttribute("")
+		var Attribute targetKeyAttribute = r.target.entity.keyAttribute.copyAttribute("")
 
 		sourceKeyAttribute.name = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, r.source.entity.name) + CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, sourceKeyAttribute.name)
 		targetKeyAttribute.name = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, r.target.entity.name) + CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, targetKeyAttribute.name)
@@ -210,21 +210,5 @@ class RelationshipUtil {
 		joinEntityId.attributes.add(targetKeyAttribute); 
 		
 		return joinEntityId.compile;
-	}
-	
-	private def Attribute copyAttribute(Attribute a){
-		if (a instanceof DataAttribute) {
-			var dataAttribute = OrmModelFactory.eINSTANCE.createDataAttribute()
-			dataAttribute.name = a.name
-			dataAttribute.datatype = a.datatype;
-			return dataAttribute;
-		} else if (a instanceof EmbeddedAttribute) {
-			var embeddedAttribute = OrmModelFactory.eINSTANCE.createEmbeddedAttribute()
-			embeddedAttribute.name = a.name
-			embeddedAttribute.embeddedType = a.embeddedType;
-			return embeddedAttribute;
-		} else {
-			throw new Exception("Attibute is abstract but can't be mapped to either Data or Embedded Attribute")
-		}
 	}
 }

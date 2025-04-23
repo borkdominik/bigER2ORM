@@ -1,16 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace csharp_example.entity
+namespace university.entity
 {
+    [Table("student_study_program")]
+    [PrimaryKey(nameof(StudentId), nameof(StudyProgramId))]
     public class StudentStudyProgram
     {
         public Guid StudentId { get; set; }
-        public Student? Student { get; set; }
+        public required Student Student { get; set; }
 
         public Guid StudyProgramId { get; set; }
-        public StudyProgram? StudyProgram { get; set; }
-        
+        public required StudyProgram StudyProgram { get; set; }
+
         public Boolean? Finished { get; set; }
     }
 }

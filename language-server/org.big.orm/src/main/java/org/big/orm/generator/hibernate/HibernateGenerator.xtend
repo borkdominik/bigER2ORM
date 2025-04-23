@@ -33,7 +33,7 @@ class HibernateGenerator extends AbstractGenerator {
 	
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		System.err.println("Generator called!");
+		System.err.println("Hibernate Generator called!");
 		
 		var modelName = resource.allContents.toIterable.filter(OrmModel).head.name;
 		

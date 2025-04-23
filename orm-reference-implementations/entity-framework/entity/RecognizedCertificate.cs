@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace csharp_example.entity
+namespace university.entity
 {
     [Table("recognized_certificate")]
     public class RecognizedCertificate : Certificate
     {
         public Guid OriginalCertificateId { get; set; }
-        public Certificate OriginalCertificate { get; set; }
+        public required Certificate OriginalCertificate { get; set; }
+
     }
 }

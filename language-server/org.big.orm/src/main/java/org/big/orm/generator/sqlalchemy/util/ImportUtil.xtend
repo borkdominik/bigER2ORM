@@ -19,7 +19,6 @@ import com.google.common.base.CaseFormat
 import org.big.orm.ormModel.InheritanceStrategy
 import org.big.orm.ormModel.EmbeddedAttribute
 import org.big.orm.ormModel.RelationshipType
-import org.big.orm.ormModel.InheritanceOption
 import com.google.inject.Singleton
 import com.google.inject.Inject
 import org.big.orm.ormModel.Attribute
@@ -270,18 +269,6 @@ class ImportUtil {
 		
 		if (!attributes.filter(DataAttribute).filter[datatype == DataType.BOOLEAN].empty) {
 			addFromImport(importFroms, "sqlalchemy", "Boolean");
-		}
-	}
-	
-			
-	def InheritanceStrategy getInheritanceStrategy(Entity e) {
-		if (e.extends !== null && e.extends instanceof Entity) {
-			return (e.extends as Entity).inheritanceStrategy
-		}
-		if (!(e.options.filter(InheritanceOption).empty)){
-			return e.options.filter(InheritanceOption).get(0).option
-		} else {
-			return InheritanceStrategy.UNDEFINED
 		}
 	}
 	
