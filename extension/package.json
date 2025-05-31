@@ -2,13 +2,26 @@
   "name": "bigorm",
   "displayName": "bigORM Modeling Tool",
   "description": "ORM modeling for various platforms",
+	"publisher": "BIGModelingTools",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.90.0"
   },
-  "categories": [
-    "Other"
-  ],
+	"categories": [
+		"Programming Languages",
+		"Visualization",
+		"Education"
+	],
+  "keywords": [
+		"Object Relational Mapping",
+		"ORM Diagram",
+		"Modeling Tool",
+		"Data Modeling",
+		"Language Server",
+    "SQLAlchemy",
+    "Hibernate",
+    "Entity Framework"
+	],
   "repository": {
 		"type": "git",
 		"url": "https://github.com/big-thesis/Stainer.MDE4ORM"
