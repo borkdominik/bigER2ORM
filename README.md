@@ -1,4 +1,5 @@
 <!-- LOGO -->
+TODO: Change logo
 <p align="center">
   <img src="./extension/media/logo.png" alt="Logo" width="150" height="150" />
 </p>
@@ -7,6 +8,7 @@
 <h1 align="center">BIGER Modeling Tool</h1>
 
 <!-- BADGES -->
+TODO: Adapt badges, repo private
 <p align="center">
   <img alt="GitHub Build" src="https://img.shields.io/github/actions/workflow/status/borkdominik/bigER/build.yml?branch=main" height="20"/>
   <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/BIGModelingTools.erdiagram?color=9cf" height="20"/>
@@ -17,20 +19,23 @@
 
 <!-- DESCRIPTION -->
 <p align="center">
-  <b>Open-source ER modeling tool for VS Code supporting hybrid, textual- and graphical editing, multiple notations, and SQL code generation!</b></br>
+  <b>Open-source ORM modeling tool for VS Code supporting textual editing and graphical visualization and code generation for multiple ORM Frameworks!</b></br>
+  TODO: replace link
   <sub><a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.erdiagram">➜ Download the VS Code Extension</a><sub>
 </p>
 
 <!-- DEMO -->
+todo: recreate gif for bigORM
 <p align="center">
   <img src="https://user-images.githubusercontent.com/39776671/197230584-f045bee2-0d5a-4120-b0cf-3ad7ae7675d8.gif" alt="Demo" width="800" />
 </p>
 
 <!-- FEATURES -->
 **Main features:**
-- **📝 Textual Language** for the specification of ER models in the textual editor. Assistive *validation* and *rich-text editing* support, enabled with the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/), allows to quickly get familiar with the available language constructs.
-- 📊 **Diagram View** that is fully synchronized with the textual model and automatically updates on changes. Also offers an interactive toolbar with *graphical editing actions*, *layout mechanisms*, and *multi-notation support*.
-- 🖨️ **Code Generation** to *generate SQL tables* out of the specified ER models and integrate with existing databases.  
+- **📝 Textual Language** for the specification of ORM models in the textual editor. Assistive *validation* and *rich-text editing* support, enabled with the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/), allows to quickly get familiar with the available language constructs.
+- 📊 **Diagram View** that is fully synchronized with the textual model and automatically updates on changes. Also offers an interactive toolbar with *layout mechanisms*.
+- 🖨️ **Code Generation** to *generate ORM code* out of the specified ORM models and integrate with existing databases. Currently support for *Hiberate*, *SQLAlchemy* and *Entity Framework*. 
+- ⏪ **Reverse Engineering (EXPERIMENTAL)** to *generate ORM Models* out of existing Hibernate ORM code.
 
 ---
 
