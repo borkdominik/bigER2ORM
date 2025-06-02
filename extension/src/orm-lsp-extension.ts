@@ -16,11 +16,13 @@ export function createLanguageClient(context: vscode.ExtensionContext): Language
     const serverOptions: ServerOptions = {
         run: {
             command: serverLauncher,
-            args: ['-trace']
+            args: ['-trace'],
+            options: { shell: true }
         },
         debug: {
             command: serverLauncher,
-            args: ['-trace']
+            args: ['-trace'],
+            options: { shell: true }
         }
     };
     const clientOptions: LanguageClientOptions = {
