@@ -65,8 +65,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - name: Build Extension
-        run: yarn --cwd extension run install
+      - name: Setup extension environment
+        run: yarn --cwd extension
       - name: Set PACKAGE_VERSION & PACKAGE_NAME
         run: node -e "console.log('PACKAGE_VERSION=' + require('./extension/package.json').version + '\nPACKAGE_NAME=bigorm-' + require('./extension/package.json').version)" >> $GITHUB_ENV
       - name: Verify version
