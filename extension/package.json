@@ -7,6 +7,7 @@
   "engines": {
     "vscode": "^1.90.0"
   },
+  "icon": "./media/logo.png",
 	"categories": [
 		"Programming Languages",
 		"Visualization",
@@ -24,7 +25,7 @@
 	],
   "repository": {
 		"type": "git",
-		"url": "https://github.com/big-thesis/Stainer.MDE4ORM"
+		"url": "https://github.com/borkdominik/bigER2ORM"
 	},
   "files": [
     "dist",

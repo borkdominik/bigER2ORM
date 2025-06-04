@@ -70,7 +70,7 @@ jobs:
       - name: Verify version
         run: node -e "if ('refs/tags/v' + '${{ env.PACKAGE_VERSION }}' !== '${{ github.ref }}') { console.log('::error' + 'Versions do not match. refs/tags/v' + '${{ env.PACKAGE_VERSION }}', '${{ github.ref }}'); throw Error('Version Mismatch')}"
       - name: Publish
-        run: yarn --cwd extension run vsce publish --packagePath ./${{ env.PACKAGE_NAME }}.vsix -p ${{ secrets.BIG_VSCODE_MARKETPLACE_PAT }}
+        run: yarn --cwd extension run vsce publish --packagePath ./${{ env.PACKAGE_NAME }}.vsix -p ${{ secrets.VSCODE_ACCESS_TOKEN }}
       - name: Generate Changelog
         id: changelog
         uses: mindsers/changelog-reader-action@v2

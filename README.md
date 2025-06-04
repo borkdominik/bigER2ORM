@@ -55,7 +55,7 @@ The Java-based language server is realized with [Xtext](https://www.eclipse.org/
 
 ## Instructions
 
-> The following section covers the instructions to build **bigORM** from scratch. Instructions how to install **bigORM** from the Visual Studio Marketplace and how to use **bigORM** can be used can be found directly on the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm).
+> The following section covers the instructions to build **bigORM** from scratch. Instructions how to install **bigORM** from the Visual Studio Marketplace and how to use the application can be found directly on the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm).
 
 ### Prerequisites
 
@@ -79,7 +79,6 @@ The code is split into a **client side** (extension & webview) and a **server si
 ## Issues
 
 Project issues are managed on GitHub, see [Open Issues](https://github.com/borkdominik/bigER2ORM/issues) for the currently tracked issues. Do not hesitate to report a bug or request a feature through the offered [Issue Templates](https://github.com/borkdominik/bigER2ORM/issues/new/choose). For questions, simply use a blank issue.
-
 
 <!-- CONTRIBUTING -->
 ## Contributing
