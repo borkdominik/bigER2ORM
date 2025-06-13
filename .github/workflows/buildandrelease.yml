@@ -71,9 +71,9 @@ jobs:
         run: node -e "console.log('PACKAGE_VERSION=' + require('./extension/package.json').version + '\nPACKAGE_NAME=bigorm-' + require('./extension/package.json').version)" >> $GITHUB_ENV
       - name: Verify version
         run: node -e "if ('refs/tags/v' + '${{ env.PACKAGE_VERSION }}' !== '${{ github.ref }}') { console.log('::error' + 'Versions do not match. refs/tags/v' + '${{ env.PACKAGE_VERSION }}', '${{ github.ref }}'); throw Error('Version Mismatch')}"
-      # Automatic publishing currently disabled due to pipeline issues. To publish, download the file and run the same command as below offline.
+      # Automatic publishing currently disabled due to pipeline issues. To publish, download the file and run the same command as below offline, with replacing the variables appropriately.
       # - name: Publish
-      #   run: yarn --cwd extension run vsce publish --packagePath ./${{ env.PACKAGE_NAME }}.vsix
+      #   run: yarn --cwd extension run vsce publish --packagePath ./${{ env.PACKAGE_NAME }}.vsix -p ${{ secrets.VSCODE_ACCESS_TOKEN }}
       - name: Generate Changelog
         id: changelog
         uses: mindsers/changelog-reader-action@v2
