@@ -1,18 +1,31 @@
 <!-- LOGO -->
 <p align="center">
-  <img src="./extension/media/logo.png" alt="Logo" width="150" height="150" style="border-radius: 25px" />
+  <img src="https://raw.githubusercontent.com/borkdominik/bigER2ORM/refs/heads/main/extension/media/logo.png" alt="Logo" width="150" height="150" style="border-radius: 25px" />
 </p>
 
 <!-- TITLE -->
-<h1 align="center">BIGORM Modeling Tool</h1>
+<h1 align="center">bigORM Modeling Tool</h1>
 
 <!-- BADGES -->
 <div align="center">
-  <img alt="GitHub Build" src="https://img.shields.io/github/actions/workflow/status/borkdominik/bigER2ORM/buildandrelease.yml?branch=main" height="20"/>
-  <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/BIGModelingTools.bigorm" height="20"/>
-  <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/BIGModelingTools.bigorm" height="20"/>
-  <img alt="Visual Studio Marketplace Last Updated" src="https://img.shields.io/visual-studio-marketplace/last-updated/BIGModelingTools.bigorm?color=blue" height="20"/>
-  <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/borkdominik/bigER2ORM?color=lightgrey" height="20"/>
+  <a href="https://github.com/borkdominik/bigER2ORM">
+    <img alt="GitHub Build" src="https://img.shields.io/github/actions/workflow/status/borkdominik/bigER2ORM/buildandrelease.yml?branch=main" height="20"/>
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+    <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/BIGModelingTools.bigorm" height="20"/>
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+    <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/BIGModelingTools.bigorm" height="20"/>
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+    <img alt="Visual Studio Marketplace Last Updated" src="https://img.shields.io/visual-studio-marketplace/last-updated/BIGModelingTools.bigorm?color=blue" height="20"/>
+  </a>
+  <a href="https://github.com/borkdominik/bigER2ORM">
+    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/borkdominik/bigER2ORM?color=lightgrey" height="20"/>
+  </a>
+  <a href="https://github.com/borkdominik/bigER2ORM">
+    <img alt="GitHub Stars" src="https://img.shields.io/github/stars/borkdominik/bigER2ORM?style=social" height="20">
+  </a>
 </div>
 
 <!-- DESCRIPTION -->
@@ -21,11 +34,7 @@
   <sub><a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">➜ Download the VS Code Extension</a><sub>
 </p>
 
-<!-- DEMO -->
-***todo: recreate gif for bigORM***
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/39776671/197230584-f045bee2-0d5a-4120-b0cf-3ad7ae7675d8.gif" alt="Demo" width="800" />
-</p>
+<!-- DEMO TODO: recreate gif for bigORM-->
 
 <!-- FEATURES -->
 **Main features:**
@@ -37,17 +46,21 @@
 
 ## 📖 Table of Contents
 
-1. [About the Project](#about-the-project)
-2. [Instructions](#instructions)
-3. [Issues](#issues)
-4. [Contributing](#contributing)
-5. [License](#license)
+- [📖 Table of Contents](#-table-of-contents)
+- [About the Project](#about-the-project)
+  - [Built With](#built-with)
+- [Instructions](#instructions)
+  - [Prerequisites](#prerequisites)
+- [Issues](#issues)
+- [Contributing](#contributing)
+  - [Contributors](#contributors)
+- [License](#license)
 
 ## About the Project
 
-Entity-Relationship (ER) modeling is the de-facto standard for data modeling, offering powerful concepts to visualize data in (relational) databases. Various tools for ER modeling are available, however, often they are inflexible, proprietary, or constrained to specific platforms.
+Object-relational mapping (ORM) is commonly used to bridge the gap between table-based persistency and object-oriented programming. Usually the mappings for ORM are directly defined in the codebase, requiring a defined technology stack from the beginning and reducing flexibility during the datastructure design process.
 
-The bigER tool aims to provide an open-source and modern solution for ER by making use of the [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/). The protocol is used for communicating textual language features to the VS Code client and is further extended to also support graphical editing, making it one of the first *hybrid modeling tools* based on the LSP.
+The **bigORM** tool aims to provide an open-source and modern solution for modeling data-structures for ORM, independently of the programming language, by making use of the [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/). The protocol is used for communicating textual language features to the VS Code client and is further extended to also support graphical editing, making it one of the first *hybrid modeling tools* based on the LSP.
 
 ### Built With
 
