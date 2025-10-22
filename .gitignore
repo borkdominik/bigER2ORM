@@ -35,3 +35,4 @@ yarn-error.log*
 # Modules
 node_modules/
 .yarn-integrity
+/orm-reference-implementations/sql-alchemy/sql-alchemy/
