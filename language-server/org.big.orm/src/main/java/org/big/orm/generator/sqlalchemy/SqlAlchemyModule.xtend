@@ -8,6 +8,7 @@ import org.big.orm.generator.sqlalchemy.util.InheritableUtil
 import org.big.orm.generator.sqlalchemy.util.RelationshipUtil
 import org.big.orm.generator.sqlalchemy.util.InitUtil
 import org.big.orm.generator.common.CommonUtil
+import org.big.orm.generator.sqlalchemy.util.EnumUtil
 
 class SqlAlchemyModule extends AbstractModule {
 	
@@ -18,6 +19,7 @@ class SqlAlchemyModule extends AbstractModule {
       bind(InheritableUtil);
       bind(RelationshipUtil);
       bind(InitUtil);
+      bind(EnumUtil);
       bind(CommonUtil);
    } 
 }

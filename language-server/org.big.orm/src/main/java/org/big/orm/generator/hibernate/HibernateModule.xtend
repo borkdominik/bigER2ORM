@@ -7,6 +7,7 @@ import org.big.orm.generator.hibernate.util.RelationshipUtil
 import org.big.orm.generator.hibernate.util.AttributeUtil
 import org.big.orm.generator.hibernate.util.InitUtil
 import org.big.orm.generator.common.CommonUtil
+import org.big.orm.generator.hibernate.util.EnumUtil
 
 class HibernateModule extends AbstractModule {
 	
@@ -16,6 +17,7 @@ class HibernateModule extends AbstractModule {
 		bind(RelationshipUtil);
 		bind(AttributeUtil);
 		bind(InitUtil);
+		bind(EnumUtil)
 		bind(CommonUtil);
    } 
 }

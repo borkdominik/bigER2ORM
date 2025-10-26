@@ -24,6 +24,7 @@ import com.google.inject.Inject
 import org.big.orm.ormModel.Attribute
 import org.eclipse.emf.ecore.resource.Resource
 import org.big.orm.generator.common.CommonUtil
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class ImportUtil {
@@ -49,21 +50,7 @@ class ImportUtil {
 			
 			// INHERITE TYPES FOR ATTRIBUTES
 			
-			if (!r.attributes.filter(DataAttribute).filter[datatype == DataType.UUID].empty) {
-				imports.add("import uuid");
-			}
-			
-			if (!r.attributes.filter(DataAttribute).filter[datatype == DataType.INT].empty) {
-				addFromImport(importFroms, "sqlalchemy", "Integer");
-			}
-		
-			if (!r.attributes.filter(DataAttribute).filter[datatype == DataType.STRING].empty) {
-				addFromImport(importFroms, "sqlalchemy", "String");
-			}
-		
-			if (!r.attributes.filter(DataAttribute).filter[datatype == DataType.BOOLEAN].empty) {
-				addFromImport(importFroms, "sqlalchemy", "Boolean");
-			}
+			addImportsForAttributes(r.attributes, imports, importFroms)
 			
 			// INHERITE TYPES FOR KEYS
 			
@@ -249,6 +236,14 @@ class ImportUtil {
 			for(EmbeddedAttribute embeddedAttribute : attributes.filter(EmbeddedAttribute)){
 				addFromImport(importFroms, "entity." + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, embeddedAttribute.embeddedType.name), embeddedAttribute.embeddedType.name)
 				addImportsForAttributes(embeddedAttribute.embeddedType.attributes, imports, importFroms)
+			}
+		}
+		
+		if (!attributes.filter(EnumAttribute).empty) {
+			addFromImport(importFroms, "sqlalchemy.orm", "mapped_column");
+			addFromImport(importFroms, "sqlalchemy", "Enum");
+			for (EnumAttribute enumAttribute : attributes.filter(EnumAttribute)) {
+				addFromImport(importFroms, "entity." + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, enumAttribute.enumType.name), enumAttribute.enumType.name)
 			}
 		}
 		

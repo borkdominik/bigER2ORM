@@ -64,7 +64,7 @@ The **bigORM** tool aims to provide an open-source and modern solution for model
 
 # 2. Prerequisites
 
-- [Java](http://jdk.java.net/) JDK 17 (tested: 17.0.2)
+- [Java](http://jdk.java.net/) JDK 17 (tested: [17.0.2](http://jdk.java.net/archive/))
 - [VS Code](https://code.visualstudio.com/) v1.90 or above
 
 # 3. Installation
@@ -91,7 +91,7 @@ An example of an bigORM model using all currently supported features can be foun
 
 ### 4.1.1. Data Elements
 
-Data elements are elements that represent data containers, for the Frameworks they are mainly translated to classes.
+Data elements are elements that represent data containers, for the targeted ORM frameworks they are mainly translated to classes.
 
 There are three types of data elements:
 
@@ -167,7 +167,7 @@ ManyToMany relationship StudentStudyProgram {
 }
 ```
 
-The first keyword describes the relationship type, options are:
+The first keyword describes the relationship type. Options are:
 
 - ``ManyToMany``
 - ``ManyToOne``

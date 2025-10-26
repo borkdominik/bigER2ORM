@@ -1,7 +1,9 @@
 import uuid
 from base import Base
-from sqlalchemy import Boolean, ForeignKeyConstraint, PrimaryKeyConstraint, String, UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from entity.status import Status
+from entity.student_card_study_program_data import StudentCardStudyProgramData
+from sqlalchemy import Boolean, Enum, ForeignKeyConstraint, Integer, PrimaryKeyConstraint, String, UUID
+from sqlalchemy.orm import Mapped, composite, mapped_column, relationship
 
 
 class StudentCardStudyProgram(Base):
@@ -15,6 +17,11 @@ class StudentCardStudyProgram(Base):
     study_program: Mapped["StudyProgram"] = relationship(foreign_keys=[study_program_id], back_populates="student_cards")
 
     finished: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    card_status: Mapped[Status] = mapped_column(Enum(native_enum=False, length=255), nullable=True)
+    additional_data: Mapped[StudentCardStudyProgramData] = composite(
+            mapped_column("data_one", String(255), nullable=True),
+            mapped_column("data_two", Integer, nullable=True)
+    )
 
     __table_args__ = (
         PrimaryKeyConstraint("study_program_id", "student_card_card_nr", "student_card_card_version"),

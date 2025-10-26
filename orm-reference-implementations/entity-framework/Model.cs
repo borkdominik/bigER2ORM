@@ -17,7 +17,7 @@ public class UniversityContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options
-            .UseNpgsql("Host=localhost;Database=csharp;Username=postgres;Password=postgres")
+            .UseNpgsql("Host=postgres;Database=csharp;Username=postgres;Password=postgres")
             .UseSnakeCaseNamingConvention();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

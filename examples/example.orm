@@ -7,14 +7,30 @@ embeddable Address {
     country String
 }
 
+embeddable StudentCardStudyProgramData {
+    dataOne String
+    dataTwo Integer
+}
+
 embeddable StudentCardId {
     cardNr String
     cardVersion String
 }
 
+enum StudyProgramType {
+    BACHELOR
+    MASTER
+    DOCTOR
+}
+
+enum Status {
+    VALID
+    INVALID
+}
+
 @(Inheritance.JoinedTable)
 entity StudentCard {
-    id StudentCardId key
+    embedded id StudentCardId key
     printedName String required
 }
 
@@ -38,14 +54,14 @@ entity CourseWithExercise extends Course {
 entity Lecturer extends Person{
 }
 
-mapped_class NamedElement{
+mapped_class NamedElement {
     id UUID key
     name String
 }
 
 @(Inheritance.TablePerClass)
 entity Person extends NamedElement{
-    address Address
+    embedded address Address
 }
 
 entity RecognizedCertificate extends Certificate {
@@ -56,6 +72,7 @@ entity Student extends Person {
 }
 
 entity StudyProgram extends NamedElement {
+    enum studyProgramType StudyProgramType
 }
 
 ManyToOne relationship CertificateStudent {
@@ -75,7 +92,7 @@ ManyToMany relationship CoursesLecturers {
 
 ManyToMany relationship StudentStudyProgram {
     source Student["studies"]
-    target StudyProgram["students"] 
+    target StudyProgram["students"]
     finished Boolean
 }
 
@@ -91,11 +108,14 @@ ManyToOne relationship unidirectional RecognizedCertificateOriginalCertificate {
 
 OneToOne relationship StudentStudentCard {
     source Student["studentCard"]
-    target StudentCard["student"] 
+    target StudentCard["student"]
 }
 
 ManyToMany relationship StudentCardStudyProgram {
     source StudentCard["studyPrograms"]
     target StudyProgram["studentCards"]
-    finished Boolean 
+    finished Boolean
+    enum cardStatus Status
+    embedded additionalData StudentCardStudyProgramData
 }
+

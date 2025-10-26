@@ -18,6 +18,9 @@ import org.big.orm.ormModel.RelationshipType
 import org.big.orm.generator.entityframework.util.RelationshipUtil
 import org.big.orm.generator.entityframework.util.ModelUtil
 import org.big.orm.ormModel.Entity
+import org.big.orm.generator.entityframework.util.InitUtil
+import org.big.orm.generator.entityframework.util.EnumUtil
+import org.big.orm.ormModel.OrmEnum
 
 /**
  * Generates code from your model files on save.
@@ -31,7 +34,8 @@ class EntityFrameworkGenerator extends AbstractGenerator {
 	@Inject extension InheritableUtil inheritableUtil;
 	@Inject extension RelationshipUtil relationshipUtil;
 	@Inject extension ModelUtil modelUtil;
-	
+	@Inject extension InitUtil initUtil;
+	@Inject extension EnumUtil enumUtil;
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("EF Generator called!");
@@ -44,21 +48,38 @@ class EntityFrameworkGenerator extends AbstractGenerator {
         for (e : resource.allContents.toIterable.filter(InheritableElement)) {
         	System.err.println("Entity to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".cs");
         	fsa.generateFile(
-            	modelName + "/entity/" + e.name + ".cs",
+            	"entity/" + e.name + ".cs",
+            	new StringBuilder(e.compile.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
+        }
+        
+        for (e : resource.allContents.toIterable.filter(OrmEnum)) {
+        	System.err.println("Enum to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".cs");
+        	fsa.generateFile(
+            	"entity/" + e.name + ".cs",
             	new StringBuilder(e.compile.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
         }
         
         for (r : resource.allContents.toIterable.filter(Relationship).filter[r | r.type === RelationshipType.MANY_TO_MANY].filter[r | !r.attributes.empty]){
         	System.err.println("Relationship to generate join entity for: " + r.name + " as " + r.fullyQualifiedName.toString("/") + ".cs");
         	fsa.generateFile(
-            	modelName + "/entity/" + r.name + ".cs",
+            	"entity/" + r.name + ".cs",
             	new StringBuilder(r.compileJoinEntity.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
         }
         
         System.err.println("Generating model file as Model.cs");
         fsa.generateFile(
-        	modelName + "/Model.cs",
+        	"Model.cs",
             new StringBuilder(modelUtil.compileModelFile(resource.allContents.toIterable.filter(Entity).toList, resource.allContents.toIterable.filter(Relationship).toList, modelName).toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
+        
+        System.err.println("Generating program file as Program.cs");
+        fsa.generateFile(
+        	"Program.cs",
+            new StringBuilder(initUtil.compileProgram(resource.allContents.toIterable.filter(OrmModel).head).toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
+        
+        System.err.println("Generating csproj file as entity-framework.csproj");
+        fsa.generateFile(
+        	"entity-framework.csproj",
+            new StringBuilder(initUtil.compileCsprojFile(resource.allContents.toIterable.filter(OrmModel).head).toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
         
 	}
 }

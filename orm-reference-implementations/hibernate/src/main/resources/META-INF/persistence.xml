@@ -6,10 +6,10 @@
   <persistence-unit name="default">
     <properties>
       <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-      <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/java"/>
+      <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://postgres:5432/java"/>
       <property name="jakarta.persistence.jdbc.user" value="postgres"/>
       <property name="jakarta.persistence.jdbc.password" value="postgres"/>
-      <property name="hibernate.hbm2ddl.auto" value="create"/>
+      <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
       <property name="hibernate.physical_naming_strategy" value="org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy"/>
     </properties>
   </persistence-unit>

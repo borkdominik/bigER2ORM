@@ -27,6 +27,10 @@ import org.eclipse.sprotty.SNode
 import java.util.List
 import org.big.orm.ormModel.MappedClass
 import org.big.orm.ormModel.InheritableElement
+import org.big.orm.ormModel.OrmEnum
+import org.big.orm.ormModel.AttributedElement
+import org.big.orm.ormModel.EnumAttribute
+import org.big.orm.ormModel.EnumValue
 
 class OrmModelDiagramGenerator implements IDiagramGenerator {
 	
@@ -39,6 +43,7 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 	static val NODE_INHERITABLE = 'node:inheritable'
 	static val NODE_RELATIONSHIP = 'node:relationship'
 	static val NODE_EMBEDDABLE = 'node:embeddable'
+	static val NODE_ENUM = 'node:enum'
 	static val COMP_ELEMENT_HEADER = 'comp:element-header'
 	static val RELATIONSHIP_LABEL = 'label:relationship'
 	static val ELEMENT_LABEL = 'label:header'
@@ -172,6 +177,7 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		val elementType = switch(element) {
 			case element instanceof InheritableElement : NODE_INHERITABLE
 			case element instanceof Embeddable : NODE_EMBEDDABLE
+			case element instanceof OrmEnum : NODE_ENUM
 			default : ""
 		}
 		
@@ -188,6 +194,7 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		val additionalText = switch(element) {
 			case element instanceof Embeddable : "[Embeddable] "
 			case element instanceof MappedClass : "[MappedClass] "
+			case element instanceof OrmEnum : "[Enum] "
 			default : ""
 		}
 		
@@ -222,7 +229,11 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 				]
 				children = new ArrayList<SModelElement>
 			]
-			comp.children.addAll(element.attributes.map[createAttributeLabels(elementId, context)])
+			if (element instanceof AttributedElement){
+				comp.children.addAll(element.attributes.map[createAttributeLabels(elementId, context)])
+			} else if (element instanceof OrmEnum){
+				comp.children.addAll(element.values.map[createEnumLabel(elementId, context)])
+			}
 			
 			model.relationships.filter[source.entity.name.equals(element.name)].forEach[ r |
 				comp.children.add(r.createPortForRelationshipSource(elementId, context));
@@ -332,11 +343,36 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		return comp
 	}
 	
+	def SCompartment createEnumLabel(EnumValue attribute, String elementId, extension Context context) {
+		val attributeId = idCache.uniqueId(attribute, elementId + '.' + attribute.value)
+		val labelType = ATTRIBUTE_LABEL_TEXT
+		val comp = new SCompartment => [
+			id = attributeId
+			type = COMP_ATTRIBUTE_ROW
+			layout = 'hbox'
+			layoutOptions = new LayoutOptions [
+				VAlign = 'middle'
+				HGap = 5.0
+			]
+			children = #[
+				(new SLabel [
+					id = attributeId + '.value'
+					text = attribute.value
+					type = labelType
+				]).trace(attribute, ENUM_VALUE__VALUE, -1)
+			]
+		]
+		comp.traceAndMark(attribute, context)
+		return comp
+	}
+	
 	def String attributeText(Attribute a) {
 		if(a instanceof DataAttribute){
 			return a.datatype.toString
 		} else if (a instanceof EmbeddedAttribute){
 			return a.embeddedType.name
+		} else if (a instanceof EnumAttribute){
+			return a.enumType.name
 		}
 		return ' '
 	}

@@ -2,31 +2,31 @@
   "name": "bigorm",
   "displayName": "bigORM Modeling Tool",
   "description": "ORM modeling for various platforms",
-	"publisher": "BIGModelingTools",
+  "publisher": "BIGModelingTools",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.90.0"
   },
   "icon": "./media/logo.png",
-	"categories": [
-		"Programming Languages",
-		"Visualization",
-		"Education"
-	],
+  "categories": [
+    "Programming Languages",
+    "Visualization",
+    "Education"
+  ],
   "keywords": [
-		"Object Relational Mapping",
-		"ORM Diagram",
-		"Modeling Tool",
-		"Data Modeling",
-		"Language Server",
+    "Object Relational Mapping",
+    "ORM Diagram",
+    "Modeling Tool",
+    "Data Modeling",
+    "Language Server",
     "SQLAlchemy",
     "Hibernate",
     "Entity Framework"
-	],
+  ],
   "repository": {
-		"type": "git",
-		"url": "https://github.com/borkdominik/bigER2ORM"
-	},
+    "type": "git",
+    "url": "https://github.com/borkdominik/bigER2ORM"
+  },
   "files": [
     "dist",
     "extension",
@@ -103,11 +103,18 @@
       },
       {
         "command": "bigorm.model.generateCode",
-        "title": "Generate Code from Model"
+        "title": "Generate Code from Model",
+        "category": "bigORM"
       },
       {
         "command": "bigorm.model.reverseToModel",
-        "title": "Reverse file to model"
+        "title": "Reverse file to model",
+        "category": "bigORM"
+      },
+      {
+        "command": "bigorm.model.batchGenerateCode",
+        "title": "Reverse all files in folder model for each language",
+        "category": "bigORM"
       }
     ],
     "menus": {
@@ -131,7 +138,11 @@
         {
           "command": "bigorm.diagram.export",
           "when": "bigorm-diagram-focused"
+        },
+        {
+          "command": "bigorm.model.batchGenerateCode"
         }
+        
       ],
       "editor/title": [
         {
@@ -210,25 +221,25 @@
     "package": "vsce package --yarn",
     "watch": "webpack --mode=development --watch"
   },
-	"dependencies": {
-		"@vscode/webview-ui-toolkit": "^1.4.0",
+  "dependencies": {
     "@vscode/codicons": "^0.0.36",
-		"sprotty-vscode": "^1.0.0",
-		"vscode-languageclient": "^9.0.1"
-	},
-	"devDependencies": {
-		"@types/glob": "^8.1.0",
-		"@types/node": "^20.14.9",
-		"@types/vscode": "1.90.0",
-		"@typescript-eslint/eslint-plugin": "^7.15.0",
-		"@typescript-eslint/parser": "^7.15.0",
+    "@vscode/webview-ui-toolkit": "^1.4.0",
+    "sprotty-vscode": "^1.0.0",
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/node": "^20.14.9",
+    "@types/vscode": "1.90.0",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
     "@vscode/vsce": "^2.29.0",
-		"eslint": "^9.6.0",
-		"rimraf": "^5.0.7",
-		"source-map-loader": "^5.0.0",
-		"ts-loader": "^9.5.1",
-		"typescript": "~5.5.3",
-		"webpack": "^5.92.1",
-		"webpack-cli": "^5.1.4"
-	}
+    "eslint": "^9.6.0",
+    "rimraf": "^5.0.7",
+    "source-map-loader": "^5.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "~5.5.3",
+    "webpack": "^5.92.1",
+    "webpack-cli": "^5.1.4"
+  }
 }

@@ -14,5 +14,6 @@ namespace university.entity
         public required StudyProgram StudyProgram { get; set; }
 
         public Boolean? Finished { get; set; }
+
     }
 }

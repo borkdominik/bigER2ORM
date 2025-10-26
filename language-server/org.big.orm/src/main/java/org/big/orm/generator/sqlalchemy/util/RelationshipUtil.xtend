@@ -13,6 +13,7 @@ import org.big.orm.ormModel.Relationship
 import org.big.orm.ormModel.RelationshipType
 import org.big.orm.ormModel.OrmModel
 import org.big.orm.generator.common.CommonUtil
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class RelationshipUtil {
@@ -109,6 +110,9 @@ class RelationshipUtil {
 		«compileXToOneForSource(targetRelationship)»
 		
 		«FOR a : r.attributes.filter(DataAttribute)»
+		«a.compileToSqlAlchemyAttribute(null)»
+		«ENDFOR»
+		«FOR a : r.attributes.filter(EnumAttribute)»
 		«a.compileToSqlAlchemyAttribute(null)»
 		«ENDFOR»
 		«FOR a : r.attributes.filter(EmbeddedAttribute)»

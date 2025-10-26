@@ -3,6 +3,7 @@ import { SprottyDiagramIdentifier, createFileUri, createWebviewTitle } from 'spr
 import * as vscode from 'vscode';
 import generateCode from './commands/generate-code';
 import reverseToModel from './commands/reverse-to-model';
+import batchGenerateCode from './commands/batch-generate-code';
 import { LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node';
 import { LspWebviewEndpoint, LspWebviewPanelManager } from 'sprotty-vscode/lib/lsp';
 import { addLspLabelEditActionHandler, addWorkspaceEditActionHandler } from 'sprotty-vscode/lib/lsp/editing';
@@ -10,19 +11,22 @@ import { createWebviewHtml } from './orm-webview';
 
 
 export function createLanguageClient(context: vscode.ExtensionContext): LanguageClient {
-    const executable = process.platform === 'win32' ? 'orm-language-server.bat' : 'orm-language-server';
+    const isWindows = process.platform === 'win32';
+    const executable = isWindows ? 'orm-language-server.bat' : 'orm-language-server';
     const languageServerPath = path.join('server', 'orm-language-server', 'bin', executable);
     const serverLauncher = context.asAbsolutePath(languageServerPath);
+    // On Windows, use a shell to run the .bat and quote the path in case it contains spaces.
+    const serverCommand = isWindows ? `"${serverLauncher}"` : serverLauncher;
     const serverOptions: ServerOptions = {
         run: {
-            command: serverLauncher,
+            command: serverCommand,
             args: ['-trace'],
-            options: { shell: true }
+            options: { shell: isWindows }
         },
         debug: {
-            command: serverLauncher,
+            command: serverCommand,
             args: ['-trace'],
-            options: { shell: true }
+            options: { shell: isWindows }
         }
     };
     const clientOptions: LanguageClientOptions = {
@@ -42,6 +46,9 @@ export function registerCommands(context: vscode.ExtensionContext) {
     }));
     context.subscriptions.push(vscode.commands.registerCommand('bigorm.model.reverseToModel', (...commandArgs: any[]) => {
         reverseToModel();
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('bigorm.model.batchGenerateCode', (...commandArgs: any[]) => {
+        batchGenerateCode();
     }));
 }
 

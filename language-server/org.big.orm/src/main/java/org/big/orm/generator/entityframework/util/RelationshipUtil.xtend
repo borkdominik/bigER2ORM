@@ -11,6 +11,7 @@ import org.big.orm.ormModel.DataAttribute
 import com.google.common.base.CaseFormat
 import java.util.List
 import org.big.orm.ormModel.OrmModelFactory
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class RelationshipUtil {
@@ -115,13 +116,20 @@ class RelationshipUtil {
 	    [PrimaryKey(«keyAttributes.map[attribute | '''nameof(«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, attribute.name)»)'''].join(", ")»)]
 	    public class «r.name»
 	    {
-	    	«sourceRelationship.compileRelationshipAttributesForSource»
+			«sourceRelationship.compileRelationshipAttributesForSource»
 	
-	    	«targetRelationship.compileRelationshipAttributesForSource»
+			«targetRelationship.compileRelationshipAttributesForSource»
 	
-	    	«FOR attribute : r.attributes.allAttributesAsDataAttributes SEPARATOR "\n"»
-	    	«attribute.compileToEntityFrameworkAttribute(false)»
-	    	«ENDFOR»
+			«FOR attribute : r.attributes.allAttributesAsDataAttributes SEPARATOR "\n"»
+			«attribute.compileToEntityFrameworkAttribute(false)»
+			«ENDFOR»«IF !r.attributes.allAttributesAsDataAttributes.empty»
+			
+			«ENDIF»
+			«FOR attribute : r.attributes.filter(EnumAttribute) SEPARATOR "\n"»
+			«attribute.compileToEntityFrameworkAttribute()»
+			«ENDFOR»«IF !r.attributes.filter(EnumAttribute).empty»
+			
+			«ENDIF»
 	    }
 	}
 	'''

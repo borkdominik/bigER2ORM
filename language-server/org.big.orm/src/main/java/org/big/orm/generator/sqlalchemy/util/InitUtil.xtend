@@ -42,14 +42,45 @@ class InitUtil {
 		return imports.toList;
 	}
 	
-	def compileMainInit(Resource r)
+	def compileMainInit()
 	'''
 	'''
 	
-	def compileBase(Resource r)
+	def compileBase()
 	'''
+	from sqlalchemy import create_engine
 	from sqlalchemy.ext.declarative import declarative_base
+	from sqlalchemy.orm import sessionmaker
 	
+	db_string = "postgresql://postgres:postgres@postgres:5432/python"
+	
+	db = create_engine(db_string)
 	Base = declarative_base()
+	
+	Session = sessionmaker(db)
+	'''
+	
+	def compileMain()
+	'''
+	import sqlalchemy
+	
+	from base import Base, db, Session
+	from entity import *
+	
+	# Clean reset without noisy "doesn't exist" errors:
+	Base.metadata.drop_all(bind=db, checkfirst=True)
+	Base.metadata.create_all(bind=db, checkfirst=True)
+	
+	session = Session()
+		
+	with Session() as session:
+		session.commit()
+	'''
+
+
+	def compileRequirements()
+	'''
+	sqlalchemy==2.0.35
+	psycopg2-binary==2.9.9
 	'''
 }

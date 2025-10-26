@@ -9,9 +9,15 @@ const options: OpenDialogOptions = {
     canSelectFolders: true
 };
 
+export const languageOptions: {name: string, folderName: string}[] = [
+    {name: 'Hibernate', folderName: 'hibernate'},
+    {name: 'SQLAlchemy', folderName: 'sql-alchemy'},
+    {name: 'Entity Framework', folderName: 'entity-framework'}
+];
+
 export default async function generateCode() {
     await commands.executeCommand("workbench.action.files.saveAll");
-    const language = await window.showQuickPick(['Hibernate', 'SQLAlchemy', 'Entity Framework'], {
+    const language = await window.showQuickPick(languageOptions.map(option => option.name), {
         placeHolder: 'Select language to generate code for.'
     });
     window.showInformationMessage(`Got: ${language}`);
@@ -23,7 +29,7 @@ export default async function generateCode() {
     }
 
     if (!activeEditor || !activeEditor.document || activeEditor.document.languageId !== 'bigorm') {
-        debugLogChannel.appendLine("Can't execute command");
+        debugLogChannel.appendLine("Can't execute command, as no bigorm file selected in active text editor");
         return;
     }
 

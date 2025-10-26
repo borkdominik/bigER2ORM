@@ -8,6 +8,7 @@ import org.big.orm.generator.common.CommonUtil
 import org.big.orm.ormModel.MappedClass
 import org.big.orm.ormModel.AttributeType
 import org.big.orm.ormModel.Entity
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class InheritableUtil {
@@ -38,6 +39,11 @@ class InheritableUtil {
    			«FOR attribute : e.attributes.filter[a | a.type !== AttributeType.ID].toList.allAttributesAsDataAttributes SEPARATOR "\n"»
    			«attribute.compileToEntityFrameworkAttribute(false)»
    			«ENDFOR»«IF !e.attributes.filter[a | a.type === AttributeType.ID].toList.allAttributesAsDataAttributes.empty»
+   			
+   			«ENDIF»
+   			«FOR attribute : e.attributes.filter(EnumAttribute) SEPARATOR "\n"»
+   			«attribute.compileToEntityFrameworkAttribute()»
+   			«ENDFOR»«IF !e.attributes.filter(EnumAttribute).empty»
    			
    			«ENDIF»
    			«IF e instanceof Entity»«e.compileRelationshipAttributes»«ENDIF»

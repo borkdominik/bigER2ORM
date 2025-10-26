@@ -10,6 +10,8 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import static org.big.orm.ormModel.OrmModelPackage.Literals.*
 import org.big.orm.ormModel.ModelElement
 import org.big.orm.ormModel.Relationship
+import org.big.orm.ormModel.AttributedElement
+import org.big.orm.ormModel.OrmEnum
 
 class OrmModelFormatter extends AbstractFormatter2 {
 	
@@ -37,15 +39,26 @@ class OrmModelFormatter extends AbstractFormatter2 {
 		
 		val open = element.regionFor.keyword("{")
 		val close = element.regionFor.keyword("}")
-		if (element.attributes.length > 0) {
+		
+		if  (element instanceof AttributedElement) {
+			if (element.attributes.length > 0) {
+				open.append[newLine]
+			}
+		
+			for (attribute : element.attributes) {
+				attribute.append[setNewLines(1, 1, 2)]
+			}
+		} else if (element instanceof OrmEnum) {
 			open.append[newLine]
+			
+			for (value : element.values) {
+				value.append[setNewLines(1, 1, 2)]
+			}
 		}
+
+		
 		interior(open, close)[indent]
 		close.append[setNewLines(2,2,2)]
-		
-		for (attribute : element.attributes) {
-			attribute.append[setNewLines(1, 1, 2)]
-		}
 	}
 	
 	def dispatch void format(Relationship relationship, extension IFormattableDocument document) {

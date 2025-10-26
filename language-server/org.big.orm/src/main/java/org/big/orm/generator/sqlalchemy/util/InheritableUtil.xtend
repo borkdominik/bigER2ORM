@@ -15,6 +15,7 @@ import org.big.orm.ormModel.Attribute
 import org.big.orm.generator.common.CommonUtil
 import java.util.Map
 import java.util.HashMap
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class InheritableUtil {
@@ -54,6 +55,9 @@ class InheritableUtil {
 		«(e as Entity).compileJoinedTableInheritedAttributes»
 		«ENDIF»
 		«FOR a : e.attributes.filter(DataAttribute)»
+		«a.compileToSqlAlchemyAttribute(null)»
+		«ENDFOR»
+		«FOR a : e.attributes.filter(EnumAttribute)»
 		«a.compileToSqlAlchemyAttribute(null)»
 		«ENDFOR»
 		«FOR a : e.attributes.filter(EmbeddedAttribute)»
@@ -167,6 +171,10 @@ class InheritableUtil {
 		}
 		
 		for (attribute : i.attributes.filter(DataAttribute)) {
+			attributes.add(attribute.compileToSqlAlchemyAttribute(null))
+		}
+		
+		for (attribute : i.attributes.filter(EnumAttribute)) {
 			attributes.add(attribute.compileToSqlAlchemyAttribute(null))
 		}
 		

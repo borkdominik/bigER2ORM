@@ -7,6 +7,10 @@ OrmModel:
 	(elements+=ModelElement | relationships+=Relationship)*;
 
 ModelElement:
+	AttributedElement | OrmEnum
+;
+
+AttributedElement:
 	InheritableElement | Embeddable
 ;
 
@@ -30,6 +34,15 @@ Embeddable:
 	'embeddable' name=ID '{'
 		(attributes += Attribute)*
 	'}';
+	
+OrmEnum:
+	'enum' name=ID '{'
+		(values += EnumValue)+
+	'}';
+	
+EnumValue:
+	value=UPPER_SNAKE
+;
 
 Relationship:
 	type=RelationshipType 'relationship' (unidirectional?='unidirectional')? name=ID '{'
@@ -44,14 +57,18 @@ RelationEntity:
 	']')?;
 	
 Attribute:
-	DataAttribute | EmbeddedAttribute
+	DataAttribute | EmbeddedAttribute | EnumAttribute
 ;
+
 
 DataAttribute:
 	name=ID (datatype=DataType) (type=AttributeType)?;
 	
 EmbeddedAttribute:
-	name=ID (embeddedType=[Embeddable]) (type=AttributeType)?;
+	'embedded' name=ID (embeddedType=[Embeddable]) (type=AttributeType)?;
+	
+EnumAttribute:
+	'enum' name=ID (enumType=[OrmEnum]) (type=AttributeType)?;
 
 	
 enum DataType:
@@ -90,3 +107,5 @@ enum InheritanceStrategy:
 	SINGLE_TABLE = 'Inheritance.SingleTable' |
 	TABLE_PER_CLASS = 'Inheritance.TablePerClass'
 ;
+
+terminal UPPER_SNAKE: '^'?('A'..'Z')+ ('_' ('A'..'Z')+)* ;

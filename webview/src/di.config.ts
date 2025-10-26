@@ -30,6 +30,7 @@ const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     // Nodes
     configureModelElement(context, 'node:inheritable', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });
     configureModelElement(context, 'node:embeddable', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });
+    configureModelElement(context, 'node:enum', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });
     configureModelElement(context, 'node:relationship', OrmModelNode, DiamondNodeView);
 
     // Compartments
@@ -45,11 +46,11 @@ const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     configureModelElement(context, 'port', SPortImpl, TriangleButtonView);
 
     // Labels
-    configureModelElement(context, 'label:header', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:relationship', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:text', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:key', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
-    configureModelElement(context, 'label:required', SLabelImpl, SLabelView, { enable: [editLabelFeature] });
+    configureModelElement(context, 'label:header', SLabelImpl, SLabelView, { disable: [editLabelFeature] });
+    configureModelElement(context, 'label:relationship', SLabelImpl, SLabelView, { disable: [editLabelFeature] });
+    configureModelElement(context, 'label:text', SLabelImpl, SLabelView, { disable: [editLabelFeature] });
+    configureModelElement(context, 'label:key', SLabelImpl, SLabelView, { disable: [editLabelFeature] });
+    configureModelElement(context, 'label:required', SLabelImpl, SLabelView, { disable: [editLabelFeature] });
 
     // Additional Sprotty elements
     configureModelElement(context, 'html', HtmlRootImpl, HtmlRootView);

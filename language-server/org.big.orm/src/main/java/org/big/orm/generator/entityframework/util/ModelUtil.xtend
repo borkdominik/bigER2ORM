@@ -30,7 +30,7 @@ class ModelUtil {
 		
 		protected override void OnConfiguring(DbContextOptionsBuilder options)
 			=> options
-				.UseNpgsql("Host=localhost;Database=csharp;Username=postgres;Password=postgres")
+				.UseNpgsql("Host=postgres;Database=csharp;Username=postgres;Password=postgres")
 				.UseSnakeCaseNamingConvention();
 	
 		protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -171,27 +171,10 @@ class ModelUtil {
 		var Relationship sourceRelationship = createJoinRelationship(joinEntity, relationship.source)
 		var Relationship targetRelationship = createJoinRelationship(joinEntity, relationship.target)
 		
-		//var String lowUnderRelationshipName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, relationship.name)
-		//val List<DataAttribute> sourceKeyAttributes = relationship.source.entity.keyAttributesAsDataAttributes.map[a | a.copyAttribute(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, relationship.source.entity.name)) as DataAttribute].toList;
-		//val List<DataAttribute> targetKeyAttributes = relationship.target.entity.keyAttributesAsDataAttributes.map[a | a.copyAttribute(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, relationship.target.entity.name)) as DataAttribute].toList;
 		'''
 		«sourceRelationship.compileXToOneRelationshipForModel»
 		«targetRelationship.compileXToOneRelationshipForModel»
 		'''
-		
-//				modelBuilder.Entity<«relationship.name»>()
-//			.HasMany(e => e.«relationship.source.entity.name»)
-//			.WithOne(e => e.«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, relationship.source.attributeName)»)
-//			.HasForeignKey(e => new { «sourceKeyAttributes.joinKeys» })
-//			.HasConstraintName("fk_«lowUnderRelationshipName»_student_card")
-//			.OnDelete(DeleteBehavior.NoAction);
-//
-//		modelBuilder.Entity<«relationship.name»>()
-//			.HasMany(e => e.«relationship.target.entity.name»)
-//			.WithOne(e => e.«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, relationship.target.attributeName)»)
-//			.HasForeignKey(e => new { «targetKeyAttributes.joinKeys» })
-//			.HasConstraintName("fk_«lowUnderRelationshipName»_study_program")
-//			.OnDelete(DeleteBehavior.NoAction);
 		
 	}
 	

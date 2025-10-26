@@ -72,8 +72,8 @@ The Java-based language server is realized with [Xtext](https://www.eclipse.org/
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/en/) 20 (tested: v20.11.1)
-- [Java](http://jdk.java.net/) JDK 17 (tested: 17.0.2)
+- [Node.js](https://nodejs.org/en/) 20 (tested: [v20.11.1](https://nodejs.org/en/download/archive/v20.11.1))
+- [Java](http://jdk.java.net/) JDK 17 (tested: [17.0.2](http://jdk.java.net/archive/))
 - [VS Code](https://code.visualstudio.com/) v1.90 or above
 - [yarn](https://yarnpkg.com/)
 

@@ -1,7 +1,6 @@
 package org.big.orm.generator.hibernate.util
 
 import com.google.inject.Singleton
-import org.big.orm.ormModel.ModelElement
 import java.util.TreeSet
 import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.InheritanceOption
@@ -16,11 +15,13 @@ import java.util.ArrayList
 import org.big.orm.ormModel.Relationship
 import org.big.orm.ormModel.OrmModel
 import org.big.orm.ormModel.RelationshipType
+import org.big.orm.ormModel.AttributedElement
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class ImportUtil {
 	
-	def generateImports(ModelElement e) {
+	def generateImports(AttributedElement e) {
 		val imports = new TreeSet<String>();
 		
 		if(e instanceof Entity){	
@@ -52,6 +53,11 @@ class ImportUtil {
 		
 		if(!e.attributes.filter(DataAttribute).empty){
 			imports.add("jakarta.persistence.Column");
+		}
+		
+		if(!e.attributes.filter(EnumAttribute).empty){
+			imports.add("jakarta.persistence.Column");
+			imports.add("jakarta.persistence.Convert");
 		}
 		
 		if(!e.attributes.filter(DataAttribute).filter[datatype.equals(DataType.UUID)].empty){
@@ -147,6 +153,32 @@ class ImportUtil {
 			imports.add("java.util.List");
 		}
 		
+		return imports;
+	}
+	
+	def generateImports(Relationship r) {
+		val imports = new TreeSet<String>();
+		
+		imports.add("jakarta.persistence.EmbeddedId");
+		imports.add("jakarta.persistence.Entity");
+		imports.add("jakarta.persistence.ForeignKey");
+		imports.add("jakarta.persistence.JoinColumn");
+		imports.add("jakarta.persistence.JoinColumns");
+		imports.add("jakarta.persistence.ManyToOne");
+		imports.add("jakarta.persistence.MapsId");
+		imports.add("lombok.Getter");
+		imports.add("lombok.Setter");
+		
+		if (!r.attributes.filter(DataAttribute).empty){
+			imports.add("jakarta.persistence.Column");
+		}
+		if (!r.attributes.filter(EmbeddedAttribute).empty){
+			imports.add("jakarta.persistence.Embedded");
+		}
+		if (!r.attributes.filter(EnumAttribute).empty){
+			imports.add("jakarta.persistence.Column");
+			imports.add("jakarta.persistence.Convert");
+		}
 		return imports;
 	}
 }

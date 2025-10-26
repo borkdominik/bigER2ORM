@@ -14,6 +14,7 @@ import org.big.orm.generator.common.CommonUtil
 import org.big.orm.ormModel.OrmModelFactory
 import org.big.orm.ormModel.Embeddable
 import org.big.orm.ormModel.Attribute
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class RelationshipUtil {
@@ -21,6 +22,7 @@ class RelationshipUtil {
 	@Inject extension AttributeUtil attributeUtil;
 	@Inject extension InheritableUtil inheritableUtil;
 	@Inject extension CommonUtil commonUtil;
+	@Inject extension ImportUtil importUtil;
 	
 	def CharSequence compileRelationships(Entity e) {
 		val Iterable<Relationship> sourceRelationships = (e.eContainer as OrmModel).relationships.filter[relation | relation.source.entity.name.equals(e.name)]
@@ -157,16 +159,9 @@ class RelationshipUtil {
 		'''
 		package entity;
 		
-		import jakarta.persistence.Column;
-		import jakarta.persistence.EmbeddedId;
-		import jakarta.persistence.Entity;
-		import jakarta.persistence.ForeignKey;
-		import jakarta.persistence.JoinColumn;
-		import jakarta.persistence.JoinColumns;
-		import jakarta.persistence.ManyToOne;
-		import jakarta.persistence.MapsId;
-		import lombok.Getter;
-		import lombok.Setter;
+		«FOR i : r.generateImports»
+		import «i»;
+		«ENDFOR»
 		
 		@Entity
 		@Getter
@@ -187,6 +182,9 @@ class RelationshipUtil {
 			«a.compile»
 			«ENDIF»
 			«IF a instanceof EmbeddedAttribute»
+			«a.compile»
+			«ENDIF»
+			«IF a instanceof EnumAttribute»
 			«a.compile»
 			«ENDIF»
 			«ENDFOR»

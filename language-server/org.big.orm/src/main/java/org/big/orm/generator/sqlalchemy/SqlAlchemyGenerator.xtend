@@ -10,7 +10,6 @@ import org.eclipse.xtext.generator.IGeneratorContext
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 import org.big.orm.ormModel.Embeddable
-import org.big.orm.ormModel.OrmModel
 import com.google.common.base.CaseFormat
 import org.big.orm.ormModel.InheritableElement
 import org.big.orm.ormModel.Relationship
@@ -20,6 +19,8 @@ import org.big.orm.generator.sqlalchemy.util.RelationshipUtil
 import org.big.orm.generator.sqlalchemy.util.EmbeddableUtil
 import com.google.inject.Inject
 import org.big.orm.generator.sqlalchemy.util.InitUtil
+import org.big.orm.generator.sqlalchemy.util.EnumUtil
+import org.big.orm.ormModel.OrmEnum
 
 /**
  * Generates code from your model files on save.
@@ -34,19 +35,18 @@ class SqlAlchemyGenerator extends AbstractGenerator {
 	@Inject extension RelationshipUtil relationshipUtil;
 	@Inject extension EmbeddableUtil embeddableUtil;
 	@Inject extension InitUtil initUtil;
+	@Inject extension EnumUtil enumUtil;
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("SqlAlchemy generator called!");
 		
 		inheritableUtil.reset;
 		
-		var modelName = resource.allContents.toIterable.filter(OrmModel).head.name;
-		
 		// Generate Embeddables
         for (e : resource.allContents.toIterable.filter(Embeddable)) {
         	System.err.println("Embeddable to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".py");
         	fsa.generateFile(
-            	modelName + "/entity/" + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name) + ".py",
+            	"entity/" + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name) + ".py",
             	new StringBuilder(e.compile.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
         }
         
@@ -55,7 +55,7 @@ class SqlAlchemyGenerator extends AbstractGenerator {
         	var String filename = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.name) + (r.attributes.empty ? "_table.py" : ".py");
         	System.err.println("Relationship to generate: " + r.name + " as " + r.fullyQualifiedName.toString("/") + ".py");
         	fsa.generateFile(
-            	modelName + "/entity/" + filename,
+            	"entity/" + filename,
             	new StringBuilder(r.compileAdditionTablesForManyToMany.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
         }
         
@@ -63,23 +63,41 @@ class SqlAlchemyGenerator extends AbstractGenerator {
         for (e : resource.allContents.toIterable.filter(InheritableElement)) {
         	System.err.println("Inheritable to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".py");
         	fsa.generateFile(
-            	modelName + "/entity/" + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name) + ".py",
+            	"entity/" + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name) + ".py",
+            	new StringBuilder(e.compile.toString.replaceAll("\\R[ \\t]+\\R", "\n\n").replace("\t", "    ")));
+        }
+        
+        // Generate Enums
+        for (e : resource.allContents.toIterable.filter(OrmEnum)) {
+        	System.err.println("Inheritable to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".py");
+        	fsa.generateFile(
+            	"entity/" + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name) + ".py",
             	new StringBuilder(e.compile.toString.replaceAll("\\R[ \\t]+\\R", "\n\n").replace("\t", "    ")));
         }
         
         System.err.println("generating __init__.py for entity folder");
         fsa.generateFile(
-			modelName + "/entity/__init__.py",
+			"entity/__init__.py",
 			new StringBuilder(resource.compileEntityInit.toString.replaceAll("\\R[ \\t]+\\R", "\n\n").replace("\t", "    ")));
 			
 		System.err.println("generating __init__.py for main folder");
         fsa.generateFile(
-			modelName + "/__init__.py",
-			new StringBuilder(resource.compileMainInit.toString.replaceAll("\\R[ \\t]+\\R", "\n\n").replace("\t", "    ")));
+			"__init__.py",
+			new StringBuilder(compileMainInit.toString.replaceAll("\\R[ \\t]+\\R", "\n\n").replace("\t", "    ")));
 			
-				System.err.println("generating base.py for main folder");
+		System.err.println("generating base.py for main folder");
         fsa.generateFile(
-			modelName + "/base.py",
-			new StringBuilder(resource.compileBase.toString.replaceAll("\\R[ \\t]+\\R", "\n\n").replace("\t", "    ")));
+			"base.py",
+			new StringBuilder(compileBase.toString.replaceAll("\\R[ \\t]+\\R", "\n\n").replace("\t", "    ")));
+			
+		System.err.println("generating main.py for main folder");
+        fsa.generateFile(
+			"main.py",
+			new StringBuilder(compileMain.toString.replaceAll("\\R[ \\t]+\\R", "\n\n").replace("\t", "    ")));
+			
+		System.err.println("generating requirements.txt for main folder");
+        fsa.generateFile(
+			"requirements.txt",
+			new StringBuilder(compileRequirements.toString.replaceAll("\\R[ \\t]+\\R", "\n\n").replace("\t", "    ")));
 	}
 }

@@ -1,6 +1,8 @@
 package entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
@@ -36,5 +38,12 @@ public class StudentCardStudyProgram {
 
   @Column(name = "finished")
   private Boolean finished;
+
+  @Convert(converter = Status.Converter.class)
+  @Column(name = "card_status")
+  private Status cardStatus;
+
+  @Embedded
+  private StudentCardStudyProgramData additionalData;
 
 }
