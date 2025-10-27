@@ -9,8 +9,6 @@ import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
-import org.big.orm.ormModel.Relationship
-import org.big.orm.ormModel.RelationshipType
 import com.google.inject.Inject
 import org.big.orm.generator.hibernate.util.InheritableUtil
 import org.big.orm.generator.hibernate.util.RelationshipUtil
@@ -19,6 +17,8 @@ import org.big.orm.ormModel.AttributedElement
 import org.big.orm.ormModel.OrmModel
 import org.big.orm.generator.hibernate.util.EnumUtil
 import org.big.orm.ormModel.OrmEnum
+import org.big.orm.ormModel.Entity
+import org.big.orm.generator.common.CommonUtil
 
 /**
  * Generates code from your model files on save.
@@ -33,10 +33,19 @@ class HibernateGenerator extends AbstractGenerator {
 	@Inject extension RelationshipUtil relationshipUtil;
 	@Inject extension InitUtil initUtil;
 	@Inject extension EnumUtil enumUtil;
+	@Inject extension CommonUtil commonUtil;
 	
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("Hibernate Generator called!");
+		
+		val OrmModel ormModel = resource.allContents.toIterable.filter(OrmModel).head;
+		
+		// Enhance model by including many-to-one relationships for join entities
+		for (e : resource.allContents.toIterable.filter(Entity).filter[joinEntity]) {
+			ormModel.relationships.add(e.createJoinRelationship(e.joinSource));
+			ormModel.relationships.add(e.createJoinRelationship(e.joinTarget));
+		}
         
         // Generate Elements
         for (e : resource.allContents.toIterable.filter(AttributedElement)) {
@@ -56,14 +65,11 @@ class HibernateGenerator extends AbstractGenerator {
         
         
         // Generate Files for Many-to-many with defined join object
-        for (r : resource.allContents.toIterable.filter(Relationship).filter[type.equals(RelationshipType.MANY_TO_MANY) && !attributes.empty]) {
-        	System.err.println("Relationship to generate additional files: " + r.name + " as " + r.fullyQualifiedName.toString("/") + ".java");
-        	fsa.generateFile(
-            	"src/main/java/entity/" + r.name + ".java",
-            	new StringBuilder(r.compileJoinEntity.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "  ")));
+        for (e : resource.allContents.toIterable.filter(Entity).filter[joinEntity]) {
+        	System.err.println("generating join id for join entity: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".java");
            	fsa.generateFile(
-            	"src/main/java/entity/" + r.name + "Id.java",
-            	new StringBuilder(r.compileJoinId.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "  ")));
+            	"src/main/java/entity/" + e.name + "Id.java",
+            	new StringBuilder(e.compileJoinId.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "  ")));
         }
         
         // Generate persistance file
@@ -75,7 +81,7 @@ class HibernateGenerator extends AbstractGenerator {
         // Generate build file
         fsa.generateFile(
         	"pom.xml",
-        	compilePomXmlFile(resource.allContents.toIterable.filter(OrmModel).head)
+        	compilePomXmlFile(ormModel)
         );
         
         // Generate enum converter

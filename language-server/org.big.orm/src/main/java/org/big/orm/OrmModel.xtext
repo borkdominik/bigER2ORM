@@ -26,7 +26,7 @@ MappedClass:
 	
 Entity:
 	(options+=EntityOption)*
-	'entity' name=ID ('extends' extends=[InheritableElement])? '{'
+	'entity' name=ID ('extends' extends=[InheritableElement])? (joinEntity?='joins' '(' joinSource=RelationEntity ',' joinTarget=RelationEntity ')')? '{'
 		(attributes += Attribute)*
 	'}';
 	
@@ -48,7 +48,6 @@ Relationship:
 	type=RelationshipType 'relationship' (unidirectional?='unidirectional')? name=ID '{'
 		'source' source=RelationEntity (sourceRequired?='required')?
 		'target' target=RelationEntity
-		(attributes += Attribute)*
 	'}';
 
 RelationEntity:

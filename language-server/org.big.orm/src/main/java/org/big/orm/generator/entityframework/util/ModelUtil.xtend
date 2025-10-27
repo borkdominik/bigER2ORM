@@ -10,7 +10,6 @@ import org.big.orm.generator.common.CommonUtil
 import org.big.orm.ormModel.InheritanceStrategy
 import org.big.orm.ormModel.DataAttribute
 import org.big.orm.ormModel.RelationshipType
-import org.big.orm.ormModel.OrmModelFactory
 
 @Singleton
 class ModelUtil {
@@ -111,7 +110,7 @@ class ModelUtil {
 	def compileRelationshipForModel(Relationship relationship) {
 		switch relationship.type {
 			case RelationshipType.ONE_TO_ONE, case RelationshipType.MANY_TO_ONE: relationship.compileXToOneRelationshipForModel
-			case RelationshipType.MANY_TO_MANY: relationship.attributes.empty ? relationship.compileManyToManyUsingJoinTableRelationshipForModel : relationship.compileManyToManyUsingJoinEntityRelationshipForModel
+			case RelationshipType.MANY_TO_MANY: relationship.compileManyToManyForModel
 			default: ''''''
 		}
 	}
@@ -131,7 +130,7 @@ class ModelUtil {
 		'''
 	}
 	
-	def compileManyToManyUsingJoinTableRelationshipForModel(Relationship relationship) {
+	def compileManyToManyForModel(Relationship relationship) {
 		var String tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, relationship.name)
 	
 		val String lowUnderSourceTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, relationship.source.entity.name)
@@ -163,19 +162,6 @@ class ModelUtil {
 			.HasNoKey();
 		
 		'''
-	}
-	
-	def compileManyToManyUsingJoinEntityRelationshipForModel(Relationship relationship) {
-		var Entity joinEntity  = OrmModelFactory.eINSTANCE.createEntity()
-		joinEntity.name = relationship.name
-		var Relationship sourceRelationship = createJoinRelationship(joinEntity, relationship.source)
-		var Relationship targetRelationship = createJoinRelationship(joinEntity, relationship.target)
-		
-		'''
-		«sourceRelationship.compileXToOneRelationshipForModel»
-		«targetRelationship.compileXToOneRelationshipForModel»
-		'''
-		
 	}
 	
 	private def joinKeys(List<DataAttribute> keys){

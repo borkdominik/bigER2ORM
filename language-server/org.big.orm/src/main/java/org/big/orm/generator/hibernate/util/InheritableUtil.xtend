@@ -52,6 +52,11 @@ class InheritableUtil {
     «ENDIF»
     public «IF e instanceof MappedClass»abstract «ENDIF»class «e.name» «IF e instanceof InheritableElement && (e as InheritableElement).extends !== null »extends «(e as InheritableElement).extends.name» «ENDIF»«IF e instanceof Embeddable»implements Serializable «ENDIF»{
     	
+    	«IF e instanceof Entity && (e as Entity).joinEntity»
+    	@EmbeddedId
+    	private «e.name»Id id;
+    	
+    	«ENDIF»
     	«FOR a : e.attributes SEPARATOR "\n"»
     	«IF a instanceof DataAttribute»
     	«a.compile»

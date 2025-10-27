@@ -41,6 +41,12 @@ class ImportUtil {
 				}
 			}
 			
+			// JOIN ENTITY
+			if (e.joinEntity) {
+				imports.add("jakarta.persistence.EmbeddedId");
+				imports.add("jakarta.persistence.MapsId");
+			}
+			
 		} else if (e instanceof Embeddable) {
 			imports.add("jakarta.persistence.Embeddable");
 			imports.add("java.io.Serializable");
@@ -116,18 +122,12 @@ class ImportUtil {
 		}
 		
 		//MANY-TO-MANY directly defined
-		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[attributes.empty].empty){
+		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].empty){
 			imports.add("jakarta.persistence.ManyToMany");
 			imports.add("jakarta.persistence.JoinTable");
 			imports.add("jakarta.persistence.JoinColumn");
 			imports.add("jakarta.persistence.JoinColumns");
 			imports.add("jakarta.persistence.ForeignKey");
-			imports.add("java.util.List");
-		}
-		
-		//MANY-TO-MANY using join entity
-		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[!attributes.empty].empty){
-			imports.add("jakarta.persistence.OneToMany");
 			imports.add("java.util.List");
 		}
 		
@@ -143,42 +143,11 @@ class ImportUtil {
 		}
 		
 		//MANY-TO-MANY directly defined
-		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[attributes.empty].empty){
+		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].empty){
 			imports.add("jakarta.persistence.ManyToMany");		
 			imports.add("java.util.List");
 		}
-		//MANY-TO-MANY using join entity
-		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[!attributes.empty].empty){
-			imports.add("jakarta.persistence.OneToMany");
-			imports.add("java.util.List");
-		}
 		
-		return imports;
-	}
-	
-	def generateImports(Relationship r) {
-		val imports = new TreeSet<String>();
-		
-		imports.add("jakarta.persistence.EmbeddedId");
-		imports.add("jakarta.persistence.Entity");
-		imports.add("jakarta.persistence.ForeignKey");
-		imports.add("jakarta.persistence.JoinColumn");
-		imports.add("jakarta.persistence.JoinColumns");
-		imports.add("jakarta.persistence.ManyToOne");
-		imports.add("jakarta.persistence.MapsId");
-		imports.add("lombok.Getter");
-		imports.add("lombok.Setter");
-		
-		if (!r.attributes.filter(DataAttribute).empty){
-			imports.add("jakarta.persistence.Column");
-		}
-		if (!r.attributes.filter(EmbeddedAttribute).empty){
-			imports.add("jakarta.persistence.Embedded");
-		}
-		if (!r.attributes.filter(EnumAttribute).empty){
-			imports.add("jakarta.persistence.Column");
-			imports.add("jakarta.persistence.Convert");
-		}
 		return imports;
 	}
 }

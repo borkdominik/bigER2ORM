@@ -17,12 +17,12 @@ class Student(Person):
             mapped_column("post_code", Integer, nullable=True),
             mapped_column("country", String(255), nullable=True)
     )
-    studies: Mapped[list["StudentStudyProgram"]] = relationship(back_populates="student")
 
     student_card_card_nr: Mapped[str] = mapped_column(String(255), nullable=True)
     student_card_card_version: Mapped[str] = mapped_column(String(255), nullable=True)
     student_card: Mapped["StudentCard"] = relationship(foreign_keys=[student_card_card_nr, student_card_card_version], back_populates="student")
     certificates: Mapped[list["Certificate"]] = relationship(back_populates="student")
+    studies: Mapped[list["StudentStudyProgram"]] = relationship(back_populates="student")
 
     __mapper_args__ = {
         "polymorphic_identity": "student", "concrete": True,

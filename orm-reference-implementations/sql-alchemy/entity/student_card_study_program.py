@@ -7,7 +7,15 @@ from sqlalchemy.orm import Mapped, composite, mapped_column, relationship
 
 
 class StudentCardStudyProgram(Base):
-    __tablename__ = "student_card_study_program"
+    __tablename__ = 'student_card_study_program'
+
+    finished: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    card_status: Mapped[Status] = mapped_column(Enum(native_enum=False, length=255), nullable=True)
+
+    additional_data: Mapped[StudentCardStudyProgramData] = composite(
+            mapped_column("data_one", String(255), nullable=True),
+            mapped_column("data_two", Integer, nullable=True)
+    )
 
     student_card_card_nr: Mapped[str] = mapped_column(String(255))
     student_card_card_version: Mapped[str] = mapped_column(String(255))
@@ -15,13 +23,6 @@ class StudentCardStudyProgram(Base):
 
     study_program_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     study_program: Mapped["StudyProgram"] = relationship(foreign_keys=[study_program_id], back_populates="student_cards")
-
-    finished: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    card_status: Mapped[Status] = mapped_column(Enum(native_enum=False, length=255), nullable=True)
-    additional_data: Mapped[StudentCardStudyProgramData] = composite(
-            mapped_column("data_one", String(255), nullable=True),
-            mapped_column("data_two", Integer, nullable=True)
-    )
 
     __table_args__ = (
         PrimaryKeyConstraint("study_program_id", "student_card_card_nr", "student_card_card_version"),

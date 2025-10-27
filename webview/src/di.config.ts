@@ -4,7 +4,7 @@ import 'sprotty/css/sprotty.css';
 import '../css/diagram.css';
 import {
     configureActionHandler,
-    configureModelElement, ConsoleLogger, DiamondNodeView, editFeature, editLabelFeature, ExpandButtonHandler, ExpandButtonView,
+    configureModelElement, ConsoleLogger, editFeature, editLabelFeature, ExpandButtonHandler, ExpandButtonView,
     expandFeature, HtmlRootImpl, HtmlRootView, labelEditUiModule, loadDefaultModules, LogLevel, overrideViewerOptions,
     PreRenderedElementImpl,
     PreRenderedView, RectangularNodeView, SButtonImpl, SCompartmentImpl, SCompartmentView, SEdgeImpl, SLabelImpl, SLabelView, SModelRootImpl, SPortImpl, TYPES
@@ -31,7 +31,6 @@ const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
     configureModelElement(context, 'node:inheritable', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });
     configureModelElement(context, 'node:embeddable', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });
     configureModelElement(context, 'node:enum', OrmModelNode, RectangularNodeView, { enable: [expandFeature] });
-    configureModelElement(context, 'node:relationship', OrmModelNode, DiamondNodeView);
 
     // Compartments
     configureModelElement(context, 'comp:element-header', SCompartmentImpl, SCompartmentView);
@@ -47,7 +46,6 @@ const diagramModule = new ContainerModule((bind, unbind, isBound, rebind) => {
 
     // Labels
     configureModelElement(context, 'label:header', SLabelImpl, SLabelView, { disable: [editLabelFeature] });
-    configureModelElement(context, 'label:relationship', SLabelImpl, SLabelView, { disable: [editLabelFeature] });
     configureModelElement(context, 'label:text', SLabelImpl, SLabelView, { disable: [editLabelFeature] });
     configureModelElement(context, 'label:key', SLabelImpl, SLabelView, { disable: [editLabelFeature] });
     configureModelElement(context, 'label:required', SLabelImpl, SLabelView, { disable: [editLabelFeature] });

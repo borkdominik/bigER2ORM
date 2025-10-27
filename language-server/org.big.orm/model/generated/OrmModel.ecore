@@ -22,6 +22,11 @@
   <eClassifiers xsi:type="ecore:EClass" name="Entity" eSuperTypes="#//InheritableElement">
     <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
         eType="#//EntityOption" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="joinEntity" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="joinSource" eType="#//RelationEntity"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="joinTarget" eType="#//RelationEntity"
+        containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Embeddable" eSuperTypes="#//AttributedElement"/>
   <eClassifiers xsi:type="ecore:EClass" name="OrmEnum" eSuperTypes="#//ModelElement">
@@ -40,8 +45,6 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sourceRequired" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//RelationEntity"
         containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
-        eType="#//Attribute" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RelationEntity">
     <eStructuralFeatures xsi:type="ecore:EReference" name="entity" eType="#//InheritableElement"/>

@@ -25,6 +25,13 @@ class ImportUtil {
 			imports.add("Microsoft.EntityFrameworkCore");
 		}
 		
+		// Join Entity
+		if(e instanceof Entity) {
+			if ((e as Entity).joinEntity){
+				imports.add("Microsoft.EntityFrameworkCore");
+			}
+		}
+		
 		// Table Annotation
 		if (e.needsTableAnnotation) {
 			imports.add("System.ComponentModel.DataAnnotations.Schema");

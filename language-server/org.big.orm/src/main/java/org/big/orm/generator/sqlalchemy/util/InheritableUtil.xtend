@@ -205,6 +205,28 @@ class InheritableUtil {
 		}
 	}
 	
+	def void addJoinEntityTableArgs(Entity e) {
+		var List<String> keyAttributes = new ArrayList<String>();
+		val String lowUnderSourceAttributeName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.joinSource.entity.name);
+		val String lowUnderTargetAttributeName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.joinTarget.entity.name);
+	
+		
+		// NOTE: To match ordering of Hibernate, need to sort based on keyAttribute name
+		val List<String> dataKeys = new ArrayList<String>()
+		val List<String> embeddedKeys = new ArrayList<String>()
+	
+		val List<DataAttribute> sourceKeys = e.joinSource.entity.keyAttributesAsDataAttributes;
+		val List<DataAttribute> targetKeys = e.joinTarget.entity.keyAttributesAsDataAttributes;
+	
+		(sourceKeys.length > 1 ? embeddedKeys : dataKeys).addAll(sourceKeys.map[keyAttribute | '''"«lowUnderSourceAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»"''']);
+		(targetKeys.length > 1 ? embeddedKeys : dataKeys).addAll(targetKeys.map[keyAttribute | '''"«lowUnderTargetAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»"''']);
+	
+		keyAttributes.addAll(dataKeys.sort)
+		keyAttributes.addAll(embeddedKeys.sort)
+	
+		e.tableArgs.add('''PrimaryKeyConstraint(«String.join(", ", keyAttributes)»)''')
+	}
+	
 	def List<CharSequence> getTableArgs(InheritableElement i) {
 		var List<CharSequence> list = globalTableArgs.getOrDefault(i, new ArrayList<CharSequence>());
 		globalTableArgs.putIfAbsent(i, list);

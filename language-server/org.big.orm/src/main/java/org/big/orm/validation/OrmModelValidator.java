@@ -9,6 +9,7 @@ import org.big.orm.ormModel.Attribute;
 import org.big.orm.ormModel.AttributeType;
 import org.big.orm.ormModel.DataAttribute;
 import org.big.orm.ormModel.Embeddable;
+import org.big.orm.ormModel.Entity;
 import org.big.orm.ormModel.EnumAttribute;
 import org.big.orm.ormModel.EnumValue;
 import org.big.orm.ormModel.InheritableElement;
@@ -33,6 +34,23 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
     private static final Pattern LOWER_SNAKE = Pattern.compile("^[a-z]+(?:[_][a-z]+)*$");
 	
 	
+	@Check
+	public void checkJoinEntityDoesNotExtend(Entity entity) {
+		if (entity.isJoinEntity() && entity.getExtends()!=null) {
+			warning("Join Entities can't be extended", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidModelElement");
+		}
+	}
+	
+	@Check
+	public void checkJoinEntityRelationEntityHasAttributeNames(Entity entity) {
+		if (entity.isJoinEntity()) {
+			if (entity.getJoinSource().getAttributeName() == null || entity.getJoinTarget().getAttributeName() == null ) {
+				warning("Join Entities need Attribute Names for the joined entities", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidModelElement");
+			}
+		}
+	}
+    
+    
 	@Check
 	public void checkModelNameMatchesUpperCamel(OrmModel model) {
 		if (!LOWER_SNAKE.matcher(model.getName()).matches()) {
@@ -89,17 +107,33 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 	}
 	
 	@Check
-	public void checkRelationshipAttributesOnlyOnManyToMany(Relationship relationship) {
-		if (relationship.getType() != RelationshipType.MANY_TO_MANY && relationship.getAttributes().size() > 0) {
-			warning("Additional attributes are only supported for MANY_TO_MANY relationships", OrmModelPackage.Literals.RELATIONSHIP__ATTRIBUTES, "invalidRelationship");
+	public void checkRelationshipOnlyConnectingNonJoinEntities(Relationship relationship) {
+		if (!(relationship.getSource().getEntity() instanceof Entity)) {
+			warning("Relationships can only connect non-join Entities", OrmModelPackage.Literals.RELATIONSHIP__SOURCE, "invalidRelationship");
+		} else {
+			if (((Entity) relationship.getSource().getEntity()).isJoinEntity()) {
+				warning("Relationships can only connect non-join Entities", OrmModelPackage.Literals.RELATIONSHIP__SOURCE, "invalidRelationship");
+			}
+		}
+		
+		if (!(relationship.getTarget().getEntity() instanceof Entity)) {
+			warning("Relationships can only connect non-join Entities", OrmModelPackage.Literals.RELATIONSHIP__TARGET, "invalidRelationship");
+		} else {
+			if (((Entity) relationship.getTarget().getEntity()).isJoinEntity()) {
+				warning("Relationships can only connect non-join Entities", OrmModelPackage.Literals.RELATIONSHIP__TARGET, "invalidRelationship");
+			}
 		}
 	}
 	
-	
 	@Check
 	public void checkElementOnlyHasOneKey(InheritableElement element) {
+		if (element instanceof Entity) {
+			if (((Entity) element).isJoinEntity()) {
+				return;
+			}
+		}
 		int keys = getKeyCount(element);
-		if (keys != 1) {
+		if (keys != 1 && !(element instanceof Entity)) {
 			warning("Root entities must have exactly one primary key. For composite primary keys define an embeddable to be used as key.", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidEntity");
 		}
 	}
@@ -119,15 +153,7 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 			warning("Embeddables are not allowed to have primary keys.", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidEmbeddable");
 		}
 	}
-	
-	@Check
-	public void checkRelationshipHasNoKey(Relationship relationship) {
-		if (relationship.getAttributes().stream().filter(a -> a.getType().equals(AttributeType.ID)).count() != 0) {
-			warning("Relationships are not allowed to have primary keys.", OrmModelPackage.Literals.RELATIONSHIP__NAME, "invalidRelationship");
-		}
-	}
-	
-	
+
 	@Check
 	public void checkRequiredOnlyOnDataAttribute(Attribute attribute) {
 		if (!(attribute instanceof DataAttribute) && attribute.getType().equals(AttributeType.REQUIRED)) {

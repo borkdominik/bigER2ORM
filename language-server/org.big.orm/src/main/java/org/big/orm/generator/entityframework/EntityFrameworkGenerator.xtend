@@ -14,13 +14,12 @@ import com.google.inject.Inject
 import org.big.orm.generator.entityframework.util.InheritableUtil
 import org.big.orm.ormModel.InheritableElement
 import org.big.orm.ormModel.Relationship
-import org.big.orm.ormModel.RelationshipType
-import org.big.orm.generator.entityframework.util.RelationshipUtil
 import org.big.orm.generator.entityframework.util.ModelUtil
 import org.big.orm.ormModel.Entity
 import org.big.orm.generator.entityframework.util.InitUtil
 import org.big.orm.generator.entityframework.util.EnumUtil
 import org.big.orm.ormModel.OrmEnum
+import org.big.orm.generator.common.CommonUtil
 
 /**
  * Generates code from your model files on save.
@@ -32,17 +31,24 @@ class EntityFrameworkGenerator extends AbstractGenerator {
 	extension IQualifiedNameProvider = new DefaultDeclarativeQualifiedNameProvider();
 
 	@Inject extension InheritableUtil inheritableUtil;
-	@Inject extension RelationshipUtil relationshipUtil;
 	@Inject extension ModelUtil modelUtil;
 	@Inject extension InitUtil initUtil;
 	@Inject extension EnumUtil enumUtil;
+	@Inject extension CommonUtil commonUtil;
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("EF Generator called!");
 		
-		var modelName = resource.allContents.toIterable.filter(OrmModel).head.name;
+		val OrmModel ormModel = resource.allContents.toIterable.filter(OrmModel).head;
+		var modelName = ormModel.name;
 		
 		inheritableUtil.modelName = modelName
+		
+		// Enhance model by including many-to-one relationships for join entities
+		for (e : resource.allContents.toIterable.filter(Entity).filter[joinEntity]) {
+			ormModel.relationships.add(e.createJoinRelationship(e.joinSource));
+			ormModel.relationships.add(e.createJoinRelationship(e.joinTarget));
+		}
                 
         // Generate Elements
         for (e : resource.allContents.toIterable.filter(InheritableElement)) {
@@ -57,13 +63,6 @@ class EntityFrameworkGenerator extends AbstractGenerator {
         	fsa.generateFile(
             	"entity/" + e.name + ".cs",
             	new StringBuilder(e.compile.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
-        }
-        
-        for (r : resource.allContents.toIterable.filter(Relationship).filter[r | r.type === RelationshipType.MANY_TO_MANY].filter[r | !r.attributes.empty]){
-        	System.err.println("Relationship to generate join entity for: " + r.name + " as " + r.fullyQualifiedName.toString("/") + ".cs");
-        	fsa.generateFile(
-            	"entity/" + r.name + ".cs",
-            	new StringBuilder(r.compileJoinEntity.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
         }
         
         System.err.println("Generating model file as Model.cs");

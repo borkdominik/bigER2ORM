@@ -31,50 +31,6 @@ class ImportUtil {
 	
 	@Inject extension CommonUtil commonUtil;
 	
-	def List<String> generateImports(Relationship r) {
-		val imports = new TreeSet<String>();
-		val importFroms = new HashMap<String, TreeSet<String>>();
-		val finalFromImports = new TreeSet<String>();
-		
-		addFromImport(importFroms, "base", "Base");
-		addFromImport(importFroms, "sqlalchemy", "ForeignKeyConstraint");
-		
-		if (r.attributes.empty){
-			addFromImport(importFroms, "sqlalchemy", "Table");
-			addFromImport(importFroms, "sqlalchemy", "Column");
-		} else {
-			addFromImport(importFroms, "sqlalchemy.orm", "relationship");
-			addFromImport(importFroms, "sqlalchemy.orm", "Mapped");
-			addFromImport(importFroms, "sqlalchemy.orm", "mapped_column");
-			addFromImport(importFroms, "sqlalchemy", "PrimaryKeyConstraint");
-			
-			// INHERITE TYPES FOR ATTRIBUTES
-			
-			addImportsForAttributes(r.attributes, imports, importFroms)
-			
-			// INHERITE TYPES FOR KEYS
-			
-			val List<DataAttribute> keyAttributes = new ArrayList<DataAttribute>();
-			keyAttributes.addAll(r.source.entity.keyAttributesAsDataAttributes)
-			keyAttributes.addAll(r.target.entity.keyAttributesAsDataAttributes)
-			
-			if (!keyAttributes.filter[datatype === DataType.UUID].empty) {
-				imports.add("import uuid");
-				addFromImport(importFroms, "sqlalchemy", "UUID");
-			}
-			
-			if (!keyAttributes.filter[datatype === DataType.STRING].empty) {
-				addFromImport(importFroms, "sqlalchemy", "String");
-			}
-		}
-		
-		// Parse importFroms at end of import generation
-		for (Map.Entry<String, TreeSet<String>> entry : importFroms.entrySet) {
-			finalFromImports.add("from " + entry.key +  " import " + String.join(", ", entry.value))
-		}
-		
-		return Stream.concat(imports.toList.stream, finalFromImports.toList.stream).collect(Collectors.toList);
-	}
 	
 	def List<String> generateImports(InheritableElement e) {
 		val imports = new TreeSet<String>();
@@ -146,6 +102,11 @@ class ImportUtil {
 					addFromImport(importFroms, "sqlalchemy.ext.declarative", "ConcreteBase");	
 				}
 			}
+			
+			// JOIN ENTITY
+			if (e.joinEntity) {
+				addFromImport(importFroms, "sqlalchemy", "PrimaryKeyConstraint");	
+			}
 		}
 		
 			
@@ -173,12 +134,12 @@ class ImportUtil {
 			addFromImport(importFroms, "sqlalchemy.orm", "Mapped");
 		}
 		
-		for (Relationship r: elementSourceRelations.filter[relation | relation.type == RelationshipType.MANY_TO_MANY && relation.attributes.empty]) {
+		for (Relationship r: elementSourceRelations.filter[relation | relation.type == RelationshipType.MANY_TO_MANY]) {
 			var String tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.name)
 			addFromImport(importFroms, "entity." + tableName + "_table", tableName);
 		}
 		
-		for (Relationship r: elementTargetRelations.filter[relation | relation.type == RelationshipType.MANY_TO_MANY && relation.attributes.empty]) {
+		for (Relationship r: elementTargetRelations.filter[relation | relation.type == RelationshipType.MANY_TO_MANY]) {
 			var String tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.name)
 			addFromImport(importFroms, "entity." + tableName + "_table", tableName);
 		}
@@ -201,11 +162,6 @@ class ImportUtil {
 		val importFroms = new HashMap<String, TreeSet<String>>();
 		val finalFromImports = new TreeSet<String>();
 		var String fileName;
-		
-		for (relationship : resource.allContents.toIterable.filter(Relationship).filter[type === RelationshipType.MANY_TO_MANY && !attributes.empty]) {
-			fileName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, relationship.name)
-			addFromImport(importFroms, "entity." + fileName, relationship.name)
-		}
 		
 		for (entity : resource.allContents.toIterable.filter(Entity)) {
 			fileName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entity.name)

@@ -15,5 +15,6 @@ namespace university.entity
 
         [Column(TypeName = "Varchar(255)")]
         public string? Country { get; set; }
+
     }
 }

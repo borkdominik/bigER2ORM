@@ -21,6 +21,9 @@ import com.google.inject.Inject
 import org.big.orm.generator.sqlalchemy.util.InitUtil
 import org.big.orm.generator.sqlalchemy.util.EnumUtil
 import org.big.orm.ormModel.OrmEnum
+import org.big.orm.ormModel.OrmModel
+import org.big.orm.generator.common.CommonUtil
+import org.big.orm.ormModel.Entity
 
 /**
  * Generates code from your model files on save.
@@ -36,11 +39,22 @@ class SqlAlchemyGenerator extends AbstractGenerator {
 	@Inject extension EmbeddableUtil embeddableUtil;
 	@Inject extension InitUtil initUtil;
 	@Inject extension EnumUtil enumUtil;
+	@Inject extension CommonUtil commonUtil;
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("SqlAlchemy generator called!");
 		
 		inheritableUtil.reset;
+		
+				
+		val OrmModel ormModel = resource.allContents.toIterable.filter(OrmModel).head;
+		
+		// Enhance model by including many-to-one relationships for join entities
+		for (e : resource.allContents.toIterable.filter(Entity).filter[joinEntity]) {
+			ormModel.relationships.add(e.createJoinRelationship(e.joinSource));
+			ormModel.relationships.add(e.createJoinRelationship(e.joinTarget));
+			e.addJoinEntityTableArgs;
+		}
 		
 		// Generate Embeddables
         for (e : resource.allContents.toIterable.filter(Embeddable)) {
@@ -52,11 +66,11 @@ class SqlAlchemyGenerator extends AbstractGenerator {
         
         // Generate tables for many-to-many relationships
         for (r : resource.allContents.toIterable.filter(Relationship).filter[type === RelationshipType.MANY_TO_MANY]) {
-        	var String filename = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.name) + (r.attributes.empty ? "_table.py" : ".py");
+        	var String filename = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.name) + "_table.py";
         	System.err.println("Relationship to generate: " + r.name + " as " + r.fullyQualifiedName.toString("/") + ".py");
         	fsa.generateFile(
             	"entity/" + filename,
-            	new StringBuilder(r.compileAdditionTablesForManyToMany.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
+            	new StringBuilder(r.compileAdditionTableForManyToMany.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "    ")));
         }
         
         // Generate Inheritables

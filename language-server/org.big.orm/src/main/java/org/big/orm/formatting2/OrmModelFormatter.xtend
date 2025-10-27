@@ -76,10 +76,6 @@ class OrmModelFormatter extends AbstractFormatter2 {
 		relationship.source.regionFor.feature(RELATION_ENTITY__ATTRIBUTE_NAME).surround[noSpace]
 		relationship.target.append[setNewLines(1, 1, 2)]
 		relationship.target.regionFor.feature(RELATION_ENTITY__ATTRIBUTE_NAME).surround[noSpace]
-		
-		for (attribute : relationship.attributes) {
-			attribute.append[setNewLines(1, 1, 2)]
-		}
 	}
 	
 }

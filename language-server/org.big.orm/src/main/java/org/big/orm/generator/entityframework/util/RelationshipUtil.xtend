@@ -9,16 +9,12 @@ import com.google.inject.Inject
 import org.big.orm.generator.common.CommonUtil
 import org.big.orm.ormModel.DataAttribute
 import com.google.common.base.CaseFormat
-import java.util.List
-import org.big.orm.ormModel.OrmModelFactory
-import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class RelationshipUtil {
 	
 	@Inject extension CommonUtil commonUtil;
 	@Inject extension AttributeUtil attributeUtil;
-	@Inject extension InheritableUtil inheritableUtil;
 	
 	def CharSequence compileRelationshipAttributes(Entity e) {
 		val Iterable<Relationship> sourceRelationships = (e.eContainer as OrmModel).relationships.filter[relation | relation.source.entity.name.equals(e.name)]
@@ -39,7 +35,7 @@ class RelationshipUtil {
 	
 	def compileRelationshipAttributesForSource(Relationship r) {
 		switch r.type {
-			case RelationshipType.MANY_TO_MANY: r.attributes.empty ? compileManyToManyAttributesForSourceWithJoinTable(r) : compileManyToManyAttributesForSourceWithJoinEntity(r)
+			case RelationshipType.MANY_TO_MANY: compileManyToManyAttributesForSource(r)
 			case RelationshipType.MANY_TO_ONE, case RelationshipType.ONE_TO_ONE: compileXToOneAttributesForSource(r)
 			default: ''''''
 		}
@@ -55,83 +51,32 @@ class RelationshipUtil {
 	}
 	
 	
-	def compileManyToManyAttributesForSourceWithJoinTable(Relationship r){
+	def compileManyToManyAttributesForSource(Relationship r){
 	val String upperCamelAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, r.source.attributeName)
 	'''
 	public List<«r.target.entity.name»>? «upperCamelAttributeName» { get; set; }
 	'''	
 	}
 	
-	def compileManyToManyAttributesForSourceWithJoinEntity(Relationship r){
-	val String upperCamelAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, r.source.attributeName)
-	'''
-	public List<«r.name»>? «upperCamelAttributeName» { get; set; }
-	'''	
-	}
-	
 	def compileRelationshipAttributesForTarget(Relationship r){
 		switch r.type {
-			case RelationshipType.MANY_TO_MANY: r.attributes.empty ? compileManyToXAttributesForTargetWithoutJoinEntity(r) : compileManyToManyAttributesForTargetWithJoinEntity(r)
-			case RelationshipType.MANY_TO_ONE: compileManyToXAttributesForTargetWithoutJoinEntity(r)
+			case RelationshipType.MANY_TO_MANY, case RelationshipType.MANY_TO_ONE: compileManyToXAttributesForTarget(r)
 			case RelationshipType.ONE_TO_ONE: compileOneToOneAttributesForTarget(r)
 			default: ''''''
 		}	
 	}	
 	
-	def compileManyToXAttributesForTargetWithoutJoinEntity(Relationship r) {
+	def compileManyToXAttributesForTarget(Relationship r) {
 	val String upperCamelAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, r.target.attributeName)
 	'''
 	public List<«r.source.entity.name»>? «upperCamelAttributeName» { get; set; }
 	'''
 	}
 	
-	
-	def compileManyToManyAttributesForTargetWithJoinEntity(Relationship r){
-	val String upperCamelAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, r.target.attributeName)
-	'''
-	public List<«r.name»>? «upperCamelAttributeName» { get; set; }
-	'''	
-	}
-	
 	def compileOneToOneAttributesForTarget(Relationship r){
 	val String upperCamelAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, r.target.attributeName)
 	'''
 	public «r.source.entity.name»? «upperCamelAttributeName» { get; set; }
-	'''
-	}
-	
-	def compileJoinEntity(Relationship r) {
-	val List<DataAttribute> keyAttributes = (r.source.entity.keyAttributesAsDataAttributes.map[a | a.copyAttribute(r.source.entity.name) as DataAttribute] + r.target.entity.keyAttributesAsDataAttributes.map[a | a.copyAttribute(r.target.entity.name) as DataAttribute]).toList
-	var Entity joinEntity  = OrmModelFactory.eINSTANCE.createEntity()
-	joinEntity.name = r.name
-	var Relationship sourceRelationship = createJoinRelationship(joinEntity, r.source)
-	var Relationship targetRelationship = createJoinRelationship(joinEntity, r.target)
-	'''
-	using Microsoft.EntityFrameworkCore;
-	using System.ComponentModel.DataAnnotations.Schema;
-	
-	namespace «inheritableUtil.modelName».entity
-	{
-	    [Table("«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.name)»")]
-	    [PrimaryKey(«keyAttributes.map[attribute | '''nameof(«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, attribute.name)»)'''].join(", ")»)]
-	    public class «r.name»
-	    {
-			«sourceRelationship.compileRelationshipAttributesForSource»
-	
-			«targetRelationship.compileRelationshipAttributesForSource»
-	
-			«FOR attribute : r.attributes.allAttributesAsDataAttributes SEPARATOR "\n"»
-			«attribute.compileToEntityFrameworkAttribute(false)»
-			«ENDFOR»«IF !r.attributes.allAttributesAsDataAttributes.empty»
-			
-			«ENDIF»
-			«FOR attribute : r.attributes.filter(EnumAttribute) SEPARATOR "\n"»
-			«attribute.compileToEntityFrameworkAttribute()»
-			«ENDFOR»«IF !r.attributes.filter(EnumAttribute).empty»
-			
-			«ENDIF»
-	    }
-	}
 	'''
 	}
 }

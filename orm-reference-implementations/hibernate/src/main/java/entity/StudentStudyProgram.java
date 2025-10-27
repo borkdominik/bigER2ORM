@@ -19,6 +19,9 @@ public class StudentStudyProgram {
   @EmbeddedId
   private StudentStudyProgramId id;
 
+  @Column(name = "finished")
+  private Boolean finished;
+
   @MapsId("studentId")
   @ManyToOne(optional = false)
   @JoinColumns(value = {
@@ -32,8 +35,5 @@ public class StudentStudyProgram {
     @JoinColumn(name = "study_program_id", referencedColumnName = "id"),
   }, foreignKey = @ForeignKey(name = "fk_student_study_program_study_program"))
   private StudyProgram studyProgram;
-
-  @Column(name = "finished")
-  private Boolean finished;
 
 }

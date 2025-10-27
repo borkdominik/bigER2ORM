@@ -21,6 +21,16 @@ public class StudentCardStudyProgram {
   @EmbeddedId
   private StudentCardStudyProgramId id;
 
+  @Column(name = "finished")
+  private Boolean finished;
+
+  @Convert(converter = Status.Converter.class)
+  @Column(name = "card_status")
+  private Status cardStatus;
+
+  @Embedded
+  private StudentCardStudyProgramData additionalData;
+
   @MapsId("studentCardId")
   @ManyToOne(optional = false)
   @JoinColumns(value = {
@@ -35,15 +45,5 @@ public class StudentCardStudyProgram {
     @JoinColumn(name = "study_program_id", referencedColumnName = "id"),
   }, foreignKey = @ForeignKey(name = "fk_student_card_study_program_study_program"))
   private StudyProgram studyProgram;
-
-  @Column(name = "finished")
-  private Boolean finished;
-
-  @Convert(converter = Status.Converter.class)
-  @Column(name = "card_status")
-  private Status cardStatus;
-
-  @Embedded
-  private StudentCardStudyProgramData additionalData;
 
 }

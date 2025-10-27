@@ -90,9 +90,7 @@ ManyToMany relationship CoursesLecturers {
     target Lecturer["courses"]
 }
 
-ManyToMany relationship StudentStudyProgram {
-    source Student["studies"]
-    target StudyProgram["students"]
+entity StudentStudyProgram joins (Student["studies"], StudyProgram["students"]) {
     finished Boolean
 }
 
@@ -111,11 +109,8 @@ OneToOne relationship StudentStudentCard {
     target StudentCard["student"]
 }
 
-ManyToMany relationship StudentCardStudyProgram {
-    source StudentCard["studyPrograms"]
-    target StudyProgram["studentCards"]
+entity StudentCardStudyProgram joins (StudentCard["studyPrograms"], StudyProgram["studentCards"]) {
     finished Boolean
     enum cardStatus Status
     embedded additionalData StudentCardStudyProgramData
 }
-
