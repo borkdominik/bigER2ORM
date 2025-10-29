@@ -54,13 +54,13 @@ export default async function batchGenerateCode() {
         debugLogChannel.appendLine("Created new folder: " + subfolderUri.toString());
 
         for (const languageOption of languageOptions) {
-            generateForLanguage(languageOption, subfolderPath, fileUri);
+            await generateForLanguage(languageOption, subfolderPath, fileUri);
         }
     }
 }
 
 
-function generateForLanguage(language: {name: string, folderName: string}, targetFolder: string, modelUri: Uri) {
+async function generateForLanguage(language: {name: string, folderName: string}, targetFolder: string, modelUri: Uri) {
     // Create folder
     const targetSubfolder = path.join(targetFolder, language.folderName);
     const targetSubfolderUri = Uri.file(targetSubfolder);
@@ -69,5 +69,6 @@ function generateForLanguage(language: {name: string, folderName: string}, targe
 
     debugLogChannel.appendLine(`Generating code for ${modelUri} in ${language.name}`);
     const args = {"file": modelUri.toString(), "language": language.name, "outputPath": targetSubfolderUri.toString()};
-    commands.executeCommand("big.orm.command.generate", args).then(((answer) => { debugLogChannel.appendLine(String(answer)); }));
+    const result = await commands.executeCommand("big.orm.command.generate", args);
+    debugLogChannel.appendLine(String(result));
 }
