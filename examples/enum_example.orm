@@ -1,0 +1,11 @@
+orm_model enum_example
+
+enum ExampleEnum {
+    VALUE_ONE
+    VALUE_TWO
+}
+
+entity ExampleEntity {
+    id UUID key
+    enum example ExampleEnum
+}

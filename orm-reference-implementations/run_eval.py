@@ -62,17 +62,17 @@ def main():
 
     # 4+5) run each project: up -d with the compose file next to the script, but CWD = project dir
     for proj in projects:
-        cmd_up = ["docker", "compose", "-f", str(compose_file), "up", "-d"]
+        cmd_up = ["docker", "compose", "--project-directory", str(proj), "-f", str(compose_file), "up", "-d"]
         if subprocess.call(cmd_up, cwd=str(proj)) != 0:
             print(f"error: failed: {' '.join(cmd_up)} (cwd={proj})", file=sys.stderr)
-            subprocess.call(["docker", "compose", "-f", str(compose_file), "down", "-v"], cwd=str(proj))
+            subprocess.call(["docker", "compose", "--project-directory", str(proj), "-f", str(compose_file), "down", "-v"], cwd=str(proj))
             return 1
 
         cid = ""
-        deadline = time.time() + 60
+        deadline = time.time() + 120
         while time.time() < deadline and not cid:
             out = subprocess.run(
-                ["docker", "compose", "-f", str(compose_file), "ps", "-q", "migra-runner"],
+               ["docker", "compose", "--project-directory", str(proj), "-f", str(compose_file), "ps", "-q", "migra-runner"],
                 cwd=str(proj),
                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True
             )
@@ -81,8 +81,8 @@ def main():
                 break
             time.sleep(2)
         if not cid:
-            print("error: migra-runner did not start within 60s", file=sys.stderr)
-            subprocess.call(["docker", "compose", "-f", str(compose_file), "down", "-v"], cwd=str(proj))
+            print("error: migra-runner did not start within 120s", file=sys.stderr)
+            subprocess.call(["docker", "compose", "--project-directory", str(proj), "-f", str(compose_file), "down", "-v"], cwd=str(proj))
             return 1
 
         exit_code = 1
@@ -104,7 +104,8 @@ def main():
                 break
             time.sleep(2)
 
-        subprocess.call(["docker", "compose", "-f", str(compose_file), "down", "-v"], cwd=str(proj))
+        subprocess.call(["docker", "compose", "--project-directory", str(proj), "-f", str(compose_file), "down", "-v"], cwd=str(proj))
+        time.sleep(10)
 
         if exit_code != 0:
             print(f"error: project {proj.name} failed (exit {exit_code})", file=sys.stderr)

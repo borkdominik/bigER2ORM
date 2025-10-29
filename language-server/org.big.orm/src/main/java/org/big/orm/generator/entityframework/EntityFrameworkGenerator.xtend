@@ -39,10 +39,10 @@ class EntityFrameworkGenerator extends AbstractGenerator {
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.err.println("EF Generator called!");
 		
-		val OrmModel ormModel = resource.allContents.toIterable.filter(OrmModel).head;
+		var OrmModel ormModel = resource.allContents.toIterable.filter(OrmModel).head;
 		var modelName = ormModel.name;
 		
-		inheritableUtil.modelName = modelName
+		inheritableUtil.modelName = modelName;
 		
 		// Enhance model by including many-to-one relationships for join entities
 		for (e : resource.allContents.toIterable.filter(Entity).filter[joinEntity]) {

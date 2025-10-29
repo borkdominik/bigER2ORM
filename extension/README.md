@@ -47,14 +47,18 @@
   - [4.1. ORM Modeling](#41-orm-modeling)
     - [4.1.1. Data Elements](#411-data-elements)
       - [4.1.1.1. Embeddables](#4111-embeddables)
-      - [4.1.1.2. Entities](#4112-entities)
-      - [4.1.1.3. Mapped Classes](#4113-mapped-classes)
+      - [4.1.1.2. Embeddables](#4112-embeddables)
+      - [4.1.1.3. Enums](#4113-enums)
+      - [4.1.1.4. Entities](#4114-entities)
+        - [4.1.1.4.1. Join Entities](#41141-join-entities)
+      - [4.1.1.5. Mapped Classes](#4115-mapped-classes)
     - [4.1.2. Relationships](#412-relationships)
     - [4.1.3. Data types](#413-data-types)
     - [4.1.4. Type modifiers](#414-type-modifiers)
   - [4.2. Model Visualization](#42-model-visualization)
   - [4.3. Code Generation](#43-code-generation)
   - [4.4. ORM Reverse engineering (!EXPERIMENTAL!)](#44-orm-reverse-engineering-experimental)
+
 
 # 1. About the Project
 
@@ -112,7 +116,37 @@ embeddable Address {
 
 Embeddables do not support type modifiers.
 
-#### 4.1.1.2. Entities
+#### 4.1.1.2. Embeddables
+
+Embeddables represent containers to display repeated standardized data structures.
+
+An example would be as follows:
+
+```
+embeddable Address {
+    street String
+    city String
+    postCode Integer
+    country String
+}
+```
+
+Embeddables can be used as ``keys``, allowing to create composite primary keys.
+
+#### 4.1.1.3. Enums
+
+Enums are a custom datatype to represent a limited amount of fixed constants. They can be created as follows:
+
+```
+enum Status {
+    VALID
+    INVALID
+}
+```
+
+**Note:** **bigORM** always maps enums to strings within the database. Custom types, which some databases might support, are not supported.
+
+#### 4.1.1.4. Entities
 
 An Entity represents an object that is meant to be saved within the database. They need a key, additionally they support inheritance from other entities.
 
@@ -123,6 +157,8 @@ See the following for an example on how entities could be defined:
 entity Certificate {
     id UUID key
     grade Integer
+    enum status Status
+    examAddress Address
 }
 
 entity RecognizedCertificate extends Certificate {
@@ -135,7 +171,21 @@ Notice how the annotation on the parent class defines how the child classes will
 - ``Inheritance.TablePerClass`` : Every class will have a dedicated table covering all attributes
 - ``Inheritance.SingleTable`` : All objects are in the same table, having a dedicated column to differentiat which kind of type the object has
 
-#### 4.1.1.3. Mapped Classes
+##### 4.1.1.4.1. Join Entities
+
+Join entities represent a special kind of entity within **bigORM**. Instead of defining their own primary key, they are defined to join two other entities and will get a composite primary key from the joined entities. The join entity automatically creates additional ``ManyToOne`` relationships from itself to the joined entities.
+
+This is used to represent ``ManyToMany`` relationships, with additional attributes. An example is provided in the following:
+
+```
+entity StudentStudyProgram joins (Student["studies"], StudyProgram["students"]) {
+    finished Boolean
+}
+```
+
+**Note:** Join entities do not support extending other classes or defining additional primary keys.
+
+#### 4.1.1.5. Mapped Classes
 
 In addition to entities and embeddables, **bigORM** also supports Mapped Classes, which can be used to define recurring patterns in entities, like standardized UUID structures. An example is provided in the following:
 
@@ -163,7 +213,6 @@ Defined entities can be connected using relationships, which can be defined as f
 ManyToMany relationship StudentStudyProgram {
     source Student["studies"]
     target StudyProgram["students"]
-    finished Boolean
 }
 ```
 
@@ -177,9 +226,9 @@ Afterwards the ``relationship`` keyword defines the object actually as an relati
 
 Afterwards the ``source`` and ``target`` have to be defined, by describing the Entities that the relationship is related to, in addition to the property under which the relationship element should be accessable from within the object. For the source it is possible to define whether a connected object is ``required``.
 
-Finally it is possible to include additional properties for the relationship, if this is needed.
-
 **Note:** **bigORM** does not support ``OneToMany`` relationships, due to them requiring a dedicated table, which is often considered bad practice.
+
+**Note:** **bigORM** does not support additional attributes within relationships. Storing additional attributes always requires a dedicated table, for ``OneToOne`` or ``ManyToOne`` relationships, it is considered best practice to include the additional property in one of the existing entities, to not need an additional table. For ``ManyToMany`` all supported ORM systems actually create an additional entity that joins both entities via two ``ManyToOne`` relationships. To better reflect this, we've defined the concept of ``Join Entities``, described in section [4.1.1.4.1. Join Entities](#41141-join-entities).
 
 ### 4.1.3. Data types
 

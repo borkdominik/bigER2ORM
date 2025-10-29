@@ -23,7 +23,7 @@ class ModelUtil {
 	using Microsoft.EntityFrameworkCore;
 	using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 	
-	public class «CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, modelName)»Context : DbContext
+	public class «CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, modelName)»Context : DbContext
 	{
 		«FOR entity : entities.sortBy[name] SEPARATOR "\n"»public DbSet<«entity.name»> «entity.name» { get; set; }«ENDFOR»
 		

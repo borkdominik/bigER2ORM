@@ -39,7 +39,7 @@ class InitUtil {
 	'''
 	Console.WriteLine("Hello, World!");
 	
-	using var db = new «CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, model.name)»Context();
+	using var db = new «CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, model.name)»Context();
 	
 	db.Database.EnsureDeleted();
 	
