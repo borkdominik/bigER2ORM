@@ -105,7 +105,6 @@ def main():
             time.sleep(2)
 
         subprocess.call(["docker", "compose", "--project-directory", str(proj), "-f", str(compose_file), "down", "-v"], cwd=str(proj))
-        time.sleep(10)
 
         if exit_code != 0:
             print(f"error: project {proj.name} failed (exit {exit_code})", file=sys.stderr)

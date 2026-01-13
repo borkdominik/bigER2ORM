@@ -80,9 +80,6 @@
     <eLiterals name="ManyToMany" value="2" literal="ManyToMany"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="EntityOption"/>
-  <eClassifiers xsi:type="ecore:EClass" name="TableNameOption" eSuperTypes="#//EntityOption">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="InheritanceOption" eSuperTypes="#//EntityOption">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="option" eType="#//InheritanceStrategy"/>
   </eClassifiers>

@@ -7,14 +7,19 @@ embeddable Address {
     country String
 }
 
+embeddable StudentCardId {
+    cardNr String
+    cardVersion String
+}
+
 embeddable StudentCardStudyProgramData {
     dataOne String
     dataTwo Integer
 }
 
-embeddable StudentCardId {
-    cardNr String
-    cardVersion String
+enum Status {
+    VALID
+    INVALID
 }
 
 enum StudyProgramType {
@@ -23,19 +28,9 @@ enum StudyProgramType {
     DOCTOR
 }
 
-enum Status {
-    VALID
-    INVALID
-}
-
-@(Inheritance.JoinedTable)
-entity StudentCard {
-    embedded id StudentCardId key
-    printedName String required
-}
-
-entity GraduateStudentCard extends StudentCard {
-    graduationDate String
+mapped_class NamedElement {
+    id UUID key
+    name String
 }
 
 @(Inheritance.JoinedTable)
@@ -51,12 +46,12 @@ entity Course extends NamedElement {
 entity CourseWithExercise extends Course {
 }
 
-entity Lecturer extends Person{
+
+entity GraduateStudentCard extends StudentCard {
+    graduationDate String
 }
 
-mapped_class NamedElement {
-    id UUID key
-    name String
+entity Lecturer extends Person{
 }
 
 @(Inheritance.TablePerClass)
@@ -65,14 +60,29 @@ entity Person extends NamedElement{
 }
 
 entity RecognizedCertificate extends Certificate {
-    
 }
 
 entity Student extends Person {
 }
 
+@(Inheritance.JoinedTable)
+entity StudentCard {
+    embedded id StudentCardId key
+    printedName String required
+}
+
 entity StudyProgram extends NamedElement {
     enum studyProgramType StudyProgramType
+}
+
+entity StudentCardStudyProgram joins (StudentCard["studyPrograms"], StudyProgram["studentCards"]) {
+    finished Boolean
+    enum cardStatus Status
+    embedded additionalData StudentCardStudyProgramData
+}
+
+entity StudentStudyProgram joins (Student["studies"], StudyProgram["students"]) {
+    finished Boolean
 }
 
 ManyToOne relationship CertificateStudent {
@@ -85,13 +95,9 @@ ManyToOne relationship CertificateCourse {
     target Course["certificates"]
 }
 
-ManyToMany relationship CoursesLecturers {
+ManyToMany relationship CourseLecturer {
     source Course["lecturers"]
     target Lecturer["courses"]
-}
-
-entity StudentStudyProgram joins (Student["studies"], StudyProgram["students"]) {
-    finished Boolean
 }
 
 ManyToOne relationship unidirectional CourseWithExerciseStudent {
@@ -109,8 +115,3 @@ OneToOne relationship StudentStudentCard {
     target StudentCard["student"]
 }
 
-entity StudentCardStudyProgram joins (StudentCard["studyPrograms"], StudyProgram["studentCards"]) {
-    finished Boolean
-    enum cardStatus Status
-    embedded additionalData StudentCardStudyProgramData
-}

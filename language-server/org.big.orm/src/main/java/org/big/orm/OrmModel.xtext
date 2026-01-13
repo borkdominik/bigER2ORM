@@ -89,12 +89,14 @@ enum RelationshipType:
 	;
 
 EntityOption:
-	InheritanceOption | TableNameOption
+	InheritanceOption 
+	// | TableNameOption 
 ;
 
-TableNameOption:
-	'@(table_name=' name=ID ')'
-;
+// Table Name is not supported so far
+//TableNameOption:
+//	'@(table_name=' name=ID ')'
+//;
 
 InheritanceOption:
 	'@('option=InheritanceStrategy')'

@@ -27,7 +27,7 @@ class ImportUtil {
 		
 		// Join Entity
 		if(e instanceof Entity) {
-			if ((e as Entity).joinEntity){
+			if (e.joinEntity){
 				imports.add("Microsoft.EntityFrameworkCore");
 			}
 		}

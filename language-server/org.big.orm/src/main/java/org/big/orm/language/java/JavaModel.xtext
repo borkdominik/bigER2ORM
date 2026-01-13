@@ -3,7 +3,7 @@ grammar org.big.orm.language.JavaModel with org.eclipse.xtext.common.Terminals
 generate javaModel "http://www.big.org/orm/language/java/JavaModel"
 
 JavaModel:
-	"package" package=DOT_ID";"
+	("package" package=DOT_ID";")?
 	(imports+=Import)*
 	(elements+=JavaElement)*
 ;
@@ -18,15 +18,19 @@ JavaElement:
 ;
 
 Annotatable:
-	Statement | JavaClass | Method
+	Method | Statement | JavaClass | JavaEnum
 ;
 
 Annotation:
-	"@" name=DOT_ID ("(" options+=AnnotationOption ("," options+=AnnotationOption)* ")")?
+	"@" type=DOT_ID ("(" options+=AnnotationOption ("," options+=AnnotationOption)* ")")?
 ;
 
 AnnotationOption:
-	(name=DOT_ID "=")? ((annotation=Annotation)|(element=AnnotationOptionElement))
+	(param=DOT_ID "=")? (option=AnnotationOptionElement | annotation=Annotation | annotationArray=AnnotationArray)
+;
+
+AnnotationArray:
+    "{" (annotations+=Annotation ("," annotations+=Annotation)*)? "}"
 ;
 
 AnnotationOptionElement:
@@ -34,6 +38,7 @@ AnnotationOptionElement:
 ;
 
 terminal DOT_ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'.'|'<'|'>')*;
+terminal ARRAY_ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'.'|'<'|'>'|'['|']')*;
 
 Statement:
 	(modifiers+=Modifier)* type=DOT_ID name=DOT_ID ";"
@@ -45,10 +50,22 @@ JavaClass:
 	"}"
 ;
 
-Method:
-	(modifiers+=Modifier)* type=ID name=DOT_ID "{"
+JavaEnum:
+	(modifiers+=Modifier)* "enum" name=DOT_ID "{"
+		values+=DOT_ID ("," values+=DOT_ID)* ";"
+		
 		(elements+=JavaElement)*
 	"}"
+;
+
+Method:
+	(modifiers+=Modifier)* type=ID name=DOT_ID "(" (arguments+=Argument ("," arguments+=Argument)*)? ")" "{"
+		(elements+=JavaElement)*
+	"}"
+;
+
+Argument:
+	argumentType=ARRAY_ID argumentName+=DOT_ID
 ;
 
 enum Modifier: 
