@@ -12,6 +12,11 @@ import org.big.orm.ormModel.ModelElement
 import org.big.orm.ormModel.Relationship
 import org.big.orm.ormModel.AttributedElement
 import org.big.orm.ormModel.OrmEnum
+import org.eclipse.xtext.formatting2.FormatterPreferenceKeys
+import org.eclipse.xtext.preferences.MapBasedPreferenceValues
+import java.util.LinkedHashMap
+import org.big.orm.ormModel.RelationEntity
+import org.big.orm.ormModel.EntityOption
 
 class OrmModelFormatter extends AbstractFormatter2 {
 	
@@ -32,10 +37,20 @@ class OrmModelFormatter extends AbstractFormatter2 {
 		for (relationship : ormModel.relationships) {
 			relationship.format
 		}
+		
+		// use spaces instead of tabs
+		val preferences = getPreferences
+		val newMap = new LinkedHashMap<String, String>
+		newMap.put(FormatterPreferenceKeys.indentation.id, '    ')
+		val result = new MapBasedPreferenceValues(preferences, newMap)
+		request.preferences = result
 	}
 
 	def dispatch void format(ModelElement element, extension IFormattableDocument document) {
 		element.regionFor.feature(MODEL_ELEMENT__NAME).surround[oneSpace]
+		// element.regionFor.feature(ENTITY__OPTIONS).surround[newLine]
+		// element.regionFor.feature(ENTITY__JOIN_SOURCE).surround[noSpace]
+		// element.regionFor.feature(ENTITY__JOIN_TARGET).surround[noSpace]
 		
 		val open = element.regionFor.keyword("{")
 		val close = element.regionFor.keyword("}")
@@ -59,6 +74,15 @@ class OrmModelFormatter extends AbstractFormatter2 {
 		
 		interior(open, close)[indent]
 		close.append[setNewLines(2,2,2)]
+	}
+	
+	def dispatch void format(EntityOption element, extension IFormattableDocument document) {
+		element.append[newLine]
+	}
+	
+	def dispatch void format(RelationEntity element, extension IFormattableDocument document) {
+		element.regionFor.feature(RELATION_ENTITY__ENTITY).surround[noSpace]
+		element.regionFor.feature(RELATION_ENTITY__ATTRIBUTE_NAME).surround[noSpace]
 	}
 	
 	def dispatch void format(Relationship relationship, extension IFormattableDocument document) {
