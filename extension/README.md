@@ -30,6 +30,11 @@
 
 **bigORM** is a tool used to model ORM structures in a generic way and later on generate framework specific ORM code for some of the most popular ORM frameworks, with the code resulting in an equal database structure for all supported frameworks. Currently supported frameworks are Hibernate for Java, SQLalchemy for Python and the .NET Entity Framework.
 
+<!-- DEMO -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/borkdominik/bigER2ORM/refs/heads/main/extension/media/example.gif" alt="Demo" width="800" />
+</p>
+
 <!-- FEATURES -->
 **Main features:**
 
@@ -57,7 +62,9 @@
     - [4.1.4. Type modifiers](#414-type-modifiers)
   - [4.2. Model Visualization](#42-model-visualization)
   - [4.3. Code Generation](#43-code-generation)
+    - [4.3.1. Batch Code generation](#431-batch-code-generation)
   - [4.4. ORM Reverse engineering (!EXPERIMENTAL!)](#44-orm-reverse-engineering-experimental)
+
 
 
 # 1. About the Project
@@ -254,6 +261,10 @@ When opening an ``.orm`` file, the diagram icon in the top right allows to displ
 ## 4.3. Code Generation
 
 Same as with the diagram view, the toolbar also allows the export to a specific framework, by using the ``Generate Code from Model`` command. This is a guided process, asking for user inputs to be able to achieve the code generation
+
+### 4.3.1. Batch Code generation
+
+Using the command ``bigORM: Reverse all files in folder model for each language`` it is possible to create all ORM implementation for all languages for all ``.orm`` files inside a folder. This is especially helpful when using the evaluation framework. 
 
 ## 4.4. ORM Reverse engineering (!EXPERIMENTAL!)
 

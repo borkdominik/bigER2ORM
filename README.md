@@ -34,7 +34,10 @@
   <sub><a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">➜ Download the VS Code Extension</a><sub>
 </p>
 
-<!-- DEMO TODO: recreate gif for bigORM-->
+<!-- DEMO -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/borkdominik/bigER2ORM/refs/heads/main/extension/media/example.gif" alt="Demo" width="800" />
+</p>
 
 <!-- FEATURES -->
 **Main features:**
@@ -87,7 +90,7 @@ yarn --cwd extension
 
 After building the project, the extension can be run in VS Code by pressing <kbd>F5</kbd> or selecting `Run ➜ Start Debugging` from the menu.
 
-The code is split into a **client side** (extension & webview) and a **server side** (language with LSP and diagram server). It is recommended to use  **VS Code** for the client code, written in *TypeScript* and **Eclipse** for the server side, based on *Java*. Eclipse must be compatible with Xtext and Xtend (e.g. [Eclipse IDE for Java and DSL Developers](https://www.eclipse.org/downloads/packages/release/juno/sr2/eclipse-ide-java-and-dsl-developers)) and create a new workspace to avoid configuration issues. Import the language server as a Gradle project (<kbd>File -> Import -> Existing Gradle Project</kbd>) and override the workspace settings.
+The code is split into a **client side** (extension & webview) and a **server side** (language with LSP and diagram server). It is recommended to use  **VS Code** for the client code, written in *TypeScript*, and **Eclipse** for the server side, based on *Java*. Eclipse must be compatible with Xtext and Xtend (e.g. [Eclipse IDE for Java and DSL Developers](https://www.eclipse.org/downloads/packages/release/juno/sr2/eclipse-ide-java-and-dsl-developers)) and create a new workspace to avoid configuration issues. Import the language server as a Gradle project (<kbd>File -> Import -> Existing Gradle Project</kbd>) and override the workspace settings.
 
 ## Issues
 

@@ -23,8 +23,8 @@ For child entities with an own table, it is not possible to define unique constr
 
 ## SQL Alchemy
 
-No known limitations
+No known limitations for supported features
 
 ## Hibernate
 
-No known limitations
+No known limitations for supported features

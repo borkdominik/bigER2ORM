@@ -213,11 +213,11 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 			}
 			
 			model.relationships.filter[source.entity.name.equals(element.name)].forEach[ r |
-				comp.children.add(r.source.createLabelForRelationship(r.target.entity.name, elementId, (r.type == RelationshipType.MANY_TO_MANY || r.type == RelationshipType.MANY_TO_ONE), context));
+				comp.children.add(r.source.createLabelForRelationship(r.target.entity.name, elementId, (r.type == RelationshipType.MANY_TO_MANY), context));
 			]
 			
 			model.relationships.filter[target.entity.name.equals(element.name)].filter[!unidirectional].forEach[ r |
-				comp.children.add(r.target.createLabelForRelationship(r.source.entity.name, elementId, (r.type == RelationshipType.MANY_TO_MANY), context));
+				comp.children.add(r.target.createLabelForRelationship(r.source.entity.name, elementId, (r.type == RelationshipType.MANY_TO_MANY || r.type == RelationshipType.MANY_TO_ONE), context));
 			]
 			
 			val joinEntities = model.elements.filter(Entity).filter[joinEntity];
