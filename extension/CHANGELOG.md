@@ -6,4 +6,22 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Added
+- TBD
+
+### Changed
+- TBD
+
+### Removed
+- TBD
+
+## [0.0.1] - 2025-06-13
+
+### Added
 - Initial release
+
+### Changed
+- Empty
+
+### Removed
+- Empty

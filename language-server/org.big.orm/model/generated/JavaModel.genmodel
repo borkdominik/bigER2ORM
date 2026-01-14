@@ -37,13 +37,17 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//Annotatable/name"/>
     </genClasses>
     <genClasses ecoreClass="JavaModel.ecore#//Annotation">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//Annotation/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//Annotation/type"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference JavaModel.ecore#//Annotation/options"/>
     </genClasses>
     <genClasses ecoreClass="JavaModel.ecore#//AnnotationOption">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//AnnotationOption/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//AnnotationOption/param"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//AnnotationOption/option"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference JavaModel.ecore#//AnnotationOption/annotation"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//AnnotationOption/element"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference JavaModel.ecore#//AnnotationOption/annotationArray"/>
+    </genClasses>
+    <genClasses ecoreClass="JavaModel.ecore#//AnnotationArray">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference JavaModel.ecore#//AnnotationArray/annotations"/>
     </genClasses>
     <genClasses ecoreClass="JavaModel.ecore#//Statement">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//Statement/type"/>
@@ -53,9 +57,18 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//JavaClass/implements"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference JavaModel.ecore#//JavaClass/elements"/>
     </genClasses>
+    <genClasses ecoreClass="JavaModel.ecore#//JavaEnum">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//JavaEnum/values"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference JavaModel.ecore#//JavaEnum/elements"/>
+    </genClasses>
     <genClasses ecoreClass="JavaModel.ecore#//Method">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//Method/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference JavaModel.ecore#//Method/arguments"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference JavaModel.ecore#//Method/elements"/>
+    </genClasses>
+    <genClasses ecoreClass="JavaModel.ecore#//Argument">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//Argument/argumentType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute JavaModel.ecore#//Argument/argumentName"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

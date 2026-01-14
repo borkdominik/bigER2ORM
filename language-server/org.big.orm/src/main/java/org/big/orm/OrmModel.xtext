@@ -7,6 +7,10 @@ OrmModel:
 	(elements+=ModelElement | relationships+=Relationship)*;
 
 ModelElement:
+	AttributedElement | OrmEnum
+;
+
+AttributedElement:
 	InheritableElement | Embeddable
 ;
 
@@ -22,7 +26,7 @@ MappedClass:
 	
 Entity:
 	(options+=EntityOption)*
-	'entity' name=ID ('extends' extends=[InheritableElement])? '{'
+	'entity' name=ID ('extends' extends=[InheritableElement])? (joinEntity?='joins' '(' joinSource=RelationEntity ',' joinTarget=RelationEntity ')')? '{'
 		(attributes += Attribute)*
 	'}';
 	
@@ -30,12 +34,20 @@ Embeddable:
 	'embeddable' name=ID '{'
 		(attributes += Attribute)*
 	'}';
+	
+OrmEnum:
+	'enum' name=ID '{'
+		(values += EnumValue)+
+	'}';
+	
+EnumValue:
+	value=UPPER_SNAKE
+;
 
 Relationship:
 	type=RelationshipType 'relationship' (unidirectional?='unidirectional')? name=ID '{'
 		'source' source=RelationEntity (sourceRequired?='required')?
 		'target' target=RelationEntity
-		(attributes += Attribute)*
 	'}';
 
 RelationEntity:
@@ -44,14 +56,18 @@ RelationEntity:
 	']')?;
 	
 Attribute:
-	DataAttribute | EmbeddedAttribute
+	DataAttribute | EmbeddedAttribute | EnumAttribute
 ;
+
 
 DataAttribute:
 	name=ID (datatype=DataType) (type=AttributeType)?;
 	
 EmbeddedAttribute:
-	name=ID (embeddedType=[Embeddable]) (type=AttributeType)?;
+	'embedded' name=ID (embeddedType=[Embeddable]) (type=AttributeType)?;
+	
+EnumAttribute:
+	'enum' name=ID (enumType=[OrmEnum]) (type=AttributeType)?;
 
 	
 enum DataType:
@@ -73,12 +89,14 @@ enum RelationshipType:
 	;
 
 EntityOption:
-	InheritanceOption | TableNameOption
+	InheritanceOption 
+	// | TableNameOption 
 ;
 
-TableNameOption:
-	'@(table_name=' name=ID ')'
-;
+// Table Name is not supported so far
+//TableNameOption:
+//	'@(table_name=' name=ID ')'
+//;
 
 InheritanceOption:
 	'@('option=InheritanceStrategy')'
@@ -90,3 +108,5 @@ enum InheritanceStrategy:
 	SINGLE_TABLE = 'Inheritance.SingleTable' |
 	TABLE_PER_CLASS = 'Inheritance.TablePerClass'
 ;
+
+terminal UPPER_SNAKE: '^'?('A'..'Z')+ ('_' ('A'..'Z')+)* ;

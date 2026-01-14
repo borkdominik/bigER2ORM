@@ -7,6 +7,7 @@ import org.big.orm.generator.entityframework.util.InitUtil
 import org.big.orm.generator.entityframework.util.ImportUtil
 import org.big.orm.generator.entityframework.util.AttributeUtil
 import org.big.orm.generator.entityframework.util.ModelUtil
+import org.big.orm.generator.entityframework.util.EnumUtil
 
 class EntityFrameworkModule extends AbstractModule {
 	
@@ -16,6 +17,7 @@ class EntityFrameworkModule extends AbstractModule {
 		bind(InitUtil);
 		bind(ImportUtil);
 		bind(ModelUtil);
+		bind(EnumUtil);
 		bind(CommonUtil);
    } 
 }

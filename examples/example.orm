@@ -12,14 +12,25 @@ embeddable StudentCardId {
     cardVersion String
 }
 
-@(Inheritance.JoinedTable)
-entity StudentCard {
-    id StudentCardId key
-    printedName String required
+embeddable StudentCardStudyProgramData {
+    dataOne String
+    dataTwo Integer
 }
 
-entity GraduateStudentCard extends StudentCard {
-    graduationDate String
+enum Status {
+    VALID
+    INVALID
+}
+
+enum StudyProgramType {
+    BACHELOR
+    MASTER
+    DOCTOR
+}
+
+mapped_class NamedElement {
+    id UUID key
+    name String
 }
 
 @(Inheritance.JoinedTable)
@@ -35,27 +46,42 @@ entity Course extends NamedElement {
 entity CourseWithExercise extends Course {
 }
 
-entity Lecturer extends Person{
+entity GraduateStudentCard extends StudentCard {
+    graduationDate String
 }
 
-mapped_class NamedElement{
-    id UUID key
-    name String
+entity Lecturer extends Person {
 }
 
 @(Inheritance.TablePerClass)
-entity Person extends NamedElement{
-    address Address
+entity Person extends NamedElement {
+    embedded address Address
 }
 
 entity RecognizedCertificate extends Certificate {
-    
 }
 
 entity Student extends Person {
 }
 
+@(Inheritance.JoinedTable)
+entity StudentCard {
+    embedded id StudentCardId key
+    printedName String required
+}
+
 entity StudyProgram extends NamedElement {
+    enum studyProgramType StudyProgramType
+}
+
+entity StudentCardStudyProgram joins (StudentCard["studyPrograms"], StudyProgram["studentCards"]) {
+    finished Boolean
+    enum cardStatus Status
+    embedded additionalData StudentCardStudyProgramData
+}
+
+entity StudentStudyProgram joins (Student["studies"], StudyProgram["students"]) {
+    finished Boolean
 }
 
 ManyToOne relationship CertificateStudent {
@@ -68,15 +94,9 @@ ManyToOne relationship CertificateCourse {
     target Course["certificates"]
 }
 
-ManyToMany relationship CoursesLecturers {
+ManyToMany relationship CourseLecturer {
     source Course["lecturers"]
     target Lecturer["courses"]
-}
-
-ManyToMany relationship StudentStudyProgram {
-    source Student["studies"]
-    target StudyProgram["students"] 
-    finished Boolean
 }
 
 ManyToOne relationship unidirectional CourseWithExerciseStudent {
@@ -91,11 +111,6 @@ ManyToOne relationship unidirectional RecognizedCertificateOriginalCertificate {
 
 OneToOne relationship StudentStudentCard {
     source Student["studentCard"]
-    target StudentCard["student"] 
+    target StudentCard["student"]
 }
 
-ManyToMany relationship StudentCardStudyProgram {
-    source StudentCard["studyPrograms"]
-    target StudyProgram["studentCards"]
-    finished Boolean 
-}

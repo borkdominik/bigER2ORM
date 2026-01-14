@@ -13,11 +13,13 @@ public class UniversityContext : DbContext
     public DbSet<RecognizedCertificate> RecognizedCertificate { get; set; }
     public DbSet<Student> Student { get; set; }
     public DbSet<StudentCard> StudentCard { get; set; }
+    public DbSet<StudentCardStudyProgram> StudentCardStudyProgram { get; set; }
+    public DbSet<StudentStudyProgram> StudentStudyProgram { get; set; }
     public DbSet<StudyProgram> StudyProgram { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options
-            .UseNpgsql("Host=localhost;Database=csharp;Username=postgres;Password=postgres")
+            .UseNpgsql("Host=postgres;Database=csharp;Username=postgres;Password=postgres")
             .UseSnakeCaseNamingConvention();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -101,20 +103,6 @@ public class UniversityContext : DbContext
             )
             .HasNoKey();
 
-        modelBuilder.Entity<StudentStudyProgram>()
-            .HasOne(e => e.Student)
-            .WithMany(e => e.Studies)
-            .HasForeignKey(e => new { e.StudentId })
-            .HasConstraintName("fk_student_study_program_student")
-            .OnDelete(DeleteBehavior.NoAction);
-
-        modelBuilder.Entity<StudentStudyProgram>()
-            .HasOne(e => e.StudyProgram)
-            .WithMany(e => e.Students)
-            .HasForeignKey(e => new { e.StudyProgramId })
-            .HasConstraintName("fk_student_study_program_study_program")
-            .OnDelete(DeleteBehavior.NoAction);
-
         modelBuilder.Entity<CourseWithExercise>()
             .HasOne(e => e.Tutor)
             .WithMany()
@@ -134,6 +122,20 @@ public class UniversityContext : DbContext
             .WithOne(e => e.Student)
             .HasForeignKey<Student>(e => new { e.StudentCardCardNr, e.StudentCardCardVersion })
             .HasConstraintName("fk_student_student_card")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<StudentStudyProgram>()
+            .HasOne(e => e.Student)
+            .WithMany(e => e.Studies)
+            .HasForeignKey(e => new { e.StudentId })
+            .HasConstraintName("fk_student_study_program_student")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<StudentStudyProgram>()
+            .HasOne(e => e.StudyProgram)
+            .WithMany(e => e.Students)
+            .HasForeignKey(e => new { e.StudyProgramId })
+            .HasConstraintName("fk_student_study_program_study_program")
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<StudentCardStudyProgram>()

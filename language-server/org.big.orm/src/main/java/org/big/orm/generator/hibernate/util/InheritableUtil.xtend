@@ -1,7 +1,6 @@
 package org.big.orm.generator.hibernate.util
 
 import com.google.inject.Singleton
-import org.big.orm.ormModel.ModelElement
 import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.Embeddable
 import org.big.orm.ormModel.MappedClass
@@ -13,6 +12,8 @@ import org.big.orm.ormModel.InheritableElement
 import org.big.orm.ormModel.DataAttribute
 import org.big.orm.ormModel.EmbeddedAttribute
 import com.google.inject.Inject
+import org.big.orm.ormModel.AttributedElement
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class InheritableUtil {
@@ -22,7 +23,7 @@ class InheritableUtil {
 	@Inject extension RelationshipUtil relationshipUtil;
 	
 	
-	def CharSequence compile(ModelElement e) 
+	def CharSequence compile(AttributedElement e) 
 	'''
     package entity;
     
@@ -51,11 +52,19 @@ class InheritableUtil {
     «ENDIF»
     public «IF e instanceof MappedClass»abstract «ENDIF»class «e.name» «IF e instanceof InheritableElement && (e as InheritableElement).extends !== null »extends «(e as InheritableElement).extends.name» «ENDIF»«IF e instanceof Embeddable»implements Serializable «ENDIF»{
     	
+    	«IF e instanceof Entity && (e as Entity).joinEntity»
+    	@EmbeddedId
+    	private «e.name»Id id;
+    	
+    	«ENDIF»
     	«FOR a : e.attributes SEPARATOR "\n"»
     	«IF a instanceof DataAttribute»
     	«a.compile»
     	«ENDIF»
     	«IF a instanceof EmbeddedAttribute»
+    	«a.compile»
+    	«ENDIF»
+    	«IF a instanceof EnumAttribute»
     	«a.compile»
     	«ENDIF»
     	«ENDFOR»«IF !e.attributes.empty»

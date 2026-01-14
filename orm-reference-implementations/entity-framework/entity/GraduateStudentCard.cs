@@ -7,5 +7,6 @@ namespace university.entity
     {
         [Column(TypeName = "Varchar(255)")]
         public string? GraduationDate { get; set; }
+
     }
 }

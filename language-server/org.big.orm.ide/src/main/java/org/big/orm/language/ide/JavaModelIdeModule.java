@@ -3,9 +3,15 @@
  */
 package org.big.orm.language.ide;
 
+import org.eclipse.xtext.resource.IResourceServiceProvider;
 
 /**
  * Use this class to register ide components.
  */
 public class JavaModelIdeModule extends AbstractJavaModelIdeModule {
+	
+	public Class<? extends IResourceServiceProvider> bindIResourceServiceProvider() {
+        return NonValidatingResourceServiceProvider.class;
+    }
+	
 }

@@ -7,6 +7,7 @@ import org.big.orm.ormModel.DataAttribute
 import com.google.common.base.CaseFormat
 import java.util.List
 import java.util.ArrayList
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class AttributeUtil {
@@ -37,5 +38,12 @@ class AttributeUtil {
 	@Embedded
 	«ENDIF»
 	private «a.embeddedType.name» «a.name»;
+	'''
+	
+	def compile(EnumAttribute a)
+	'''
+	@Convert(converter = «a.enumType.name».Converter.class)
+	@Column(name = "«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»")
+	private «a.enumType.name» «a.name»;
 	'''
 }

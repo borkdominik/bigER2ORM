@@ -1,7 +1,6 @@
 package org.big.orm.generator.hibernate.util
 
 import com.google.inject.Singleton
-import org.big.orm.ormModel.ModelElement
 import java.util.TreeSet
 import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.InheritanceOption
@@ -16,11 +15,13 @@ import java.util.ArrayList
 import org.big.orm.ormModel.Relationship
 import org.big.orm.ormModel.OrmModel
 import org.big.orm.ormModel.RelationshipType
+import org.big.orm.ormModel.AttributedElement
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class ImportUtil {
 	
-	def generateImports(ModelElement e) {
+	def generateImports(AttributedElement e) {
 		val imports = new TreeSet<String>();
 		
 		if(e instanceof Entity){	
@@ -40,6 +41,12 @@ class ImportUtil {
 				}
 			}
 			
+			// JOIN ENTITY
+			if (e.joinEntity) {
+				imports.add("jakarta.persistence.EmbeddedId");
+				imports.add("jakarta.persistence.MapsId");
+			}
+			
 		} else if (e instanceof Embeddable) {
 			imports.add("jakarta.persistence.Embeddable");
 			imports.add("java.io.Serializable");
@@ -52,6 +59,11 @@ class ImportUtil {
 		
 		if(!e.attributes.filter(DataAttribute).empty){
 			imports.add("jakarta.persistence.Column");
+		}
+		
+		if(!e.attributes.filter(EnumAttribute).empty){
+			imports.add("jakarta.persistence.Column");
+			imports.add("jakarta.persistence.Convert");
 		}
 		
 		if(!e.attributes.filter(DataAttribute).filter[datatype.equals(DataType.UUID)].empty){
@@ -110,18 +122,12 @@ class ImportUtil {
 		}
 		
 		//MANY-TO-MANY directly defined
-		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[attributes.empty].empty){
+		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].empty){
 			imports.add("jakarta.persistence.ManyToMany");
 			imports.add("jakarta.persistence.JoinTable");
 			imports.add("jakarta.persistence.JoinColumn");
 			imports.add("jakarta.persistence.JoinColumns");
 			imports.add("jakarta.persistence.ForeignKey");
-			imports.add("java.util.List");
-		}
-		
-		//MANY-TO-MANY using join entity
-		if(!elementSourceRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[!attributes.empty].empty){
-			imports.add("jakarta.persistence.OneToMany");
 			imports.add("java.util.List");
 		}
 		
@@ -137,13 +143,8 @@ class ImportUtil {
 		}
 		
 		//MANY-TO-MANY directly defined
-		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[attributes.empty].empty){
+		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].empty){
 			imports.add("jakarta.persistence.ManyToMany");		
-			imports.add("java.util.List");
-		}
-		//MANY-TO-MANY using join entity
-		if(!elementTargetRelations.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[!attributes.empty].empty){
-			imports.add("jakarta.persistence.OneToMany");
 			imports.add("java.util.List");
 		}
 		

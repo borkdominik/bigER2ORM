@@ -10,6 +10,7 @@ import java.util.ArrayList
 import java.util.List
 import org.big.orm.ormModel.DataType
 import org.big.orm.ormModel.Entity
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class AttributeUtil {
@@ -18,6 +19,8 @@ class AttributeUtil {
 		if (a instanceof DataAttribute) {
 			a.compileToSqlAlchemyAttribute(columnPropertyForEntity)
 		} else if (a instanceof EmbeddedAttribute) {
+			a.compileToSqlAlchemyAttribute(columnPropertyForEntity)
+		} else if (a instanceof EnumAttribute) {
 			a.compileToSqlAlchemyAttribute(columnPropertyForEntity)
 		}
 	}
@@ -45,6 +48,11 @@ class AttributeUtil {
 			'''
 		}
 	}
+	
+	private def compileToSqlAlchemyAttribute(EnumAttribute a, Entity columnPropertyForEntity)
+	'''
+	«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»: Mapped[«a.enumType.name»] = mapped_column(Enum(native_enum=False, length=255), nullable=True)
+	'''
 
 
 	private def dataAttributeToMappedColumn(DataAttribute a, Entity columnPropertyForEntity, Boolean id, Boolean compileName, Boolean autoGenerateID, Boolean nullable){

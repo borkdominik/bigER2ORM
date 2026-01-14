@@ -23,10 +23,10 @@ public class StudentCard {
   @Column(name = "printed_name", nullable = false)
   private String printedName;
 
-  @OneToMany(mappedBy = "studentCard")
-  private List<StudentCardStudyProgram> studyPrograms;
-
   @OneToOne(mappedBy = "studentCard")
   private Student student;
+
+  @OneToMany(mappedBy = "studentCard")
+  private List<StudentCardStudyProgram> studyPrograms;
 
 }

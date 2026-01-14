@@ -1,6 +1,6 @@
 export namespace UITypes {
     export const MODEL_NAME = "toolbar-modelName";
-    export const HELP_LINK = "https://github.com/borkdominik/bigORM/wiki/Language";
+    export const HELP_LINK = "https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm";
 }
 
 export function createElement(tagName: string, cssClasses?: string[]): HTMLElement {

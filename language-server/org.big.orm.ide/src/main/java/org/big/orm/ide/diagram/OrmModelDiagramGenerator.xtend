@@ -23,10 +23,15 @@ import org.big.orm.ormModel.DataAttribute
 import org.big.orm.ormModel.EmbeddedAttribute
 import org.big.orm.ormModel.RelationshipType
 import org.big.orm.ormModel.Relationship
-import org.eclipse.sprotty.SNode
 import java.util.List
 import org.big.orm.ormModel.MappedClass
 import org.big.orm.ormModel.InheritableElement
+import org.big.orm.ormModel.OrmEnum
+import org.big.orm.ormModel.AttributedElement
+import org.big.orm.ormModel.EnumAttribute
+import org.big.orm.ormModel.EnumValue
+import org.big.orm.ormModel.Entity
+import org.big.orm.ormModel.RelationEntity
 
 class OrmModelDiagramGenerator implements IDiagramGenerator {
 	
@@ -37,10 +42,9 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 	// Types for the elements
 	static val GRAPH = 'graph'
 	static val NODE_INHERITABLE = 'node:inheritable'
-	static val NODE_RELATIONSHIP = 'node:relationship'
 	static val NODE_EMBEDDABLE = 'node:embeddable'
+	static val NODE_ENUM = 'node:enum'
 	static val COMP_ELEMENT_HEADER = 'comp:element-header'
-	static val RELATIONSHIP_LABEL = 'label:relationship'
 	static val ELEMENT_LABEL = 'label:header'
 	static val BUTTON_EXPAND = 'button:expand'
 	static val COMP_ATTRIBUTES = 'comp:attributes'
@@ -78,14 +82,12 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		
 		//Create and add entities to graph
 		graph.children.addAll(model.elements.map[toSNode(context)])
-		
-		
-		// Create Relationship nodes for many to many with additional attributes
-		model.relationships.filter[type.equals(RelationshipType.MANY_TO_MANY)].filter[!attributes.empty].forEach[ r |
-			graph.children.add(toSNode(r, context));
+
+		model.elements.filter(Entity).filter[joinEntity].forEach[ e |
+			graph.children.addAll(e.toSEdges(context))
 		]
 		
-		// Create Relationship nodes and edges
+		// Create relationship edges
 		model.relationships.forEach[ r |
 			graph.children.addAll(r.toSEdges(context))
 		]
@@ -98,36 +100,37 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 	
 	def List<OrmModelRelationshipEdge> toSEdges(Relationship relationship, extension Context context) {
 		var edges = new ArrayList<OrmModelRelationshipEdge>();
-		if(relationship.type.equals(RelationshipType.MANY_TO_MANY) && !relationship.attributes.empty){
-			val edgeSource = new OrmModelRelationshipEdge [
-				sourceId = idCache.getId(relationship)
-				targetId = idCache.getId(relationship.source.entity)
-				unidirectional = true
-				id = idCache.uniqueId(relationship.name + ".source")
-				type = EDGE_RELATIONSHIP
-			]
-			
-			val edgeTarget = new OrmModelRelationshipEdge [
-				sourceId = idCache.getId(relationship)
-				targetId = idCache.getId(relationship.target.entity)
-				unidirectional = true
-				id = idCache.uniqueId(relationship.name + ".target")
-				type = EDGE_RELATIONSHIP
-			]
-			
-			edges.add(edgeSource)
-			edges.add(edgeTarget)
-		} else {
-			val edge = new OrmModelRelationshipEdge [
-				sourceId = idCache.getId(relationship.source.entity)
-				targetId = idCache.getId(relationship.target.entity)
-				unidirectional = relationship.unidirectional
-				id = idCache.uniqueId(relationship.name)
-				type = EDGE_RELATIONSHIP
-			]
+		val edge = new OrmModelRelationshipEdge [
+			sourceId = idCache.getId(relationship.source.entity)
+			targetId = idCache.getId(relationship.target.entity)
+			unidirectional = relationship.unidirectional
+			id = idCache.uniqueId(relationship.name)
+			type = EDGE_RELATIONSHIP
+		]
 		
-			edges.add(edge)
-		}
+		edges.add(edge)
+		return edges
+	}
+	
+	def List<OrmModelRelationshipEdge> toSEdges(Entity joinEntity, extension Context context) {
+		var edges = new ArrayList<OrmModelRelationshipEdge>();
+		val sourceEdge = new OrmModelRelationshipEdge [
+			sourceId = idCache.getId(joinEntity)
+			targetId = idCache.getId(joinEntity.joinSource.entity)
+			unidirectional = false
+			id = idCache.uniqueId(joinEntity.name + ".join.source")
+			type = EDGE_RELATIONSHIP
+		]
+		val targetEdge = new OrmModelRelationshipEdge [
+			sourceId = idCache.getId(joinEntity)
+			targetId = idCache.getId(joinEntity.joinTarget.entity)
+			unidirectional = false
+			id = idCache.uniqueId(joinEntity.name + ".join.target")
+			type = EDGE_RELATIONSHIP
+		]
+		
+		edges.add(sourceEdge)
+		edges.add(targetEdge)		
 		return edges
 	}
 	
@@ -145,33 +148,12 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 	}
 	
 	
-	def SNode toSNode(Relationship relationship, extension Context context) {
-		val relationshipId = idCache.uniqueId(relationship, relationship.name + ".node")
-		val node = new SNode [
-			id = relationshipId
-			type = NODE_RELATIONSHIP
-			layout = 'vbox'
-			children = #[
-				(new SLabel [
-					id = idCache.uniqueId(relationshipId + '.label')
-					text = relationship.name
-					type = RELATIONSHIP_LABEL
-				]).trace(relationship, RELATIONSHIP__NAME, -1)
-			]
-		]
-		node.layoutOptions = new LayoutOptions [
-			paddingFactor = 2.0
-		]
-
-		node.traceAndMark(relationship, context)
-		return node
-	}
-	
 	def OrmModelNode toSNode(ModelElement element, extension Context context) {
 		val elementId = idCache.uniqueId(element, element.name) 
 		val elementType = switch(element) {
 			case element instanceof InheritableElement : NODE_INHERITABLE
 			case element instanceof Embeddable : NODE_EMBEDDABLE
+			case element instanceof OrmEnum : NODE_ENUM
 			default : ""
 		}
 		
@@ -188,6 +170,8 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		val additionalText = switch(element) {
 			case element instanceof Embeddable : "[Embeddable] "
 			case element instanceof MappedClass : "[MappedClass] "
+			case element instanceof OrmEnum : "[Enum] "
+			case (element instanceof Entity && (element as Entity).joinEntity) : "[JoinEntity] "
 			default : ""
 		}
 		
@@ -222,18 +206,31 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 				]
 				children = new ArrayList<SModelElement>
 			]
-			comp.children.addAll(element.attributes.map[createAttributeLabels(elementId, context)])
+			if (element instanceof AttributedElement){
+				comp.children.addAll(element.attributes.map[createAttributeLabels(elementId, context)])
+			} else if (element instanceof OrmEnum){
+				comp.children.addAll(element.values.map[createEnumLabel(elementId, context)])
+			}
 			
 			model.relationships.filter[source.entity.name.equals(element.name)].forEach[ r |
-				comp.children.add(r.createPortForRelationshipSource(elementId, context));
+				comp.children.add(r.source.createLabelForRelationship(r.target.entity.name, elementId, (r.type == RelationshipType.MANY_TO_MANY || r.type == RelationshipType.MANY_TO_ONE), context));
 			]
 			
 			model.relationships.filter[target.entity.name.equals(element.name)].filter[!unidirectional].forEach[ r |
-				comp.children.add(r.createPortForRelationshipTarget(elementId, context));
+				comp.children.add(r.target.createLabelForRelationship(r.source.entity.name, elementId, (r.type == RelationshipType.MANY_TO_MANY), context));
 			]
-			node.children.add(comp)
 			
-
+			val joinEntities = model.elements.filter(Entity).filter[joinEntity];
+			
+			joinEntities.filter[joinSource.entity.name.equals(element.name)].forEach [ e |
+				comp.children.add(e.joinSource.createLabelForRelationship(e.name, elementId, true, context));
+			]
+			
+			joinEntities.filter[joinTarget.entity.name.equals(element.name)].forEach [ e |
+				comp.children.add(e.joinTarget.createLabelForRelationship(e.name, elementId, true, context));
+			]
+			
+			node.children.add(comp)
 			
 			state.expandedElements.add(elementId)
 			node.expanded = true
@@ -245,11 +242,10 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		return node
 	}
 	
-	
-	def SCompartment createPortForRelationshipSource(Relationship relationship, String elementId, extension Context context) {
-		val sourceId = idCache.uniqueId(relationship.source, elementId + '.' + relationship.source.attributeName)
+	def SCompartment createLabelForRelationship(RelationEntity relationEntity, String targetEntityName, String elementId, Boolean manyOnElement, extension Context context) {
+		val compId = idCache.uniqueId(relationEntity, elementId + '.' + relationEntity.attributeName)
 		val comp = new SCompartment => [
-			id = sourceId
+			id = compId
 			type = COMP_ATTRIBUTE_ROW
 			layout = 'hbox'
 			layoutOptions = new LayoutOptions [
@@ -258,45 +254,18 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 			]
 			children = #[
 				(new SLabel [
-					id = sourceId + '.name'
-					text = relationship.source.attributeName
+					id = compId + '.name'
+					text = relationEntity.attributeName
 					type = ATTRIBUTE_LABEL_TEXT
-				]).trace(relationship.source, ATTRIBUTE__NAME, -1),
+				]).trace(relationEntity, ATTRIBUTE__NAME, -1),
 				(new SLabel [
-					id = sourceId + ".datatype"
-					text = relationship.target.entity.name + (relationship.type.equals(RelationshipType.MANY_TO_MANY) ? "[]" : "")
+					id = compId + ".datatype"
+					text = targetEntityName + (manyOnElement ? "[]" : "")
 					type = ATTRIBUTE_LABEL_TEXT
 				])
 			]
 		]
-		comp.traceAndMark(relationship.source, context)
-		return comp
-	}
-	
-	def SCompartment createPortForRelationshipTarget(Relationship relationship, String elementId, extension Context context) {
-		val targetId = idCache.uniqueId(relationship.target, elementId + '.' + relationship.target.attributeName)
-		val comp = new SCompartment => [
-			id = targetId
-			type = COMP_ATTRIBUTE_ROW
-			layout = 'hbox'
-			layoutOptions = new LayoutOptions [
-				VAlign = 'middle'
-				HGap = 5.0
-			]
-			children = #[
-				(new SLabel [
-					id = targetId + '.name'
-					text = relationship.target.attributeName
-					type = ATTRIBUTE_LABEL_TEXT
-				]).trace(relationship.target, ATTRIBUTE__NAME, -1),
-				(new SLabel [
-					id = targetId + ".datatype"
-					text = relationship.source.entity.name + (relationship.type.equals(RelationshipType.MANY_TO_ONE) || relationship.type.equals(RelationshipType.MANY_TO_MANY) ? "[]" : "")
-					type = ATTRIBUTE_LABEL_TEXT
-				])
-			]
-		]
-		comp.traceAndMark(relationship.source, context)
+		comp.traceAndMark(relationEntity, context)
 		return comp
 	}
 	
@@ -332,11 +301,36 @@ class OrmModelDiagramGenerator implements IDiagramGenerator {
 		return comp
 	}
 	
+	def SCompartment createEnumLabel(EnumValue attribute, String elementId, extension Context context) {
+		val attributeId = idCache.uniqueId(attribute, elementId + '.' + attribute.value)
+		val labelType = ATTRIBUTE_LABEL_TEXT
+		val comp = new SCompartment => [
+			id = attributeId
+			type = COMP_ATTRIBUTE_ROW
+			layout = 'hbox'
+			layoutOptions = new LayoutOptions [
+				VAlign = 'middle'
+				HGap = 5.0
+			]
+			children = #[
+				(new SLabel [
+					id = attributeId + '.value'
+					text = attribute.value
+					type = labelType
+				]).trace(attribute, ENUM_VALUE__VALUE, -1)
+			]
+		]
+		comp.traceAndMark(attribute, context)
+		return comp
+	}
+	
 	def String attributeText(Attribute a) {
 		if(a instanceof DataAttribute){
 			return a.datatype.toString
 		} else if (a instanceof EmbeddedAttribute){
 			return a.embeddedType.name
+		} else if (a instanceof EnumAttribute){
+			return a.enumType.name
 		}
 		return ' '
 	}

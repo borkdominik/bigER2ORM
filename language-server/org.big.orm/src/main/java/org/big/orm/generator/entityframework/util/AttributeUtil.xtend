@@ -5,6 +5,7 @@ import com.google.common.base.CaseFormat
 import org.big.orm.ormModel.AttributeType
 import com.google.inject.Singleton
 import org.big.orm.ormModel.DataType
+import org.big.orm.ormModel.EnumAttribute
 
 @Singleton
 class AttributeUtil {
@@ -13,6 +14,12 @@ class AttributeUtil {
 	'''
 	«IF a.datatype == DataType.STRING»[Column(TypeName = "Varchar(255)")]«ENDIF»
 	public «a.compileTypeAndVisiblity(keyAttribute)» «CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, a.name)» { get; set; }
+	'''
+	
+	def CharSequence compileToEntityFrameworkAttribute(EnumAttribute a)
+	'''
+	[Column(TypeName = "Varchar(255)")]
+	public «a.enumType.name»? «CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, a.name)» { get; set; }
 	'''
 	
 	private def CharSequence compileTypeAndVisiblity(DataAttribute a, Boolean keyAttribute){

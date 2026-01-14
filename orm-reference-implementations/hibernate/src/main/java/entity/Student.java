@@ -15,9 +15,6 @@ import lombok.Setter;
 @Setter
 public class Student extends Person {
 
-  @OneToMany(mappedBy = "student")
-  private List<StudentStudyProgram> studies;
-
   // Unique constraint name can't be set: https://hibernate.atlassian.net/browse/HHH-19006
   // Once finished refactor creation to be equivalent
   @OneToOne
@@ -29,5 +26,8 @@ public class Student extends Person {
 
   @OneToMany(mappedBy = "student")
   private List<Certificate> certificates;
+
+  @OneToMany(mappedBy = "student")
+  private List<StudentStudyProgram> studies;
 
 }

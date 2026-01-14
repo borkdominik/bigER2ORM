@@ -1,0 +1,93 @@
+name: BuildAndRelease
+
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '20'
+  JAVA_VERSION: '17'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build bigORM
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Build Language Server
+        run: language-server/gradlew -p language-server/ build --no-daemon
+      - name: Build Webview
+        run: yarn --cwd webview
+      - name: Build Extension
+        run: yarn --cwd extension
+      - name: Package Extension
+        run: yarn --cwd extension run package
+      - name: Archive extension build
+        uses: actions/upload-artifact@v4
+        with:
+          name: bigorm-extension
+          path: extension/bigorm-*.vsix
+  
+  release:
+    name: Create bigORM Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Download extension build
+        uses: actions/download-artifact@v4
+        with:
+          name: bigorm-extension
+          path: extension
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Setup extension environment
+        run: yarn --cwd extension
+      - name: Set PACKAGE_VERSION & PACKAGE_NAME
+        run: node -e "console.log('PACKAGE_VERSION=' + require('./extension/package.json').version + '\nPACKAGE_NAME=bigorm-' + require('./extension/package.json').version)" >> $GITHUB_ENV
+      - name: Verify version
+        run: node -e "if ('refs/tags/v' + '${{ env.PACKAGE_VERSION }}' !== '${{ github.ref }}') { console.log('::error' + 'Versions do not match. refs/tags/v' + '${{ env.PACKAGE_VERSION }}', '${{ github.ref }}'); throw Error('Version Mismatch')}"
+      # Automatic publishing currently disabled due to pipeline issues. To publish, download the file and run the same command as below offline, with replacing the variables appropriately.
+      # - name: Publish
+      #   run: yarn --cwd extension run vsce publish --packagePath ./${{ env.PACKAGE_NAME }}.vsix -p ${{ secrets.VSCODE_ACCESS_TOKEN }}
+      - name: Generate Changelog
+        id: changelog
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ env.PACKAGE_VERSION }}
+          path: ./extension/CHANGELOG.md
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          name: v${{ env.PACKAGE_VERSION }}
+          body: ${{ steps.changelog.outputs.changes }}
+          draft: false
+          prerelease: false
+          files: ./extension/${{ env.PACKAGE_NAME }}.vsix

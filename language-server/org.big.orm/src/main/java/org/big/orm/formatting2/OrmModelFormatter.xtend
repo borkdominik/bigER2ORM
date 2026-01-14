@@ -3,21 +3,28 @@
  */
 package org.big.orm.formatting2
 
+import java.util.LinkedHashMap
+import org.big.orm.ormModel.AttributedElement
+import org.big.orm.ormModel.DataAttribute
+import org.big.orm.ormModel.EmbeddedAttribute
+import org.big.orm.ormModel.Entity
+import org.big.orm.ormModel.EnumAttribute
+import org.big.orm.ormModel.InheritanceOption
+import org.big.orm.ormModel.ModelElement
+import org.big.orm.ormModel.OrmEnum
 import org.big.orm.ormModel.OrmModel
+import org.big.orm.ormModel.RelationEntity
+import org.big.orm.ormModel.Relationship
 import org.eclipse.xtext.formatting2.AbstractFormatter2
+import org.eclipse.xtext.formatting2.FormatterPreferenceKeys
 import org.eclipse.xtext.formatting2.IFormattableDocument
+import org.eclipse.xtext.preferences.MapBasedPreferenceValues
 
 import static org.big.orm.ormModel.OrmModelPackage.Literals.*
-import org.big.orm.ormModel.ModelElement
-import org.big.orm.ormModel.Relationship
 
 class OrmModelFormatter extends AbstractFormatter2 {
 	
-	// @Inject extension OrmModelGrammarAccess
-
 	def dispatch void format(OrmModel ormModel, extension IFormattableDocument document) {
-		
-		System.err.println("Formatter triggered!")
 		
 		// Model header
 		ormModel.regionFor.feature(ORM_MODEL__NAME).surround[oneSpace]
@@ -30,43 +37,120 @@ class OrmModelFormatter extends AbstractFormatter2 {
 		for (relationship : ormModel.relationships) {
 			relationship.format
 		}
+		
+		// use spaces instead of tabs
+		val preferences = getPreferences
+		val newMap = new LinkedHashMap<String, String>
+		newMap.put(FormatterPreferenceKeys.indentation.id, '    ')
+		val result = new MapBasedPreferenceValues(preferences, newMap)
+		request.preferences = result
 	}
 
 	def dispatch void format(ModelElement element, extension IFormattableDocument document) {
+		
+		// Handle specific formatting if the element is an Entity
+		if (element instanceof Entity) {
+			// Format Annotations: @(Inheritance.JoinedTable)
+			for (option : element.options) {
+				option.format
+				option.append[newLine]
+			}
+			
+			// Format Joins: joins (A, B)
+			element.regionFor.keyword("joins").surround[oneSpace]
+			element.regionFor.keyword("(").prepend[oneSpace].append[noSpace]
+			element.regionFor.keyword(",").prepend[noSpace].append[oneSpace]
+			element.regionFor.keyword(")").prepend[noSpace]
+			
+			// Trigger formatting for join sources to fix bracket spacing
+			element.joinSource.format
+			element.joinTarget.format
+		}
+
 		element.regionFor.feature(MODEL_ELEMENT__NAME).surround[oneSpace]
 		
 		val open = element.regionFor.keyword("{")
 		val close = element.regionFor.keyword("}")
-		if (element.attributes.length > 0) {
+		
+		open.prepend[oneSpace] // Ensure space before {
+		open.append[newLine]
+		
+		if  (element instanceof AttributedElement) {
+			if (element.attributes.length > 0) {
+				open.append[newLine]
+			}
+		
+			for (attribute : element.attributes) {
+				attribute.format
+				attribute.append[setNewLines(1, 1, 2)]
+			}
+		} else if (element instanceof OrmEnum) {
 			open.append[newLine]
+			
+			for (value : element.values) {
+				value.append[setNewLines(1, 1, 2)]
+			}
 		}
+
 		interior(open, close)[indent]
 		close.append[setNewLines(2,2,2)]
-		
-		for (attribute : element.attributes) {
-			attribute.append[setNewLines(1, 1, 2)]
-		}
+	}
+	
+	// Format Annotation Strategy: @(Strategy) - Remove spaces inside parentheses
+	def dispatch void format(InheritanceOption element, extension IFormattableDocument document) {
+		element.regionFor.keyword("@(").append[noSpace]
+		element.regionFor.keyword(")").prepend[noSpace]
+	}
+
+	// Format Attributes to ensure Name and Type are on the same line
+	// using surround[oneSpace] to replace newlines with a single space
+	def dispatch void format(DataAttribute attribute, extension IFormattableDocument document) {
+		attribute.regionFor.feature(DATA_ATTRIBUTE__DATATYPE).surround[oneSpace]
+		attribute.regionFor.feature(ATTRIBUTE__TYPE).surround[oneSpace]
+	}
+
+	def dispatch void format(EmbeddedAttribute attribute, extension IFormattableDocument document) {
+		attribute.regionFor.feature(EMBEDDED_ATTRIBUTE__EMBEDDED_TYPE).surround[oneSpace]
+		attribute.regionFor.feature(ATTRIBUTE__TYPE).surround[oneSpace]
+	}
+
+	def dispatch void format(EnumAttribute attribute, extension IFormattableDocument document) {
+		attribute.regionFor.feature(ENUM_ATTRIBUTE__ENUM_TYPE).surround[oneSpace]
+		attribute.regionFor.feature(ATTRIBUTE__TYPE).surround[oneSpace]
+	}
+	
+	// Format Entity References: Entity["attr"] - Remove spaces around brackets
+	def dispatch void format(RelationEntity element, extension IFormattableDocument document) {
+		element.regionFor.keyword("[").prepend[noSpace].append[noSpace]
+		element.regionFor.keyword("]").prepend[noSpace]
 	}
 	
 	def dispatch void format(Relationship relationship, extension IFormattableDocument document) {
 		relationship.regionFor.feature(RELATIONSHIP__NAME).surround[oneSpace]
 		relationship.regionFor.feature(RELATIONSHIP__TYPE).surround[oneSpace]
 		relationship.regionFor.feature(RELATIONSHIP__UNIDIRECTIONAL).surround[oneSpace]
+		relationship.regionFor.keyword("relationship").surround[oneSpace]
 		
 		val open = relationship.regionFor.keyword("{")
 		val close = relationship.regionFor.keyword("}")
+		open.prepend[oneSpace]
 		open.append[newLine]
 		interior(open, close)[indent]
 		close.append[setNewLines(2,2,2)]
 		
-		relationship.source.append[setNewLines(1, 1, 2)]
-		relationship.source.regionFor.feature(RELATION_ENTITY__ATTRIBUTE_NAME).surround[noSpace]
-		relationship.target.append[setNewLines(1, 1, 2)]
-		relationship.target.regionFor.feature(RELATION_ENTITY__ATTRIBUTE_NAME).surround[noSpace]
-		
-		for (attribute : relationship.attributes) {
-			attribute.append[setNewLines(1, 1, 2)]
+		// Format Source
+		relationship.regionFor.keyword("source").append[oneSpace]
+		relationship.source.format
+		if (relationship.sourceRequired) {
+    		relationship.source.append[oneSpace]
+    		relationship.regionFor.keyword("required").append[setNewLines(1, 1, 2)]
+		} else {
+    		relationship.source.append[setNewLines(1, 1, 2)]
 		}
+		
+		// Format Target
+		relationship.regionFor.keyword("target").append[oneSpace]
+		relationship.target.format
+		relationship.target.append[setNewLines(1, 1, 2)]
 	}
-	
 }

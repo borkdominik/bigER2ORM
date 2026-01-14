@@ -5,7 +5,6 @@ namespace university.entity
     [Table("person")]
     public class Person : NamedElement
     {
-        //can't use ComplexType in Inheritance, need to manually inherit all attributes
         [Column(TypeName = "Varchar(255)")]
         public string? Street { get; set; }
 
@@ -16,5 +15,6 @@ namespace university.entity
 
         [Column(TypeName = "Varchar(255)")]
         public string? Country { get; set; }
+
     }
 }

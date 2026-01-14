@@ -11,7 +11,7 @@ buildscript {
 subprojects {
 	ext.xtextVersion = '2.34.0'
 	ext.sprottyVersion = '1.1.1'
-	ext.elkVersion = '0.9.0'
+	ext.elkVersion = '0.10.0'
 	repositories {
 		mavenCentral()
 	}
@@ -28,8 +28,8 @@ subprojects {
 	group = 'org.big.orm'
 	//version = '1.0.0-SNAPSHOT'
 
-	sourceCompatibility = '11'
-	targetCompatibility = '11'
+	sourceCompatibility = '17'
+	targetCompatibility = '17'
 
 	configurations.all {
 		exclude group: 'asm'

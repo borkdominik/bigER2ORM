@@ -16,9 +16,9 @@ namespace university.entity
         [Column(TypeName = "Varchar(255)")]
         public required string PrintedName { get; set; }
 
-        public List<StudentCardStudyProgram>? StudyPrograms { get; set; }
-
         public Student? Student { get; set; }
+
+        public List<StudentCardStudyProgram>? StudyPrograms { get; set; }
 
     }
 }

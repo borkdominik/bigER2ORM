@@ -3,13 +3,18 @@
  */
 package org.big.orm.validation;
 
+import java.util.regex.Pattern;
+
 import org.big.orm.ormModel.Attribute;
 import org.big.orm.ormModel.AttributeType;
 import org.big.orm.ormModel.DataAttribute;
 import org.big.orm.ormModel.Embeddable;
 import org.big.orm.ormModel.Entity;
+import org.big.orm.ormModel.EnumAttribute;
+import org.big.orm.ormModel.EnumValue;
 import org.big.orm.ormModel.InheritableElement;
-import org.big.orm.ormModel.MappedClass;
+import org.big.orm.ormModel.ModelElement;
+import org.big.orm.ormModel.OrmModel;
 import org.big.orm.ormModel.OrmModelPackage;
 import org.big.orm.ormModel.Relationship;
 import org.big.orm.ormModel.RelationshipType;
@@ -22,6 +27,57 @@ import org.eclipse.xtext.validation.Check;
  * https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 public class OrmModelValidator extends AbstractOrmModelValidator {
+	
+    private static final Pattern UPPER_CAMEL = Pattern.compile("^(?:[A-Z][a-z]+)+$");
+    private static final Pattern LOWER_CAMEL = Pattern.compile("^[a-z]+(?:[A-Z][a-z]+)*$");
+    private static final Pattern UPPER_SNAKE = Pattern.compile("^[A-Z]+(?:[_][A-Z]+)*$");
+    private static final Pattern LOWER_SNAKE = Pattern.compile("^[a-z]+(?:[_][a-z]+)*$");
+	
+	
+	@Check
+	public void checkJoinEntityDoesNotExtend(Entity entity) {
+		if (entity.isJoinEntity() && entity.getExtends()!=null) {
+			warning("Join Entities can't be extended", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidModelElement");
+		}
+	}
+	
+	@Check
+	public void checkJoinEntityRelationEntityHasAttributeNames(Entity entity) {
+		if (entity.isJoinEntity()) {
+			if (entity.getJoinSource().getAttributeName() == null || entity.getJoinTarget().getAttributeName() == null ) {
+				warning("Join Entities need Attribute Names for the joined entities", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidModelElement");
+			}
+		}
+	}
+    
+    
+	@Check
+	public void checkModelNameMatchesUpperCamel(OrmModel model) {
+		if (!LOWER_SNAKE.matcher(model.getName()).matches()) {
+			warning("Model name must always be in lower snake case", OrmModelPackage.Literals.ORM_MODEL__NAME, "invalidModel");
+		}
+	}
+    
+	@Check
+	public void checkModelElementNameMatchesUpperCamel(ModelElement element) {
+		if (!UPPER_CAMEL.matcher(element.getName()).matches()) {
+			warning("Model element names must always be in upper camel case", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidModelElement");
+		}
+	}
+	
+	@Check
+	public void checkAttributeNameMatchesLowerCamel(Attribute attribute) {
+		if (!LOWER_CAMEL.matcher(attribute.getName()).matches()) {
+			warning("Attribute names must always be in lower camel case", OrmModelPackage.Literals.ATTRIBUTE__NAME, "invalidModelElement");
+		}
+	}
+	
+	@Check
+	public void checkEnumValueMatchesLowerCamel(EnumValue value) {
+		if (!UPPER_SNAKE.matcher(value.getValue()).matches()) {
+			warning("Attribute names must always be in upper snake case", OrmModelPackage.Literals.ATTRIBUTE__NAME, "invalidModelElement");
+		}
+	}
 
 	@Check
 	public void checkRelationshipAttributeNames(Relationship relationship) {
@@ -37,9 +93,9 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 	}
 	
 	@Check
-	public void checkRelationshipNameOnlyContainsCharacters(Relationship relationship) {
-		if (!relationship.getName().matches("[a-zA-Z]+")) {
-			warning("Relationship names shall only contain letters (A-Z, a-z)", OrmModelPackage.Literals.RELATIONSHIP__NAME, "invalidRelationship");
+	public void checkRelationshipNameIsUpperCamelCase(Relationship relationship) {
+		if (!UPPER_CAMEL.matcher(relationship.getName()).matches()) {
+			warning("Relationship names must be in upper camel case", OrmModelPackage.Literals.RELATIONSHIP__NAME, "invalidRelationship");
 		}
 	}
 	
@@ -51,9 +107,33 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 	}
 	
 	@Check
+	public void checkRelationshipOnlyConnectingNonJoinEntities(Relationship relationship) {
+		if (!(relationship.getSource().getEntity() instanceof Entity)) {
+			warning("Relationships can only connect non-join Entities", OrmModelPackage.Literals.RELATIONSHIP__SOURCE, "invalidRelationship");
+		} else {
+			if (((Entity) relationship.getSource().getEntity()).isJoinEntity()) {
+				warning("Relationships can only connect non-join Entities", OrmModelPackage.Literals.RELATIONSHIP__SOURCE, "invalidRelationship");
+			}
+		}
+		
+		if (!(relationship.getTarget().getEntity() instanceof Entity)) {
+			warning("Relationships can only connect non-join Entities", OrmModelPackage.Literals.RELATIONSHIP__TARGET, "invalidRelationship");
+		} else {
+			if (((Entity) relationship.getTarget().getEntity()).isJoinEntity()) {
+				warning("Relationships can only connect non-join Entities", OrmModelPackage.Literals.RELATIONSHIP__TARGET, "invalidRelationship");
+			}
+		}
+	}
+	
+	@Check
 	public void checkElementOnlyHasOneKey(InheritableElement element) {
+		if (element instanceof Entity) {
+			if (((Entity) element).isJoinEntity()) {
+				return;
+			}
+		}
 		int keys = getKeyCount(element);
-		if (keys != 1) {
+		if (keys != 1 && !(element instanceof Entity)) {
 			warning("Root entities must have exactly one primary key. For composite primary keys define an embeddable to be used as key.", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidEntity");
 		}
 	}
@@ -73,7 +153,7 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 			warning("Embeddables are not allowed to have primary keys.", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidEmbeddable");
 		}
 	}
-	
+
 	@Check
 	public void checkRequiredOnlyOnDataAttribute(Attribute attribute) {
 		if (!(attribute instanceof DataAttribute) && attribute.getType().equals(AttributeType.REQUIRED)) {
@@ -85,6 +165,13 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 	public void checkEmbeddableOnlyHasDataAttributes(Embeddable embeddable) {
 		if (embeddable.getAttributes().stream().filter(a -> !(a instanceof DataAttribute)).count() > 0) {
 			warning("Embeddables currently only support data attributes.", OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidEmbeddable");
+		}
+	}
+	
+	@Check
+	public void checkEnumAttributeHasNoAttributeType(EnumAttribute enumAttribute) {
+		if (!enumAttribute.getType().equals(AttributeType.NONE)) {
+			warning("Enum Attributes don't support attribute types.", OrmModelPackage.Literals.ATTRIBUTE__NAME, "invalidEnumAttribute");
 		}
 	}
 

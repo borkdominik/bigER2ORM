@@ -7,12 +7,13 @@ namespace university.entity
     [PrimaryKey(nameof(StudentId), nameof(StudyProgramId))]
     public class StudentStudyProgram
     {
+        public Boolean? Finished { get; set; }
+
         public Guid StudentId { get; set; }
         public required Student Student { get; set; }
 
         public Guid StudyProgramId { get; set; }
         public required StudyProgram StudyProgram { get; set; }
 
-        public Boolean? Finished { get; set; }
     }
 }

@@ -1,0 +1,96 @@
+services:
+  postgres:
+    build:
+      context: ./database
+      dockerfile_inline: |
+        FROM postgres:16.10-alpine
+        COPY ./dbinit/ /docker-entrypoint-initdb.d/
+    image: bigorm-postgres:16.10-alpine
+    pull_policy: never
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_MULTIPLE_DATABASES=java,python,csharp
+
+  pgadmin:
+    build:
+      context: ./database
+      dockerfile_inline: |
+        FROM dpage/pgadmin4:7.8
+        COPY ./pgadmin/servers.json /pgadmin4/servers.json
+    image: bigorm-pgadmin:7.8
+    pull_policy: never
+    depends_on:
+      - postgres
+    ports:
+      - 5555:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: bernd.stainer@student.tuwien.ac.net
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    entrypoint:
+      - "/bin/sh"
+      - "-c"
+      - "/bin/echo 'postgres:5432:*:postgres:postgres' > /tmp/pgpass && chmod 600 /tmp/pgpass && /entrypoint.sh"
+
+  entity-framework-test:
+    image: mcr.microsoft.com/dotnet/sdk:9.0
+    depends_on:
+      - postgres
+    working_dir: /app
+    volumes:
+      - ./entity-framework/entity-framework.csproj:/app/entity-framework.csproj
+      - ./entity-framework/Model.cs:/app/Model.cs
+      - ./entity-framework/Program.cs:/app/Program.cs
+      - ./entity-framework/entity:/app/entity
+    command: bash -lc "dotnet run"
+
+  hibernate-test:
+    image: maven:3.8.5-openjdk-17
+    depends_on:
+      - postgres
+    working_dir: /app
+    volumes:
+      - ./hibernate/src:/app/src
+      - ./hibernate/pom.xml:/app/pom.xml
+    command: sh -lc "mvn -q -DskipTests compile exec:java -Dexec.mainClass=GenerateDatabase"
+  
+  sql-alchemy-test:
+    image: python:3.10-slim
+    depends_on:
+      - postgres
+    working_dir: /app
+    volumes:
+      - ./sql-alchemy/main.py:/app/main.py
+      - ./sql-alchemy/base.py:/app/base.py
+      - ./sql-alchemy/requirements.txt:/app/requirements.txt
+      - ./sql-alchemy/__init__.py:/app/__init__.py
+      - ./sql-alchemy/entity:/app/entity
+    command: bash -lc "python -m pip install -q --no-cache-dir -r requirements.txt && python main.py"
+
+  migra-runner:
+    build:
+      context: ./database
+      dockerfile_inline: |
+        FROM node:20-alpine
+        WORKDIR /app
+        RUN npm install --global @pgkit/migra
+        COPY ./compare/compare-dbs.sh /app/compare-dbs.sh
+        COPY ./compare/group-by-table.sh /app/group-by-table.sh
+        RUN chmod +x /app/*.sh
+        CMD ["/bin/sh", "-lc", "/app/compare-dbs.sh && /app/group-by-table.sh"]
+    image: bigorm-migra-node:20-alpine
+    pull_policy: never
+    depends_on:
+      entity-framework-test:
+        condition: service_completed_successfully
+      hibernate-test:
+        condition: service_completed_successfully
+      sql-alchemy-test:
+        condition: service_completed_successfully
+    working_dir: /app
+    volumes:
+      - ./schema-diffs:/app/schema-diffs

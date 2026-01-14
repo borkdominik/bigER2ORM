@@ -7,6 +7,16 @@ namespace university.entity
     [PrimaryKey(nameof(StudentCardCardNr), nameof(StudentCardCardVersion), nameof(StudyProgramId))]
     public class StudentCardStudyProgram
     {
+        public Boolean? Finished { get; set; }
+
+        [Column(TypeName = "Varchar(255)")]
+        public string? DataOne { get; set; }
+
+        public int? DataTwo { get; set; }
+
+        [Column(TypeName = "Varchar(255)")]
+        public Status? CardStatus { get; set; }
+
         [Column(TypeName = "Varchar(255)")]
         public string StudentCardCardNr { get; set; }
         [Column(TypeName = "Varchar(255)")]
@@ -16,6 +26,5 @@ namespace university.entity
         public Guid StudyProgramId { get; set; }
         public required StudyProgram StudyProgram { get; set; }
 
-        public Boolean? Finished { get; set; }
     }
 }

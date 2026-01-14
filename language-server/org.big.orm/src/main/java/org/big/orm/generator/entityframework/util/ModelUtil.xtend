@@ -10,7 +10,6 @@ import org.big.orm.generator.common.CommonUtil
 import org.big.orm.ormModel.InheritanceStrategy
 import org.big.orm.ormModel.DataAttribute
 import org.big.orm.ormModel.RelationshipType
-import org.big.orm.ormModel.OrmModelFactory
 
 @Singleton
 class ModelUtil {
@@ -24,13 +23,13 @@ class ModelUtil {
 	using Microsoft.EntityFrameworkCore;
 	using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 	
-	public class «CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, modelName)»Context : DbContext
+	public class «CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, modelName)»Context : DbContext
 	{
 		«FOR entity : entities.sortBy[name] SEPARATOR "\n"»public DbSet<«entity.name»> «entity.name» { get; set; }«ENDFOR»
 		
 		protected override void OnConfiguring(DbContextOptionsBuilder options)
 			=> options
-				.UseNpgsql("Host=localhost;Database=csharp;Username=postgres;Password=postgres")
+				.UseNpgsql("Host=postgres;Database=csharp;Username=postgres;Password=postgres")
 				.UseSnakeCaseNamingConvention();
 	
 		protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -111,7 +110,7 @@ class ModelUtil {
 	def compileRelationshipForModel(Relationship relationship) {
 		switch relationship.type {
 			case RelationshipType.ONE_TO_ONE, case RelationshipType.MANY_TO_ONE: relationship.compileXToOneRelationshipForModel
-			case RelationshipType.MANY_TO_MANY: relationship.attributes.empty ? relationship.compileManyToManyUsingJoinTableRelationshipForModel : relationship.compileManyToManyUsingJoinEntityRelationshipForModel
+			case RelationshipType.MANY_TO_MANY: relationship.compileManyToManyForModel
 			default: ''''''
 		}
 	}
@@ -131,7 +130,7 @@ class ModelUtil {
 		'''
 	}
 	
-	def compileManyToManyUsingJoinTableRelationshipForModel(Relationship relationship) {
+	def compileManyToManyForModel(Relationship relationship) {
 		var String tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, relationship.name)
 	
 		val String lowUnderSourceTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, relationship.source.entity.name)
@@ -163,36 +162,6 @@ class ModelUtil {
 			.HasNoKey();
 		
 		'''
-	}
-	
-	def compileManyToManyUsingJoinEntityRelationshipForModel(Relationship relationship) {
-		var Entity joinEntity  = OrmModelFactory.eINSTANCE.createEntity()
-		joinEntity.name = relationship.name
-		var Relationship sourceRelationship = createJoinRelationship(joinEntity, relationship.source)
-		var Relationship targetRelationship = createJoinRelationship(joinEntity, relationship.target)
-		
-		//var String lowUnderRelationshipName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, relationship.name)
-		//val List<DataAttribute> sourceKeyAttributes = relationship.source.entity.keyAttributesAsDataAttributes.map[a | a.copyAttribute(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, relationship.source.entity.name)) as DataAttribute].toList;
-		//val List<DataAttribute> targetKeyAttributes = relationship.target.entity.keyAttributesAsDataAttributes.map[a | a.copyAttribute(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, relationship.target.entity.name)) as DataAttribute].toList;
-		'''
-		«sourceRelationship.compileXToOneRelationshipForModel»
-		«targetRelationship.compileXToOneRelationshipForModel»
-		'''
-		
-//				modelBuilder.Entity<«relationship.name»>()
-//			.HasMany(e => e.«relationship.source.entity.name»)
-//			.WithOne(e => e.«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, relationship.source.attributeName)»)
-//			.HasForeignKey(e => new { «sourceKeyAttributes.joinKeys» })
-//			.HasConstraintName("fk_«lowUnderRelationshipName»_student_card")
-//			.OnDelete(DeleteBehavior.NoAction);
-//
-//		modelBuilder.Entity<«relationship.name»>()
-//			.HasMany(e => e.«relationship.target.entity.name»)
-//			.WithOne(e => e.«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, relationship.target.attributeName)»)
-//			.HasForeignKey(e => new { «targetKeyAttributes.joinKeys» })
-//			.HasConstraintName("fk_«lowUnderRelationshipName»_study_program")
-//			.OnDelete(DeleteBehavior.NoAction);
-		
 	}
 	
 	private def joinKeys(List<DataAttribute> keys){

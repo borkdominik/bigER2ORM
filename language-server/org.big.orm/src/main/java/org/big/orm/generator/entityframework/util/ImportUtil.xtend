@@ -10,18 +10,26 @@ import org.big.orm.ormModel.AttributeType
 import com.google.inject.Inject
 import org.big.orm.generator.common.CommonUtil
 import org.big.orm.ormModel.InheritableElement
+import org.big.orm.ormModel.AttributedElement
 
 @Singleton
 class ImportUtil {
 	
 	@Inject extension CommonUtil commonUtil;
 	
-	def generateImports(ModelElement e) {
+	def generateImports(AttributedElement e) {
 		val imports = new TreeSet<String>();
 		
 		// Primary Keys
 		if(!e.attributes.filter[attribute | attribute.type === AttributeType.ID].empty){	
 			imports.add("Microsoft.EntityFrameworkCore");
+		}
+		
+		// Join Entity
+		if(e instanceof Entity) {
+			if (e.joinEntity){
+				imports.add("Microsoft.EntityFrameworkCore");
+			}
 		}
 		
 		// Table Annotation

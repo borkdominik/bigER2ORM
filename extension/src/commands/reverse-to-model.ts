@@ -8,7 +8,6 @@ const optionsInput: OpenDialogOptions = {
     openLabel: 'Select as input',
     canSelectFiles: true,
     canSelectFolders: true
-    // TODO: ,title: 'Select files to reverse'
 };
 
 const optionsOutput: OpenDialogOptions = {
@@ -16,7 +15,6 @@ const optionsOutput: OpenDialogOptions = {
     openLabel: 'Select for output',
     canSelectFiles: false,
     canSelectFolders: true
-    // TODO: ,title: 'Select output folder'
 };
 
 export default async function reverseToModel() {

@@ -5,7 +5,6 @@ import org.big.orm.ormModel.Relationship
 import org.big.orm.ormModel.RelationshipType
 import com.google.common.base.CaseFormat
 import org.big.orm.ormModel.DataAttribute
-import org.big.orm.ormModel.EmbeddedAttribute
 import com.google.inject.Inject
 import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.OrmModel
@@ -18,7 +17,6 @@ import org.big.orm.ormModel.Attribute
 @Singleton
 class RelationshipUtil {
 	
-	@Inject extension AttributeUtil attributeUtil;
 	@Inject extension InheritableUtil inheritableUtil;
 	@Inject extension CommonUtil commonUtil;
 	
@@ -41,7 +39,7 @@ class RelationshipUtil {
 	
 	def compileRelationshipForSource(Relationship r) {
 		switch r.type {
-			case RelationshipType.MANY_TO_MANY: r.attributes.empty ? compileManyToManyForSourceWithJoinTable(r) : compileManyToManyForSourceWithJoinEntity(r)
+			case RelationshipType.MANY_TO_MANY: compileManyToManyForSource(r)
 			case RelationshipType.MANY_TO_ONE: compileManyToOneForSource(r)
 			case RelationshipType.ONE_TO_ONE: compileOneToOneForSource(r)
 			default: ''''''
@@ -49,14 +47,16 @@ class RelationshipUtil {
 	}
 	
 	def compileManyToOneForSource(Relationship r) {
+		val Boolean isJoinEntity = (r.source.entity instanceof Entity) && (r.source.entity as Entity).joinEntity
 		'''
-		@ManyToOne«IF r.sourceRequired»(optional = false)«ENDIF»
+		«IF isJoinEntity»@MapsId("«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, r.target.entity.name)»Id")
+		«ENDIF»@ManyToOne«IF r.sourceRequired»(optional = false)«ENDIF»
 		«compileJoinColumns(r)»
 		private «r.target.entity.name» «r.source.attributeName»;
 		'''
 	}
 	
-	def compileManyToManyForSourceWithJoinTable(Relationship r){
+	def compileManyToManyForSource(Relationship r){
 		var String tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.name)
 		val List<DataAttribute> sourceKeyAttibutes = r.source.entity.keyAttributesAsDataAttributes
 		val List<DataAttribute> targetKeyAttibutes = r.target.entity.keyAttributesAsDataAttributes
@@ -117,7 +117,7 @@ class RelationshipUtil {
 	
 	def compileRelationshipForTarget(Relationship r){
 		switch r.type {
-			case RelationshipType.MANY_TO_MANY: r.attributes.empty ? compileManyToManyForTargetWithJoinTable(r) : compileManyToManyForTargetWithJoinEntity(r)
+			case RelationshipType.MANY_TO_MANY: compileManyToManyForTarget(r)
 			case RelationshipType.MANY_TO_ONE: compileManyToOneForTarget(r)
 			case RelationshipType.ONE_TO_ONE: compileOneToOneForTarget(r)
 			default: ''''''
@@ -130,16 +130,10 @@ class RelationshipUtil {
 	private List<«r.source.entity.name»> «r.target.attributeName»;
 	'''
 	
-	def compileManyToManyForTargetWithJoinTable(Relationship r)
+	def compileManyToManyForTarget(Relationship r)
 	'''
 	@ManyToMany(mappedBy = "«r.source.attributeName»")
 	private List<«r.source.entity.name»> «r.target.attributeName»;
-    '''
-	
-	def compileManyToManyForTargetWithJoinEntity(Relationship r)
-	'''
-    @OneToMany(mappedBy = "«r.target.entity.name.toFirstLower»")
-    private List<«r.name»> «r.target.attributeName»;
     '''
 	
 	def compileOneToOneForTarget(Relationship r)
@@ -147,64 +141,17 @@ class RelationshipUtil {
 	@OneToOne(mappedBy = "«r.source.attributeName»")
 	private «r.source.entity.name» «r.target.attributeName»;
 	'''
-	
-	def compileJoinEntity(Relationship r){
-		var Entity joinEntity  = OrmModelFactory.eINSTANCE.createEntity()
-		joinEntity.name = r.name
-		var Relationship sourceRelationship = createJoinRelationship(joinEntity, r.source)
-		var Relationship targetRelationship = createJoinRelationship(joinEntity, r.target)
-	
-		'''
-		package entity;
-		
-		import jakarta.persistence.Column;
-		import jakarta.persistence.EmbeddedId;
-		import jakarta.persistence.Entity;
-		import jakarta.persistence.ForeignKey;
-		import jakarta.persistence.JoinColumn;
-		import jakarta.persistence.JoinColumns;
-		import jakarta.persistence.ManyToOne;
-		import jakarta.persistence.MapsId;
-		import lombok.Getter;
-		import lombok.Setter;
-		
-		@Entity
-		@Getter
-		@Setter
-		public class «r.name» {
-		
-			@EmbeddedId
-			private «r.name»Id id;
-			
-			@MapsId("«r.source.entity.name.toFirstLower»Id")
-			«sourceRelationship.compileRelationshipForSource»
-			
-			@MapsId("«r.target.entity.name.toFirstLower»Id")
-			«targetRelationship.compileRelationshipForSource»
-			
-			«FOR a : r.attributes SEPARATOR "\n"»
-			«IF a instanceof DataAttribute»
-			«a.compile»
-			«ENDIF»
-			«IF a instanceof EmbeddedAttribute»
-			«a.compile»
-			«ENDIF»
-			«ENDFOR»
-			
-		}
-		'''
-	}
 
-	def compileJoinId(Relationship r){
+	def compileJoinId(Entity e){
 		var Embeddable joinEntityId  = OrmModelFactory.eINSTANCE.createEmbeddable()
-		joinEntityId.name = r.name + "Id"
-		(r.eContainer as OrmModel).elements.add(joinEntityId)
+		joinEntityId.name = e.name + "Id"
+		(e.eContainer as OrmModel).elements.add(joinEntityId)
 		
-		var Attribute sourceKeyAttribute = r.source.entity.keyAttribute.copyAttribute("")
-		var Attribute targetKeyAttribute = r.target.entity.keyAttribute.copyAttribute("")
+		var Attribute sourceKeyAttribute = e.joinSource.entity.keyAttribute.copyAttribute("")
+		var Attribute targetKeyAttribute = e.joinTarget.entity.keyAttribute.copyAttribute("")
 
-		sourceKeyAttribute.name = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, r.source.entity.name) + CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, sourceKeyAttribute.name)
-		targetKeyAttribute.name = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, r.target.entity.name) + CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, targetKeyAttribute.name)
+		sourceKeyAttribute.name = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, e.joinSource.entity.name) + CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, sourceKeyAttribute.name)
+		targetKeyAttribute.name = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, e.joinTarget.entity.name) + CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, targetKeyAttribute.name)
 
 		joinEntityId.attributes.add(sourceKeyAttribute);
 		joinEntityId.attributes.add(targetKeyAttribute); 
