@@ -46,16 +46,15 @@ entity Course extends NamedElement {
 entity CourseWithExercise extends Course {
 }
 
-
 entity GraduateStudentCard extends StudentCard {
     graduationDate String
 }
 
-entity Lecturer extends Person{
+entity Lecturer extends Person {
 }
 
 @(Inheritance.TablePerClass)
-entity Person extends NamedElement{
+entity Person extends NamedElement {
     embedded address Address
 }
 
