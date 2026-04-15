@@ -8,25 +8,37 @@
 
 <!-- BADGES -->
 <div align="center">
-  <a href="https://github.com/borkdominik/bigER2ORM">
-    <img alt="GitHub Build" src="https://img.shields.io/github/actions/workflow/status/borkdominik/bigER2ORM/buildandrelease.yml?branch=main" height="20"/>
-  </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
-    <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/BIGModelingTools.bigorm" height="20"/>
-  </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
-    <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/BIGModelingTools.bigorm" height="20"/>
-  </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
-    <img alt="Visual Studio Marketplace Last Updated" src="https://img.shields.io/visual-studio-marketplace/last-updated/BIGModelingTools.bigorm?color=blue" height="20"/>
-  </a>
-  <a href="https://github.com/borkdominik/bigER2ORM">
-    <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/borkdominik/bigER2ORM?color=lightgrey" height="20"/>
-  </a>
-  <a href="https://github.com/borkdominik/bigER2ORM">
-    <img alt="GitHub Stars" src="https://img.shields.io/github/stars/borkdominik/bigER2ORM?style=social" height="20">
-  </a>
+    <a href="https://github.com/borkdominik/bigER2ORM">
+        <img alt="GitHub Build" src="https://img.shields.io/github/actions/workflow/status/borkdominik/bigER2ORM/buildandrelease.yml?branch=main" height="20"/>
+    </a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+        <img alt="GitHub Version" src="https://img.shields.io/github/v/release/borkdominik/bigER2ORM?color=lightgrey" height="20"/>
+    </a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+        <img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/borkdominik/bigER2ORM" height="20"/>
+    </a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+        <img alt="GitHub Release Date" src="https://img.shields.io/github/last-commit/borkdominik/bigER2ORM" height="20"/>
+    </a>
+    <a href="https://github.com/borkdominik/bigER2ORM">
+        <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/borkdominik/bigER2ORM?color=lightgrey" height="20"/>
+    </a>
+    <a href="https://github.com/borkdominik/bigER2ORM">
+        <img alt="GitHub Stars" src="https://img.shields.io/github/stars/borkdominik/bigER2ORM?style=social" height="20">
+    </a>
 </div>
+
+<!-- Currently retired badges, as not supported by shields.io
+    <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+        <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/BIGModelingTools.bigorm" height="20"/>
+    </a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+        <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/BIGModelingTools.bigorm" height="20"/>
+    </a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+        <img alt="Visual Studio Marketplace Last Updated" src="https://img.shields.io/visual-studio-marketplace/last-updated/BIGModelingTools.bigorm?color=blue" height="20"/>
+    </a>
+ -->
 
 <!-- DESCRIPTION -->
 <p align="center">
