@@ -2,7 +2,7 @@
   "name": "bigorm-sprotty-webview",
   "displayName": "bigorm-sprotty-webview",
   "description": "Webview for bigORM",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "prepare": "yarn run clean && yarn run build && yarn run lint",
     "clean": "rimraf out",

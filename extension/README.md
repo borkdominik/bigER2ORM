@@ -12,13 +12,13 @@
         <img alt="GitHub Build" src="https://img.shields.io/github/actions/workflow/status/borkdominik/bigER2ORM/buildandrelease.yml?branch=main" height="20"/>
     </a>
     <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
-        <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/BIGModelingTools.bigorm" height="20"/>
+        <img alt="GitHub Version" src="https://img.shields.io/github/v/release/borkdominik/bigER2ORM?color=lightgrey" height="20"/>
     </a>
     <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
-        <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/BIGModelingTools.bigorm" height="20"/>
+        <img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/borkdominik/bigER2ORM" height="20"/>
     </a>
     <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
-        <img alt="Visual Studio Marketplace Last Updated" src="https://img.shields.io/visual-studio-marketplace/last-updated/BIGModelingTools.bigorm?color=blue" height="20"/>
+        <img alt="GitHub Release Date" src="https://img.shields.io/github/last-commit/borkdominik/bigER2ORM" height="20"/>
     </a>
     <a href="https://github.com/borkdominik/bigER2ORM">
         <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/borkdominik/bigER2ORM?color=lightgrey" height="20"/>
@@ -27,6 +27,18 @@
         <img alt="GitHub Stars" src="https://img.shields.io/github/stars/borkdominik/bigER2ORM?style=social" height="20">
     </a>
 </div>
+
+<!-- Currently retired badges, as not supported by shields.io
+    <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+        <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/BIGModelingTools.bigorm" height="20"/>
+    </a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+        <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/BIGModelingTools.bigorm" height="20"/>
+    </a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.bigorm">
+        <img alt="Visual Studio Marketplace Last Updated" src="https://img.shields.io/visual-studio-marketplace/last-updated/BIGModelingTools.bigorm?color=blue" height="20"/>
+    </a>
+ -->
 
 **bigORM** is a tool used to model ORM structures in a generic way and later on generate framework specific ORM code for some of the most popular ORM frameworks, with the code resulting in an equal database structure for all supported frameworks. Currently supported frameworks are Hibernate for Java, SQLalchemy for Python and the .NET Entity Framework.
 
@@ -52,11 +64,10 @@
   - [4.1. ORM Modeling](#41-orm-modeling)
     - [4.1.1. Data Elements](#411-data-elements)
       - [4.1.1.1. Embeddables](#4111-embeddables)
-      - [4.1.1.2. Embeddables](#4112-embeddables)
-      - [4.1.1.3. Enums](#4113-enums)
-      - [4.1.1.4. Entities](#4114-entities)
-        - [4.1.1.4.1. Join Entities](#41141-join-entities)
-      - [4.1.1.5. Mapped Classes](#4115-mapped-classes)
+      - [4.1.1.2. Enums](#4112-enums)
+      - [4.1.1.3. Entities](#4113-entities)
+        - [4.1.1.3.1. Join Entities](#41131-join-entities)
+      - [4.1.1.4. Mapped Classes](#4114-mapped-classes)
     - [4.1.2. Relationships](#412-relationships)
     - [4.1.3. Data types](#413-data-types)
     - [4.1.4. Type modifiers](#414-type-modifiers)
@@ -104,7 +115,7 @@ An example of an bigORM model using all currently supported features can be foun
 
 Data elements are elements that represent data containers, for the targeted ORM frameworks they are mainly translated to classes.
 
-There are three types of data elements:
+There are four different types of data elements:
 
 #### 4.1.1.1. Embeddables
 
@@ -121,26 +132,9 @@ embeddable Address {
 }
 ```
 
-Embeddables do not support type modifiers.
+Embeddables can be used as ``keys``, allowing to create composite primary keys. Embeddables do not support type modifiers
 
-#### 4.1.1.2. Embeddables
-
-Embeddables represent containers to display repeated standardized data structures.
-
-An example would be as follows:
-
-```
-embeddable Address {
-    street String
-    city String
-    postCode Integer
-    country String
-}
-```
-
-Embeddables can be used as ``keys``, allowing to create composite primary keys.
-
-#### 4.1.1.3. Enums
+#### 4.1.1.2. Enums
 
 Enums are a custom datatype to represent a limited amount of fixed constants. They can be created as follows:
 
@@ -153,7 +147,7 @@ enum Status {
 
 **Note:** **bigORM** always maps enums to strings within the database. Custom types, which some databases might support, are not supported.
 
-#### 4.1.1.4. Entities
+#### 4.1.1.3. Entities
 
 An Entity represents an object that is meant to be saved within the database. They need a key, additionally they support inheritance from other entities.
 
@@ -178,7 +172,7 @@ Notice how the annotation on the parent class defines how the child classes will
 - ``Inheritance.TablePerClass`` : Every class will have a dedicated table covering all attributes
 - ``Inheritance.SingleTable`` : All objects are in the same table, having a dedicated column to differentiat which kind of type the object has
 
-##### 4.1.1.4.1. Join Entities
+##### 4.1.1.3.1. Join Entities
 
 Join entities represent a special kind of entity within **bigORM**. Instead of defining their own primary key, they are defined to join two other entities and will get a composite primary key from the joined entities. The join entity automatically creates additional ``ManyToOne`` relationships from itself to the joined entities.
 
@@ -192,7 +186,7 @@ entity StudentStudyProgram joins (Student["studies"], StudyProgram["students"]) 
 
 **Note:** Join entities do not support extending other classes or defining additional primary keys.
 
-#### 4.1.1.5. Mapped Classes
+#### 4.1.1.4. Mapped Classes
 
 In addition to entities and embeddables, **bigORM** also supports Mapped Classes, which can be used to define recurring patterns in entities, like standardized UUID structures. An example is provided in the following:
 

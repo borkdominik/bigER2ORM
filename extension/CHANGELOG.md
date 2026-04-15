@@ -15,6 +15,18 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Removed
 - TBD
 
+## [0.0.2] - 2026-04-15
+
+### Added
+- Meta model diagrams added for visualization
+
+### Changed
+- Readme for extension had embeddable defined twice, fixed
+- Python implementation had error in default UUID generation, fixed
+
+### Removed
+- TBD
+
 ## [0.0.1] - 2025-06-13
 
 ### Added
