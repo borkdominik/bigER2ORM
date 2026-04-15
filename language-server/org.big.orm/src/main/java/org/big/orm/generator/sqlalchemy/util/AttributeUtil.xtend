@@ -73,7 +73,7 @@ class AttributeUtil {
 			properties.add('''primary_key=True''')
 		}
 		if(autoGenerateID){
-			properties.add('''default=uuid.uuid4()''')
+			properties.add('''default=uuid.uuid4''')
 		}
 		if(nullable){
 			properties.add('''nullable=True''')

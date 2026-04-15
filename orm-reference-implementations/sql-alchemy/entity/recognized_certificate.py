@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 class RecognizedCertificate(Certificate):
     __tablename__ = 'recognized_certificate'
 
-    id: Mapped[uuid.UUID] = column_property(mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4()), Certificate.id)
+    id: Mapped[uuid.UUID] = column_property(mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4), Certificate.id)
 
     original_certificate_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     original_certificate: Mapped["Certificate"] = relationship(foreign_keys=[original_certificate_id])
