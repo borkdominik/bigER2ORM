@@ -97,7 +97,7 @@ class ModelUtil {
 		'''
 		modelBuilder.Entity<«rootEntity.name»>()
 			.HasDiscriminator<string>("dtype")
-			.HasValue<Course>("Course")
+			.HasValue<«rootEntity.name»>("«rootEntity.name»")
 			«FOR entity : childEntities SEPARATOR "\n"».HasValue<«entity.name»>("«entity.name»")«ENDFOR»;
 
 		modelBuilder.Entity<«rootEntity.name»>()

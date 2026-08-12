@@ -1,0 +1,18 @@
+orm_model default_inheritance_example
+
+mapped_class NamedElement {
+    id UUID key
+    name String
+}
+
+entity Vehicle extends NamedElement {
+    manufacturer String
+}
+
+entity Car extends Vehicle {
+    seatingCapacity Integer
+}
+
+entity Truck extends Vehicle {
+    cargoCapacity Integer
+}

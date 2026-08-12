@@ -15,6 +15,17 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Removed
 - TBD
 
+## [0.0.3] - 2026-08-12
+
+### Added
+- TBD
+
+### Changed
+- Fixed the schema generation for sqlalchemy in case no inheritance strategy is defined
+
+### Removed
+- TBD
+
 ## [0.0.2] - 2026-04-15
 
 ### Added

@@ -45,7 +45,7 @@ class InheritableUtil {
 		__tablename__ = '«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»'
 		
 		«ENDIF»
-		«IF (e instanceof Entity) && (e as Entity).inheritanceStrategy === InheritanceStrategy.SINGLE_TABLE && (e as Entity).rootElement !== e»
+		«IF (e instanceof Entity) && ((e as Entity).inheritanceStrategy === InheritanceStrategy.SINGLE_TABLE || (e as Entity).inheritanceStrategy === InheritanceStrategy.UNDEFINED) && (e as Entity).rootElement !== e»
 		__tablename__ = «(e as Entity).rootElement.name».__tablename__
 		«ENDIF»
 		«IF (e instanceof Entity) && (e as Entity).inheritanceStrategy === InheritanceStrategy.TABLE_PER_CLASS»
@@ -93,9 +93,9 @@ class InheritableUtil {
 	
 	def CharSequence compileEntityInheritance(Entity e) {
 		switch e.inheritanceStrategy {
-			case InheritanceStrategy.UNDEFINED, 
 			case InheritanceStrategy.JOINED_TABLE:
 				e.compileJoinedTableInheritance
+			case InheritanceStrategy.UNDEFINED,
 			case InheritanceStrategy.SINGLE_TABLE:
 				e.compileSingleTableInheritance
 			case InheritanceStrategy.TABLE_PER_CLASS:

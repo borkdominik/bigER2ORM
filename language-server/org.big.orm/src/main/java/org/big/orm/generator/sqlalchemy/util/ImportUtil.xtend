@@ -73,7 +73,7 @@ class ImportUtil {
 					addFromImport(importFroms, "entity." + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.extends.name), e.extends.name);
 				}
 
-				if (strategy === InheritanceStrategy.SINGLE_TABLE && e.extends instanceof MappedClass) {
+				if ((strategy === InheritanceStrategy.SINGLE_TABLE || strategy === InheritanceStrategy.UNDEFINED) && e.extends instanceof MappedClass) {
 					addFromImport(importFroms, "sqlalchemy.orm", "mapped_column");
 					addFromImport(importFroms, "sqlalchemy", "String");
 				}
