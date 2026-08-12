@@ -61,7 +61,16 @@ Attribute:
 
 
 DataAttribute:
+	(options+=AttributeOption)*
 	name=ID (datatype=DataType) (type=AttributeType)?;
+
+AttributeOption:
+	LengthOption
+;
+
+LengthOption:
+	'@(' 'Attribute.Length' '=' length=INT ')'
+;
 	
 EmbeddedAttribute:
 	'embedded' name=ID (embeddedType=[Embeddable]) (type=AttributeType)?;
@@ -74,7 +83,9 @@ enum DataType:
 	UUID = 'UUID' |
 	STRING = 'String' |
 	INT = 'Integer' |
-	BOOLEAN = 'Boolean' 
+	BOOLEAN = 'Boolean' |
+	FLOAT = 'Float' |
+	DATETIME = 'DateTime'
 	;
 	
 enum AttributeType:
@@ -109,4 +120,4 @@ enum InheritanceStrategy:
 	TABLE_PER_CLASS = 'Inheritance.TablePerClass'
 ;
 
-terminal UPPER_SNAKE: '^'?('A'..'Z')+ ('_' ('A'..'Z')+)* ;
+terminal UPPER_SNAKE: '^'?('A'..'Z')('A'..'Z'|'0'..'9')* ('_' ('A'..'Z'|'0'..'9')+)* ;

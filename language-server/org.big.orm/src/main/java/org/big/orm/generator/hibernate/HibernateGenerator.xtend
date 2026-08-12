@@ -57,7 +57,6 @@ class HibernateGenerator extends AbstractGenerator {
         
         // Generate Enums
         for (e : resource.allContents.toIterable.filter(OrmEnum)) {
-        	System.err.println("Entity to generate: " + e.name + " as " + e.fullyQualifiedName.toString("/") + ".java");
         	fsa.generateFile(
             	"src/main/java/entity/" + e.name + ".java",
             	new StringBuilder(e.compile.toString.replaceAll("\\R[\\t]+\\R", "\n\n").replace("\t", "  ")));

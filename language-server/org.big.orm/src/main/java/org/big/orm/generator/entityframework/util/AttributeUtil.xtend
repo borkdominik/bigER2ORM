@@ -6,13 +6,20 @@ import org.big.orm.ormModel.AttributeType
 import com.google.inject.Singleton
 import org.big.orm.ormModel.DataType
 import org.big.orm.ormModel.EnumAttribute
+import org.big.orm.ormModel.LengthOption
+
+import com.google.inject.Inject
+import org.big.orm.generator.common.CommonUtil
 
 @Singleton
 class AttributeUtil {
 	
+	@Inject extension CommonUtil commonUtil
+	
 	def CharSequence compileToEntityFrameworkAttribute(DataAttribute a, Boolean keyAttribute)
 	'''
-	«IF a.datatype == DataType.STRING»[Column(TypeName = "Varchar(255)")]«ENDIF»
+	«IF a.datatype == DataType.STRING»[Column(TypeName = "Varchar(«a.stringLength»)")]«ENDIF»
+	«IF a.datatype == DataType.DATETIME»[Column(TypeName = "timestamp without time zone")]«ENDIF»
 	public «a.compileTypeAndVisiblity(keyAttribute)» «CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, a.name)» { get; set; }
 	'''
 	
@@ -38,6 +45,8 @@ class AttributeUtil {
 				case INT: "int"
 				case STRING: "string"
 				case UUID: "Guid"
+				case FLOAT: "double"
+				case DATETIME: "DateTime"
 			}
 	}
 }

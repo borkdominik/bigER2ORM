@@ -11,9 +11,15 @@ import java.util.List
 import org.big.orm.ormModel.DataType
 import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.EnumAttribute
+import org.big.orm.ormModel.LengthOption
+
+import com.google.inject.Inject
+import org.big.orm.generator.common.CommonUtil
 
 @Singleton
 class AttributeUtil {
+	
+	@Inject extension CommonUtil commonUtil
 	
 	def compileToSqlAlchemyAttribute(Attribute a, Entity columnPropertyForEntity){
 		if (a instanceof DataAttribute) {
@@ -92,8 +98,10 @@ class AttributeUtil {
 		return switch (a.datatype){
 				case BOOLEAN: "Boolean"
 				case INT: "Integer"
-				case STRING: "String(255)"
+				case STRING: "String(" + a.stringLength + ")"
 				case UUID: "UUID(as_uuid=True)"
+				case FLOAT: "Float"
+				case DATETIME: "DateTime"
 			}
 	}
 	
@@ -106,6 +114,8 @@ class AttributeUtil {
 				case INT: "int"
 				case STRING: "str"
 				case UUID: "uuid.UUID"
+				case FLOAT: "float"
+				case DATETIME: "datetime.datetime"
 			}
 		}
 	}

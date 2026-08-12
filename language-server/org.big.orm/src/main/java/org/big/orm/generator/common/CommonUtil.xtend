@@ -17,6 +17,7 @@ import org.big.orm.ormModel.RelationshipType
 import com.google.common.base.CaseFormat
 import org.big.orm.ormModel.InheritanceStrategy
 import org.big.orm.ormModel.InheritanceOption
+import org.big.orm.ormModel.LengthOption
 
 @Singleton
 class CommonUtil {
@@ -160,5 +161,13 @@ class CommonUtil {
 		} else {
 			throw new Exception("Attibute is abstract but can't be mapped to either Data or Embedded Attribute")
 		}
+	}
+	
+	def int getStringLength(DataAttribute a) {
+		val lengthOpt = a.options.filter(LengthOption).head
+		if (lengthOpt !== null && lengthOpt.length > 0) {
+			return lengthOpt.length
+		}
+		return 255
 	}
 }

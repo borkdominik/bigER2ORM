@@ -3,124 +3,124 @@ orm_model sakila
 enum Rating {
     G
     PG
-    PGTHIRTEEN
+    PG_13
     R
-    NC
+    NC_17
 }
 
 entity Actor {
     id Integer key
-    firstName String required
-    lastName String required
-    lastUpdate String
+    @(Attribute.Length=45) firstName String required
+    @(Attribute.Length=45) lastName String required
+    lastUpdate DateTime
 }
 
 entity Category {
     id Integer key
-    name String required
-    lastUpdate String
+    @(Attribute.Length=25) name String required
+    lastUpdate DateTime
 }
 
 entity Language {
     id Integer key
-    name String required
-    lastUpdate String
+    @(Attribute.Length=20) name String required
+    lastUpdate DateTime
 }
 
 entity Film {
     id Integer key
-    title String required
+    @(Attribute.Length=128) title String required
     description String
     releaseYear Integer
     rentalDuration Integer required
-    rentalRate String required
+    rentalRate Float required
     length Integer
-    replacementCost String required
+    replacementCost Float required
     enum rating Rating
     specialFeatures String
-    lastUpdate String
+    lastUpdate DateTime
 }
 
 entity FilmActor joins (Film["filmActors"], Actor["filmActors"]) {
-    lastUpdate String
+    lastUpdate DateTime
 }
 
 entity FilmCategory joins (Film["filmCategories"], Category["films"]) {
-    lastUpdate String
+    lastUpdate DateTime
 }
 
 entity Address {
     id Integer key
-    addressLine String required
-    addressTwo String
-    district String required
-    postalCode String
-    phone String required
+    @(Attribute.Length=50) addressLine String required
+    @(Attribute.Length=50) addressTwo String
+    @(Attribute.Length=20) district String required
+    @(Attribute.Length=10) postalCode String
+    @(Attribute.Length=20) phone String required
     location String required
-    lastUpdate String
+    lastUpdate DateTime
 }
 
 entity City {
     id Integer key
-    name String required
-    lastUpdate String
+    @(Attribute.Length=50) name String required
+    lastUpdate DateTime
 }
 
 entity Country {
     id Integer key
-    name String required
-    lastUpdate String
+    @(Attribute.Length=50) name String required
+    lastUpdate DateTime
 }
 
 entity Store {
     id Integer key
-    lastUpdate String
+    lastUpdate DateTime
 }
 
 entity Staff {
     id Integer key
-    firstName String required
-    lastName String required
+    @(Attribute.Length=45) firstName String required
+    @(Attribute.Length=45) lastName String required
     picture String
     email String
     active Boolean required
-    username String required
+    @(Attribute.Length=16) username String required
     password String
-    lastUpdate String
+    lastUpdate DateTime
 }
 
 entity Customer {
     id Integer key
-    firstName String required
-    lastName String required
+    @(Attribute.Length=45) firstName String required
+    @(Attribute.Length=45) lastName String required
     email String
     active Boolean required
-    createDate String required
-    lastUpdate String
+    createDate DateTime required
+    lastUpdate DateTime
 }
 
 entity Inventory {
     id Integer key
-    lastUpdate String
+    lastUpdate DateTime
 }
 
 entity Rental {
     id Integer key
-    rentalDate String required
-    returnDate String
-    lastUpdate String
+    rentalDate DateTime required
+    returnDate DateTime
+    lastUpdate DateTime
 }
 
 entity Payment {
     id Integer key
-    amount String required
-    paymentDate String required
-    lastUpdate String
+    amount Float required
+    paymentDate DateTime required
+    lastUpdate DateTime
 }
 
 entity FilmText {
     id Integer key
-    title String required
+    @(Attribute.Length=128) title String required
     description String
 }
 

@@ -9,15 +9,26 @@ import java.util.List
 import java.util.ArrayList
 import org.big.orm.ormModel.EnumAttribute
 import org.big.orm.ormModel.DataType
+import com.google.inject.Inject
+import org.big.orm.generator.common.CommonUtil
+import org.big.orm.ormModel.LengthOption
 
 @Singleton
 class AttributeUtil {
+	
+	@Inject extension CommonUtil commonUtil
 	
 	def compile(DataAttribute a){
 		var List<CharSequence> columnProperties = new ArrayList<CharSequence>()
 		columnProperties.add('''name = "«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, a.name)»"''')
 		if (a.type.equals(AttributeType.REQUIRED)) {
 			columnProperties.add('''nullable = false''')
+		}
+		if (a.datatype == DataType.DATETIME) {
+			columnProperties.add('''columnDefinition = "timestamp without time zone"''')
+		}
+		if (a.datatype == DataType.STRING) {
+			columnProperties.add('''length = «a.stringLength»''')
 		}
 		
 		'''
@@ -30,8 +41,19 @@ class AttributeUtil {
 		«ENDIF»
 		«ENDIF»
 		@Column(«String.join(", ", columnProperties)»)
-		private «a.datatype» «a.name»;
+		private «a.datatype.javaType» «a.name»;
 		'''
+	}
+	
+	private def String getJavaType(DataType datatype) {
+		switch datatype {
+			case UUID: "UUID"
+			case STRING: "String"
+			case INT: "Integer"
+			case BOOLEAN: "Boolean"
+			case FLOAT: "Double"
+			case DATETIME: "LocalDateTime"
+		}
 	}
 	
 	

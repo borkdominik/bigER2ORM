@@ -226,6 +226,15 @@ class ImportUtil {
 		if (!attributes.filter(DataAttribute).filter[datatype == DataType.BOOLEAN].empty) {
 			addFromImport(importFroms, "sqlalchemy", "Boolean");
 		}
+		
+		if (!attributes.filter(DataAttribute).filter[datatype == DataType.FLOAT].empty) {
+			addFromImport(importFroms, "sqlalchemy", "Float");
+		}
+		
+		if (!attributes.filter(DataAttribute).filter[datatype == DataType.DATETIME].empty) {
+			imports.add("import datetime");
+			addFromImport(importFroms, "sqlalchemy", "DateTime");
+		}
 	}
 	
 	private def addFromImport(HashMap<String, TreeSet<String>> importMap, String fromValue, String importValue) {

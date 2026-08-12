@@ -37,9 +37,9 @@ class ImportUtil {
 			imports.add("System.ComponentModel.DataAnnotations.Schema");
 		}
 		
-		// String DataType Annotation
+		// String / DateTime DataType Annotation
 		if (e instanceof InheritableElement) {
-			if (!e.attributes.allAttributesAsDataAttributes.filter[attribute | attribute.datatype === DataType.STRING].empty) {
+			if (!e.attributes.allAttributesAsDataAttributes.filter[attribute | attribute.datatype === DataType.STRING || attribute.datatype === DataType.DATETIME].empty) {
 				imports.add("System.ComponentModel.DataAnnotations.Schema");
 			}
 		}

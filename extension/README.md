@@ -71,6 +71,7 @@
     - [4.1.2. Relationships](#412-relationships)
     - [4.1.3. Data types](#413-data-types)
     - [4.1.4. Type modifiers](#414-type-modifiers)
+    - [4.1.5. Attribute options](#415-attribute-options)
   - [4.2. Model Visualization](#42-model-visualization)
   - [4.3. Code Generation](#43-code-generation)
     - [4.3.1. Batch Code generation](#431-batch-code-generation)
@@ -238,6 +239,8 @@ Supported datatypes are:
 - ``String``
 - ``Integer``
 - ``Boolean``
+- ``Float``
+- ``DateTime``
 - ``UUID``
 
 ### 4.1.4. Type modifiers
@@ -247,6 +250,21 @@ Currently supported modifiers are:
 - ``key`` : describes the property as a primary key for the object
 - ``required`` : describes the property as required within the database
 - ``none`` : default for not adapting the property
+
+### 4.1.5. Attribute options
+
+Attribute options allow configuring metadata on attributes:
+
+- ``@(Attribute.Length=<number>)`` : Defines the maximum length for `String` attributes (default: 255 if omitted).
+
+Example:
+```
+entity Address {
+    id Integer key
+    @(Attribute.Length=50) addressLine String required
+    @(Attribute.Length=10) postalCode String
+}
+```
 
 ## 4.2. Model Visualization
 

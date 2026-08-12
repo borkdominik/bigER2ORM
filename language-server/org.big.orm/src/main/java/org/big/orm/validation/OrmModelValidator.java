@@ -9,8 +9,12 @@ import java.util.regex.Pattern;
 
 import org.big.orm.ormModel.Attribute;
 import org.big.orm.ormModel.AttributeType;
+import org.big.orm.ormModel.AttributeOption;
 import org.big.orm.ormModel.DataAttribute;
+import org.big.orm.ormModel.DataType;
+import org.big.orm.ormModel.LengthOption;
 import org.big.orm.ormModel.Embeddable;
+import org.big.orm.ormModel.EmbeddedAttribute;
 import org.big.orm.ormModel.Entity;
 import org.big.orm.ormModel.EnumAttribute;
 import org.big.orm.ormModel.EnumValue;
@@ -32,7 +36,7 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 	
     private static final Pattern UPPER_CAMEL = Pattern.compile("^(?:[A-Z][a-z]+)+$");
     private static final Pattern LOWER_CAMEL = Pattern.compile("^[a-z]+(?:[A-Z][a-z]+)*$");
-    private static final Pattern UPPER_SNAKE = Pattern.compile("^[A-Z]+(?:[_][A-Z]+)*$");
+    private static final Pattern UPPER_SNAKE = Pattern.compile("^[A-Z][A-Z0-9]*(?:[_][A-Z0-9]+)*$");
     private static final Pattern LOWER_SNAKE = Pattern.compile("^[a-z]+(?:[_][a-z]+)*$");
 	
 	
@@ -195,6 +199,51 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 			attributes.addAll(getAllAttributes(element.getExtends()));
 		}
 		return attributes;
+	}
+
+	@Check
+	public void checkDataAttributePrimaryKeyType(DataAttribute attribute) {
+		if (attribute.getType().equals(AttributeType.ID)) {
+			DataType dt = attribute.getDatatype();
+			if (dt != DataType.INT && dt != DataType.STRING && dt != DataType.UUID) {
+				error("Data type '" + dt.getLiteral() + "' is not permitted as a primary key attribute. Only Integer, String, and UUID may be used as primary keys.",
+					  attribute, OrmModelPackage.Literals.DATA_ATTRIBUTE__DATATYPE, "invalidPrimaryKeyType");
+			}
+		}
+	}
+
+	@Check
+	public void checkEmbeddedAttributePrimaryKeyType(EmbeddedAttribute attribute) {
+		if (attribute.getType().equals(AttributeType.ID)) {
+			if (attribute.getEmbeddedType() != null) {
+				for (Attribute subAttr : attribute.getEmbeddedType().getAttributes()) {
+					if (subAttr instanceof DataAttribute) {
+						DataType dt = ((DataAttribute) subAttr).getDatatype();
+						if (dt != DataType.INT && dt != DataType.STRING && dt != DataType.UUID) {
+							error("Embedded composite primary key attribute '" + subAttr.getName() + "' has type '" + dt.getLiteral() + "' which is not permitted. Only Integer, String, and UUID may be used in primary keys.",
+								  attribute, OrmModelPackage.Literals.EMBEDDED_ATTRIBUTE__EMBEDDED_TYPE, "invalidPrimaryKeyType");
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@Check
+	public void checkLengthOptionOnlyOnStrings(DataAttribute attribute) {
+		for (AttributeOption option : attribute.getOptions()) {
+			if (option instanceof LengthOption) {
+				LengthOption lengthOption = (LengthOption) option;
+				if (attribute.getDatatype() != DataType.STRING) {
+					error("The @(length=...) annotation is only applicable to String data types, but was placed on attribute '" + 
+						  attribute.getName() + "' of type '" + attribute.getDatatype().getLiteral() + "'.",
+						  lengthOption, OrmModelPackage.Literals.LENGTH_OPTION__LENGTH, "invalidLengthOption");
+				} else if (lengthOption.getLength() <= 0) {
+					error("Length must be a positive integer greater than 0.",
+						  lengthOption, OrmModelPackage.Literals.LENGTH_OPTION__LENGTH, "invalidLengthOption");
+				}
+			}
+		}
 	}
 
 }

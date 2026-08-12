@@ -55,7 +55,13 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//AttributeType"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="DataAttribute" eSuperTypes="#//Attribute">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" upperBound="-1"
+        eType="#//AttributeOption" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="datatype" eType="#//DataType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AttributeOption"/>
+  <eClassifiers xsi:type="ecore:EClass" name="LengthOption" eSuperTypes="#//AttributeOption">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="length" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="EmbeddedAttribute" eSuperTypes="#//Attribute">
     <eStructuralFeatures xsi:type="ecore:EReference" name="embeddedType" eType="#//Embeddable"/>
@@ -68,6 +74,8 @@
     <eLiterals name="STRING" value="1" literal="String"/>
     <eLiterals name="INT" value="2" literal="Integer"/>
     <eLiterals name="BOOLEAN" value="3" literal="Boolean"/>
+    <eLiterals name="FLOAT" value="4" literal="Float"/>
+    <eLiterals name="DATETIME" value="5" literal="DateTime"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="AttributeType">
     <eLiterals name="NONE" literal="none"/>

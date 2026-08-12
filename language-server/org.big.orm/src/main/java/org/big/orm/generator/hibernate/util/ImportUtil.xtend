@@ -70,6 +70,10 @@ class ImportUtil {
 			imports.add("java.util.UUID");
 		}
 		
+		if(!e.attributes.filter(DataAttribute).filter[datatype.equals(DataType.DATETIME)].empty){
+			imports.add("java.time.LocalDateTime");
+		}
+		
 		if(!e.attributes.filter(DataAttribute).filter[type.equals(AttributeType.ID)].empty){
 			imports.add("jakarta.persistence.Id");
 			imports.add("jakarta.persistence.GenerationType");
