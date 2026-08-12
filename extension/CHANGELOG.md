@@ -10,7 +10,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - TBD
 
 ### Changed
-- TBD
+- Fixed remaining bugs in sql alchemy generation for default inheritance strategy
 
 ### Removed
 - TBD

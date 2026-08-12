@@ -9,6 +9,7 @@ import org.big.orm.ormModel.EmbeddedAttribute
 import java.util.ArrayList
 import org.big.orm.ormModel.AttributeType
 import org.big.orm.ormModel.Entity
+import org.big.orm.ormModel.OrmModel
 import org.big.orm.ormModel.Relationship
 import org.big.orm.ormModel.RelationEntity
 import org.big.orm.ormModel.OrmModelFactory
@@ -92,6 +93,25 @@ class CommonUtil {
 	}
 	
 			
+	def Boolean hasInheritance(Entity e) {
+		val extendsEntity = e.extends !== null && e.extends instanceof Entity
+		val isExtended = !(e.eContainer as OrmModel).elements.filter(Entity).filter[elem | elem.extends === e].empty
+		return extendsEntity || isExtended
+	}
+
+	def Boolean isSingleTable(Entity e) {
+		val s = e.inheritanceStrategy
+		return s === InheritanceStrategy.SINGLE_TABLE || s === InheritanceStrategy.UNDEFINED
+	}
+
+	def Boolean isJoinedTable(Entity e) {
+		return e.inheritanceStrategy === InheritanceStrategy.JOINED_TABLE
+	}
+
+	def Boolean isTablePerClass(Entity e) {
+		return e.inheritanceStrategy === InheritanceStrategy.TABLE_PER_CLASS
+	}
+
 	def InheritanceStrategy getInheritanceStrategy(Entity e) {
 		if (e.extends !== null && e.extends instanceof Entity) {
 			return (e.extends as Entity).inheritanceStrategy

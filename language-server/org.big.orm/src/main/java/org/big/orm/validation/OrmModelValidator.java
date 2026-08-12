@@ -3,6 +3,8 @@
  */
 package org.big.orm.validation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.big.orm.ormModel.Attribute;
@@ -173,6 +175,26 @@ public class OrmModelValidator extends AbstractOrmModelValidator {
 		if (!enumAttribute.getType().equals(AttributeType.NONE)) {
 			warning("Enum Attributes don't support attribute types.", OrmModelPackage.Literals.ATTRIBUTE__NAME, "invalidEnumAttribute");
 		}
+	}
+
+	@Check
+	public void checkEntityNameDoesNotMatchAnyAttributeName(InheritableElement element) {
+		List<Attribute> allAttributes = getAllAttributes(element);
+		for (Attribute attribute : allAttributes) {
+			if (attribute.getName() != null && element.getName() != null) {
+				if (attribute.getName().equalsIgnoreCase(element.getName())) {
+					error("Entity name '" + element.getName() + "' matches attribute '" + attribute.getName() + "' (declared or inherited), causing target language compiler errors (e.g. C# CS0542).", element, OrmModelPackage.Literals.MODEL_ELEMENT__NAME, "invalidAttributeName");
+				}
+			}
+		}
+	}
+
+	private List<Attribute> getAllAttributes(InheritableElement element) {
+		List<Attribute> attributes = new ArrayList<>(element.getAttributes());
+		if (element.getExtends() != null) {
+			attributes.addAll(getAllAttributes(element.getExtends()));
+		}
+		return attributes;
 	}
 
 }

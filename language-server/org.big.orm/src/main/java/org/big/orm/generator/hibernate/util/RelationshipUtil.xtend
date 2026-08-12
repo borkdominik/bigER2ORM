@@ -98,7 +98,7 @@ class RelationshipUtil {
 	// Once finished refactor creation to be equivalent
 	@OneToOne
 	«r.compileJoinColumns»
-	private StudentCard studentCard;
+	private «r.target.entity.name» «r.source.attributeName»;
 	'''
 	
 	private def compileJoinColumns(Relationship r) {

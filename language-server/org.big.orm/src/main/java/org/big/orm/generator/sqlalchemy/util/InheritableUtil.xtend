@@ -39,20 +39,21 @@ class InheritableUtil {
 	«ENDFOR»
 	
 	
-	«IF (e instanceof MappedClass)»@declarative_mixin«ENDIF»
+	«IF e instanceof MappedClass»@declarative_mixin«ENDIF»
 	class «e.name»«e.compileInheritanceDefinition»:
-		«IF (e instanceof Entity) && (!((e as Entity).inheritanceStrategy === InheritanceStrategy.SINGLE_TABLE) || (e as Entity).rootElement === e)»
+		«IF e instanceof Entity»
+		«IF (e as Entity).rootElement === e || !(e as Entity).isSingleTable»
 		__tablename__ = '«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»'
 		
-		«ENDIF»
-		«IF (e instanceof Entity) && ((e as Entity).inheritanceStrategy === InheritanceStrategy.SINGLE_TABLE || (e as Entity).inheritanceStrategy === InheritanceStrategy.UNDEFINED) && (e as Entity).rootElement !== e»
+		«ELSE»
 		__tablename__ = «(e as Entity).rootElement.name».__tablename__
 		«ENDIF»
-		«IF (e instanceof Entity) && (e as Entity).inheritanceStrategy === InheritanceStrategy.TABLE_PER_CLASS»
+		«IF (e as Entity).inheritanceStrategy === InheritanceStrategy.TABLE_PER_CLASS»
 		«(e as Entity).compileTablePerClassInheritedAttributes»
 		«ENDIF»
-		«IF (e instanceof Entity) && (e as Entity).inheritanceStrategy === InheritanceStrategy.JOINED_TABLE»
+		«IF (e as Entity).inheritanceStrategy === InheritanceStrategy.JOINED_TABLE»
 		«(e as Entity).compileJoinedTableInheritedAttributes»
+		«ENDIF»
 		«ENDIF»
 		«FOR a : e.attributes.filter(DataAttribute)»
 		«a.compileToSqlAlchemyAttribute(null)»
@@ -64,8 +65,8 @@ class InheritableUtil {
 		
 		«a.compileToSqlAlchemyAttribute(null)»
 		«ENDFOR»
-		«IF (e instanceof Entity)»
-		«e.compileEntityBody»
+		«IF e instanceof Entity»
+		«(e as Entity).compileEntityBody»
 		«ENDIF»
 	'''
 	
@@ -92,6 +93,9 @@ class InheritableUtil {
 	'''
 	
 	def CharSequence compileEntityInheritance(Entity e) {
+		if (!e.hasInheritance) {
+			return ''''''
+		}
 		switch e.inheritanceStrategy {
 			case InheritanceStrategy.JOINED_TABLE:
 				e.compileJoinedTableInheritance

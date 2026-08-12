@@ -8,11 +8,17 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_MULTIPLE_DATABASES=java,python,csharp
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
 
   entity-framework-test:
     image: mcr.microsoft.com/dotnet/sdk:9.0
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     working_dir: /app
     volumes:
       - ./entity-framework/entity-framework.csproj:/app/entity-framework.csproj
@@ -24,7 +30,8 @@ services:
   hibernate-test:
     image: maven:3.8.5-openjdk-17
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     working_dir: /app
     volumes:
       - ./hibernate/src:/app/src
@@ -34,7 +41,8 @@ services:
   sql-alchemy-test:
     image: python:3.10-slim
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     working_dir: /app
     volumes:
       - ./sql-alchemy/main.py:/app/main.py

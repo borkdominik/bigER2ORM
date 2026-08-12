@@ -8,6 +8,7 @@ import com.google.common.base.CaseFormat
 import java.util.List
 import java.util.ArrayList
 import org.big.orm.ormModel.EnumAttribute
+import org.big.orm.ormModel.DataType
 
 @Singleton
 class AttributeUtil {
@@ -22,7 +23,11 @@ class AttributeUtil {
 		'''
 		«IF a.type.equals(AttributeType.ID)»
 		@Id
+		«IF a.datatype == DataType.UUID»
 		@GeneratedValue(strategy = GenerationType.UUID)
+		«ELSEIF a.datatype == DataType.INT»
+		@GeneratedValue(strategy = GenerationType.IDENTITY)
+		«ENDIF»
 		«ENDIF»
 		@Column(«String.join(", ", columnProperties)»)
 		private «a.datatype» «a.name»;

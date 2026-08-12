@@ -51,7 +51,7 @@ entity FilmCategory joins (Film["filmCategories"], Category["films"]) {
 
 entity Address {
     id Integer key
-    address String required
+    addressLine String required
     addressTwo String
     district String required
     postalCode String
@@ -62,13 +62,13 @@ entity Address {
 
 entity City {
     id Integer key
-    city String required
+    name String required
     lastUpdate String
 }
 
 entity Country {
     id Integer key
-    country String required
+    name String required
     lastUpdate String
 }
 

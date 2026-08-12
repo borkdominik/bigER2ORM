@@ -37,3 +37,4 @@ Not all docker images needed are created automatically during the automatic vali
 ## Known Limitations of Evaluation Framework
 
 * Certain small evaluations are different between using the manual tool in ``pgadmin`` for schema diff and the automated tool provided by ``migra``.
+* **Attribute Name Collision Constraint**: Attribute or relationship names cannot match their enclosing entity name (case-insensitively). This is validated by the ``bigORM`` language server (`checkEntityNameDoesNotMatchAnyAttributeName`) to prevent target language identifier collisions (e.g. C# CS0542 where class members cannot share the name of their enclosing class).

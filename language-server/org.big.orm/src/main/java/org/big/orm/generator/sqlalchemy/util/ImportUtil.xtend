@@ -73,7 +73,7 @@ class ImportUtil {
 					addFromImport(importFroms, "entity." + CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.extends.name), e.extends.name);
 				}
 
-				if ((strategy === InheritanceStrategy.SINGLE_TABLE || strategy === InheritanceStrategy.UNDEFINED) && e.extends instanceof MappedClass) {
+				if (e.isSingleTable && e.hasInheritance && e.rootElement === e) {
 					addFromImport(importFroms, "sqlalchemy.orm", "mapped_column");
 					addFromImport(importFroms, "sqlalchemy", "String");
 				}
@@ -120,10 +120,15 @@ class ImportUtil {
 				addFromImport(importFroms, "sqlalchemy", "ForeignKeyConstraint");
 				addFromImport(importFroms, "sqlalchemy.orm", "mapped_column");
 				for (Relationship xToOneSourceRelation : xToOneSourceRelations){
-					var DataAttribute idAttribute = xToOneSourceRelation.target.entity.allAttributes.filter(DataAttribute).filter[type == AttributeType.ID].head
-					if (idAttribute !== null && idAttribute.datatype === DataType.UUID) {
-						imports.add("import uuid");
-						addFromImport(importFroms, "sqlalchemy", "UUID");
+					for (DataAttribute idAttribute : xToOneSourceRelation.target.entity.keyAttributesAsDataAttributes) {
+						if (idAttribute.datatype === DataType.UUID) {
+							imports.add("import uuid");
+							addFromImport(importFroms, "sqlalchemy", "UUID");
+						} else if (idAttribute.datatype === DataType.INT) {
+							addFromImport(importFroms, "sqlalchemy", "Integer");
+						} else if (idAttribute.datatype === DataType.STRING) {
+							addFromImport(importFroms, "sqlalchemy", "String");
+						}
 					}
 				}
 			}

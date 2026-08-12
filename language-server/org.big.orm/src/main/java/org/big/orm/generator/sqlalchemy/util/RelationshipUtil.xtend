@@ -95,9 +95,8 @@ class RelationshipUtil {
 	r.source.entity.tableArgs.add('''ForeignKeyConstraint([«sourceIdAttributes»], [«targetIdAttributes»], name="fk_«lowUnderSourceTableName»_«lowUnderSourceAttributeName»")''')
 	
 	if (r.type === RelationshipType.ONE_TO_ONE) {
-		val String attributeNames = String.join(", ", keyAttributes.map[keyAttribute | '''«lowUnderTargetTableName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»'''])
-		val String uniqueConstraintName = '''«lowUnderSourceTableName»_«String.join("_", keyAttributes.map[keyAttribute | '''«lowUnderTargetTableName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»'''])»_key'''
-		r.source.entity.tableArgs.add('''UniqueConstraint(«attributeNames», name="«uniqueConstraintName»")''')
+		val String uniqueConstraintName = '''«lowUnderSourceTableName»_«String.join("_", keyAttributes.map[keyAttribute | '''«lowUnderSourceAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, keyAttribute.name)»'''])»_key'''
+		r.source.entity.tableArgs.add('''UniqueConstraint(«sourceIdAttributes», name="«uniqueConstraintName»")''')
 	}
 	'''
 	
