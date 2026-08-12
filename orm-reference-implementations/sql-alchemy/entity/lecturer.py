@@ -1,6 +1,6 @@
 import uuid
 from entity.address import Address
-from entity.courses_lecturers_table import courses_lecturers
+from entity.course_lecturer_table import course_lecturer
 from entity.person import Person
 from sqlalchemy import Integer, String, UUID
 from sqlalchemy.orm import Mapped, composite, mapped_column, relationship
@@ -18,7 +18,7 @@ class Lecturer(Person):
             mapped_column("post_code", Integer, nullable=True),
             mapped_column("country", String(255), nullable=True)
     )
-    courses: Mapped[list["Course"]] = relationship("Course", secondary=courses_lecturers,
+    courses: Mapped[list["Course"]] = relationship("Course", secondary=course_lecturer,
                                              back_populates="lecturers")
 
     __mapper_args__ = {

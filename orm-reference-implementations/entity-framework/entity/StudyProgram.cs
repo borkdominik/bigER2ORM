@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace university.entity
 {
@@ -8,9 +8,9 @@ namespace university.entity
         [Column(TypeName = "Varchar(255)")]
         public StudyProgramType? StudyProgramType { get; set; }
 
-        public List<StudentStudyProgram>? Students { get; set; }
-
         public List<StudentCardStudyProgram>? StudentCards { get; set; }
+
+        public List<StudentStudyProgram>? Students { get; set; }
 
     }
 }

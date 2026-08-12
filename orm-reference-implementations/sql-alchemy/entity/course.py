@@ -1,5 +1,5 @@
 from base import Base
-from entity.courses_lecturers_table import courses_lecturers
+from entity.course_lecturer_table import course_lecturer
 from entity.named_element import NamedElement
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 class Course(Base, NamedElement):
     __tablename__ = 'course'
 
-    lecturers: Mapped[list["Lecturer"]] = relationship("Lecturer", secondary=courses_lecturers,
+    lecturers: Mapped[list["Lecturer"]] = relationship("Lecturer", secondary=course_lecturer,
                                              back_populates="courses")
     certificates: Mapped[list["Certificate"]] = relationship(back_populates="course")
     dtype: Mapped[str] = mapped_column(String(31), nullable=False)

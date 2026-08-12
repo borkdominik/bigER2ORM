@@ -33,17 +33,6 @@ public class UniversityContext : DbContext
         // INHERTIANCE
 
         // Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
-        modelBuilder.Entity<StudentCard>().UseTptMappingStrategy();
-
-        modelBuilder.Entity<GraduateStudentCard>()
-            .HasOne<StudentCard>()
-            .WithOne()
-            .HasForeignKey<GraduateStudentCard>(e => new { e.CardNr, e.CardVersion })
-            .HasPrincipalKey<StudentCard>(e => new { e.CardNr, e.CardVersion })
-            .HasConstraintName("fk_graduate_student_card_id")
-            .OnDelete(DeleteBehavior.NoAction);
-
-        // Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
         modelBuilder.Entity<Certificate>().UseTptMappingStrategy();
 
         modelBuilder.Entity<RecognizedCertificate>()
@@ -64,6 +53,17 @@ public class UniversityContext : DbContext
             .HasMaxLength(31);
 
         modelBuilder.Entity<Person>().UseTpcMappingStrategy();
+
+        // Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
+        modelBuilder.Entity<StudentCard>().UseTptMappingStrategy();
+
+        modelBuilder.Entity<GraduateStudentCard>()
+            .HasOne<StudentCard>()
+            .WithOne()
+            .HasForeignKey<GraduateStudentCard>(e => new { e.CardNr, e.CardVersion })
+            .HasPrincipalKey<StudentCard>(e => new { e.CardNr, e.CardVersion })
+            .HasConstraintName("fk_graduate_student_card_id")
+            .OnDelete(DeleteBehavior.NoAction);
 
         // END INHERITANCE
 
@@ -87,18 +87,18 @@ public class UniversityContext : DbContext
             .HasMany(e => e.Lecturers)
             .WithMany(e => e.Courses)
             .UsingEntity<Dictionary<string, object>>(
-                "courses_lecturers",
+                "course_lecturer",
                 e => e
                     .HasOne<Lecturer>()
                     .WithMany()
                     .HasForeignKey(["lecturer_id"])
-                    .HasConstraintName("fk_courses_lecturers_courses")
+                    .HasConstraintName("fk_course_lecturer_courses")
                     .OnDelete(DeleteBehavior.NoAction),
                 e => e
                     .HasOne<Course>()
                     .WithMany()
                     .HasForeignKey(["course_id"])
-                    .HasConstraintName("fk_courses_lecturers_lecturers")
+                    .HasConstraintName("fk_course_lecturer_lecturers")
                     .OnDelete(DeleteBehavior.NoAction)
             )
             .HasNoKey();
@@ -124,20 +124,6 @@ public class UniversityContext : DbContext
             .HasConstraintName("fk_student_student_card")
             .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<StudentStudyProgram>()
-            .HasOne(e => e.Student)
-            .WithMany(e => e.Studies)
-            .HasForeignKey(e => new { e.StudentId })
-            .HasConstraintName("fk_student_study_program_student")
-            .OnDelete(DeleteBehavior.NoAction);
-
-        modelBuilder.Entity<StudentStudyProgram>()
-            .HasOne(e => e.StudyProgram)
-            .WithMany(e => e.Students)
-            .HasForeignKey(e => new { e.StudyProgramId })
-            .HasConstraintName("fk_student_study_program_study_program")
-            .OnDelete(DeleteBehavior.NoAction);
-
         modelBuilder.Entity<StudentCardStudyProgram>()
             .HasOne(e => e.StudentCard)
             .WithMany(e => e.StudyPrograms)
@@ -150,6 +136,20 @@ public class UniversityContext : DbContext
             .WithMany(e => e.StudentCards)
             .HasForeignKey(e => new { e.StudyProgramId })
             .HasConstraintName("fk_student_card_study_program_study_program")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<StudentStudyProgram>()
+            .HasOne(e => e.Student)
+            .WithMany(e => e.Studies)
+            .HasForeignKey(e => new { e.StudentId })
+            .HasConstraintName("fk_student_study_program_student")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<StudentStudyProgram>()
+            .HasOne(e => e.StudyProgram)
+            .WithMany(e => e.Students)
+            .HasForeignKey(e => new { e.StudyProgramId })
+            .HasConstraintName("fk_student_study_program_study_program")
             .OnDelete(DeleteBehavior.NoAction);
 
         // END RELATIONSHIPS

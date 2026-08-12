@@ -12,9 +12,13 @@ def main():
     parser.add_argument("input_folder", type=Path, help="Folder containing *.orm and matching project folders")
     parser.add_argument("--batch-eval-mode", action="store_true",
                         help="Enable batch eval mode")
+    parser.add_argument("--generate", action="store_true",
+                        help="Programmatically generate target ORM code from .orm files before running evaluation")
     args = parser.parse_args()
 
     input_folder = args.input_folder.resolve()
+    if args.generate:
+        input_folder.mkdir(parents=True, exist_ok=True)
     if not input_folder.is_dir():
         print(f"error: {input_folder} is not a directory", file=sys.stderr)
         return 1
@@ -25,6 +29,45 @@ def main():
     if not compose_file.exists():
         print(f"error: compose file not found at {compose_file}", file=sys.stderr)
         return 1
+
+    # If --generate is specified, programmatically generate ORM code
+    if args.generate:
+        print("Programmatically generating ORM code from .orm files...")
+        gradlew = script_dir.parent / "language-server" / ("gradlew.bat" if sys.platform == "win32" else "gradlew")
+        if not gradlew.exists():
+            print(f"error: gradlew not found at {gradlew}", file=sys.stderr)
+            return 1
+
+        targets_to_generate = []
+        if args.batch_eval_mode:
+            orm_files = sorted(input_folder.glob("*.orm"))
+            if not orm_files:
+                print(f"error: no .orm files found in {input_folder}", file=sys.stderr)
+                return 1
+            for orm in orm_files:
+                target_dir = input_folder / orm.stem
+                target_dir.mkdir(parents=True, exist_ok=True)
+                targets_to_generate.append((orm, target_dir))
+        else:
+            orm = input_folder.parent / f"{input_folder.name}.orm"
+            if not orm.exists():
+                print(f"error: expected model file {orm} does not exist", file=sys.stderr)
+                return 1
+            targets_to_generate.append((orm, input_folder))
+
+        for orm_file, target_dir in targets_to_generate:
+            print(f"Generating code for {orm_file.name} -> {target_dir}...")
+            cmd = [
+                str(gradlew),
+                "-p", str(script_dir.parent / "language-server"),
+                ":org.big.orm.ide:generateOrmCode",
+                f"-PormFile={orm_file.resolve()}",
+                f"-PoutputDir={target_dir.resolve()}"
+            ]
+            res = subprocess.run(cmd, capture_output=True, text=True)
+            if res.returncode != 0:
+                print(f"error generating code for {orm_file}:\n{res.stderr}\n{res.stdout}", file=sys.stderr)
+                return 1
 
     if args.batch_eval_mode:
     # 1) find *.orm
@@ -46,6 +89,7 @@ def main():
             return 1
     else:
         projects = [input_folder]
+
 
     # 3) check subfolders
     missing_sub = []

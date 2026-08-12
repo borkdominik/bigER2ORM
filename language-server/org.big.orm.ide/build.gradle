@@ -32,3 +32,14 @@ task unzipServer(type: Copy, dependsOn: distZip) {
 }
 
 build.dependsOn unzipServer
+
+task generateOrmCode(type: JavaExec) {
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = 'org.big.orm.ide.generator.StandaloneGeneratorMain'
+	
+	def fileArg = project.hasProperty('ormFile') ? project.getProperty('ormFile') : ''
+	def outArg = project.hasProperty('outputDir') ? project.getProperty('outputDir') : ''
+	def langArg = project.hasProperty('language') ? project.getProperty('language') : 'all'
+	
+	args = [fileArg, outArg, langArg]
+}

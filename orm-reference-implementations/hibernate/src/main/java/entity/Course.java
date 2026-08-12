@@ -21,15 +21,15 @@ public class Course extends NamedElement {
 
   @ManyToMany
   @JoinTable(
-      name = "courses_lecturers",
+      name = "course_lecturer",
       joinColumns = {
           @JoinColumn(name = "course_id", referencedColumnName = "id"),
       },
-      foreignKey = @ForeignKey(name = "fk_courses_lecturers_lecturers"),
+      foreignKey = @ForeignKey(name = "fk_course_lecturer_lecturers"),
       inverseJoinColumns = {
           @JoinColumn(name = "lecturer_id", referencedColumnName = "id"),
       },
-      inverseForeignKey = @ForeignKey(name = "fk_courses_lecturers_courses")
+      inverseForeignKey = @ForeignKey(name = "fk_course_lecturer_courses")
   )
   private List<Lecturer> lecturers;
 

@@ -1,0 +1,220 @@
+orm_model sakila
+
+enum Rating {
+    G
+    PG
+    PGTHIRTEEN
+    R
+    NC
+}
+
+entity Actor {
+    id Integer key
+    firstName String required
+    lastName String required
+    lastUpdate String
+}
+
+entity Category {
+    id Integer key
+    name String required
+    lastUpdate String
+}
+
+entity Language {
+    id Integer key
+    name String required
+    lastUpdate String
+}
+
+entity Film {
+    id Integer key
+    title String required
+    description String
+    releaseYear Integer
+    rentalDuration Integer required
+    rentalRate String required
+    length Integer
+    replacementCost String required
+    enum rating Rating
+    specialFeatures String
+    lastUpdate String
+}
+
+entity FilmActor joins (Film["filmActors"], Actor["filmActors"]) {
+    lastUpdate String
+}
+
+entity FilmCategory joins (Film["filmCategories"], Category["films"]) {
+    lastUpdate String
+}
+
+entity Address {
+    id Integer key
+    address String required
+    addressTwo String
+    district String required
+    postalCode String
+    phone String required
+    location String required
+    lastUpdate String
+}
+
+entity City {
+    id Integer key
+    city String required
+    lastUpdate String
+}
+
+entity Country {
+    id Integer key
+    country String required
+    lastUpdate String
+}
+
+entity Store {
+    id Integer key
+    lastUpdate String
+}
+
+entity Staff {
+    id Integer key
+    firstName String required
+    lastName String required
+    picture String
+    email String
+    active Boolean required
+    username String required
+    password String
+    lastUpdate String
+}
+
+entity Customer {
+    id Integer key
+    firstName String required
+    lastName String required
+    email String
+    active Boolean required
+    createDate String required
+    lastUpdate String
+}
+
+entity Inventory {
+    id Integer key
+    lastUpdate String
+}
+
+entity Rental {
+    id Integer key
+    rentalDate String required
+    returnDate String
+    lastUpdate String
+}
+
+entity Payment {
+    id Integer key
+    amount String required
+    paymentDate String required
+    lastUpdate String
+}
+
+entity FilmText {
+    id Integer key
+    title String required
+    description String
+}
+
+ManyToOne relationship FilmLanguage {
+    source Film["language"] required
+    target Language["films"]
+}
+
+ManyToOne relationship FilmOriginalLanguage {
+    source Film["originalLanguage"]
+    target Language["originalLanguageFilms"]
+}
+
+ManyToOne relationship InventoryFilm {
+    source Inventory["film"] required
+    target Film["inventories"]
+}
+
+ManyToOne relationship InventoryStore {
+    source Inventory["store"] required
+    target Store["inventories"]
+}
+
+ManyToOne relationship StaffAddress {
+    source Staff["address"] required
+    target Address["staffMembers"]
+}
+
+ManyToOne relationship StaffStore {
+    source Staff["store"] required
+    target Store["staffMembers"]
+}
+
+ManyToOne relationship StoreAddress {
+    source Store["address"] required
+    target Address["stores"]
+}
+
+OneToOne relationship StoreManager {
+    source Store["managerStaff"]
+    target Staff["managedStore"]
+}
+
+ManyToOne relationship CustomerStore {
+    source Customer["store"] required
+    target Store["customers"]
+}
+
+ManyToOne relationship CustomerAddress {
+    source Customer["address"] required
+    target Address["customers"]
+}
+
+ManyToOne relationship AddressCity {
+    source Address["city"] required
+    target City["addresses"]
+}
+
+ManyToOne relationship CityCountry {
+    source City["country"] required
+    target Country["cities"]
+}
+
+ManyToOne relationship RentalInventory {
+    source Rental["inventory"] required
+    target Inventory["rentals"]
+}
+
+ManyToOne relationship RentalCustomer {
+    source Rental["customer"] required
+    target Customer["rentals"]
+}
+
+ManyToOne relationship RentalStaff {
+    source Rental["staff"] required
+    target Staff["rentals"]
+}
+
+ManyToOne relationship PaymentCustomer {
+    source Payment["customer"] required
+    target Customer["payments"]
+}
+
+ManyToOne relationship PaymentStaff {
+    source Payment["staff"] required
+    target Staff["payments"]
+}
+
+ManyToOne relationship PaymentRental {
+    source Payment["rental"]
+    target Rental["payments"]
+}
+
+OneToOne relationship unidirectional FilmFilmText {
+    source FilmText["film"]
+    target Film
+}
