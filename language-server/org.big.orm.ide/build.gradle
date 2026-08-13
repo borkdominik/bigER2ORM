@@ -42,4 +42,15 @@ task generateOrmCode(type: JavaExec) {
 	def langArg = project.hasProperty('language') ? project.getProperty('language') : 'all'
 	
 	args = [fileArg, outArg, langArg]
+}
+
+task reverseOrmCode(type: JavaExec) {
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = 'org.big.orm.ide.generator.StandaloneReverseMain'
+	
+	def inputArg = project.hasProperty('inputDir') ? project.getProperty('inputDir') : ''
+	def outArg = project.hasProperty('outputFile') ? project.getProperty('outputFile') : ''
+	def modelNameArg = project.hasProperty('modelName') ? project.getProperty('modelName') : 'example'
+	
+	args = [inputArg, outArg, modelNameArg]
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace university.entity
@@ -10,6 +10,8 @@ namespace university.entity
         public Guid Id { get; set; }
 
         public int? Grade { get; set; }
+
+        public double? Score { get; set; }
 
         public Guid? StudentId { get; set; }
         public Student? Student { get; set; }

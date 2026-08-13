@@ -299,6 +299,8 @@ class JavaModel2OrmModelConverter {
 					case "UUID": DataType.UUID
 					case "Boolean": DataType.BOOLEAN
 					case "Integer": DataType.INT
+					case "Double": DataType.FLOAT
+					case "LocalDateTime": DataType.DATETIME
 					default: DataType.STRING
 				}
 				if (!element.annotations.filter[it.type.equals("Id")].empty){
@@ -307,6 +309,23 @@ class JavaModel2OrmModelConverter {
 					attribute.type = AttributeType.REQUIRED
 				}
 				attribute.name = (element.element as Statement).name
+
+				if (columnAnnotation !== null) {
+					val lengthOption = columnAnnotation.options.findFirst[param.equals("length")]
+					if (lengthOption !== null) {
+						try {
+							val lengthVal = Integer.parseInt(lengthOption.option)
+							if (lengthVal > 0 && lengthVal != 255) {
+								val lenOpt = OrmModelFactory.eINSTANCE.createLengthOption
+								lenOpt.length = lengthVal
+								attribute.options.add(lenOpt)
+							}
+						} catch (NumberFormatException e) {
+							// Ignore unparseable length
+						}
+					}
+				}
+
 				ret.add(attribute)
 			}
 		]

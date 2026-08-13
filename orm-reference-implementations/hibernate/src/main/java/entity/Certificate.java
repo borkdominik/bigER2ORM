@@ -29,6 +29,9 @@ public class Certificate {
   @Column(name = "grade")
   private Integer grade;
 
+  @Column(name = "score")
+  private Double score;
+
   @ManyToOne
   @JoinColumns(value = {
     @JoinColumn(name = "student_id", referencedColumnName = "id"),

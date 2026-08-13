@@ -76,6 +76,60 @@ def test_code_equivalence():
         return False
 
 
+def test_round_trip_equivalence():
+    print("\n3. Testing Reverse Engineering Round-Trip Equivalence...")
+    gradlew = ROOT_DIR / "language-server" / ("gradlew.bat" if sys.platform == "win32" else "gradlew")
+    if not gradlew.exists():
+        print(f"error: gradlew not found at {gradlew}", file=sys.stderr)
+        return False
+
+    java_src = EXAMPLES_DIR / "example" / "hibernate" / "src" / "main" / "java"
+    orig_orm = EXAMPLES_DIR / "example.orm"
+    reversed_orm = EXAMPLES_DIR / "example" / "example_reversed.orm"
+
+    print("  a. Reverse engineering Hibernate Java code -> example_reversed.orm...")
+    rev_cmd = [
+        str(gradlew),
+        "-p", str(ROOT_DIR / "language-server"),
+        ":org.big.orm.ide:reverseOrmCode",
+        f"-PinputDir={java_src.resolve()}",
+        f"-PoutputFile={reversed_orm.resolve()}",
+        "-PmodelName=university"
+    ]
+    res = subprocess.run(rev_cmd, capture_output=True, text=True)
+    if res.returncode != 0:
+        print(f"error during reverse engineering:\n{res.stderr}\n{res.stdout}", file=sys.stderr)
+        return False
+
+    print("  b. Comparing original example.orm vs reverse-engineered example_reversed.orm...")
+    import re
+
+    def normalize_line(line):
+        l = line.strip()
+        # 1. Normalize arbitrary relationship block identifiers (e.g. RecognizedCertificateOriginalCertificate vs RecognizedCertificateCertificate)
+        l = re.sub(r'^(OneToOne|ManyToOne|ManyToMany)\s+relationship\s+(unidirectional\s+)?\w+', r'\1 relationship \2_', l)
+        return l
+
+    l_orig = [normalize_line(l) for l in orig_orm.read_text(encoding="utf-8-sig", errors="ignore").splitlines() if l.strip()]
+    l_rev = [normalize_line(l) for l in reversed_orm.read_text(encoding="utf-8-sig", errors="ignore").splitlines() if l.strip()]
+
+    # 2. Account for attribute declaration ordering within blocks by comparing sorted non-empty lines
+    s_orig = sorted(l_orig)
+    s_rev = sorted(l_rev)
+
+    if s_orig != s_rev:
+        print("  [ORM MODEL DIFF] Differences found between example.orm and example_reversed.orm:")
+        diff = list(difflib.unified_diff(l_orig, l_rev, fromfile="ORIGINAL example.orm", tofile="REVERSED example_reversed.orm", lineterm=""))
+        for line in diff[:25]:
+            print("   ", line)
+        print(f"\nFAILURE: .orm model equivalence differences detected.", file=sys.stderr)
+        return False
+
+    print("\nSUCCESS: Reverse-engineered .orm model is 100% equivalent to original example.orm!")
+    return True
+
+
 if __name__ == "__main__":
-    success = test_code_equivalence()
-    sys.exit(0 if success else 1)
+    success_equiv = test_code_equivalence()
+    success_rt = test_round_trip_equivalence()
+    sys.exit(0 if (success_equiv and success_rt) else 1)

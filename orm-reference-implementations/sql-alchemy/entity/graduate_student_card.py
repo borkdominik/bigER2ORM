@@ -1,6 +1,7 @@
+import datetime
 from entity.student_card import StudentCard
 from entity.student_card_id import StudentCardId
-from sqlalchemy import ForeignKeyConstraint, String
+from sqlalchemy import DateTime, ForeignKeyConstraint, String
 from sqlalchemy.orm import Mapped, column_property, composite, mapped_column
 
 
@@ -11,6 +12,7 @@ class GraduateStudentCard(StudentCard):
     card_version: Mapped[str] = column_property(mapped_column("card_version", String(255), primary_key=True), StudentCard.card_version)
     id: Mapped[StudentCardId] = composite("card_nr", "card_version")
     graduation_date: Mapped[str] = mapped_column(String(255), nullable=True)
+    issue_date: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": "graduate_student_card",

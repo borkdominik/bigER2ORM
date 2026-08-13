@@ -1,6 +1,6 @@
 import uuid
 from base import Base
-from sqlalchemy import ForeignKeyConstraint, Integer, UUID
+from sqlalchemy import Float, ForeignKeyConstraint, Integer, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
@@ -9,6 +9,7 @@ class Certificate(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     grade: Mapped[int] = mapped_column(Integer, nullable=True)
+    score: Mapped[float] = mapped_column(Float, nullable=True)
 
     student_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=True)
     student: Mapped["Student"] = relationship(foreign_keys=[student_id], back_populates="certificates")

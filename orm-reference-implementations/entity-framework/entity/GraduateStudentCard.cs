@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace university.entity
 {
@@ -7,6 +7,9 @@ namespace university.entity
     {
         [Column(TypeName = "Varchar(255)")]
         public string? GraduationDate { get; set; }
+
+        [Column(TypeName = "timestamp without time zone")]
+        public DateTime? IssueDate { get; set; }
 
     }
 }

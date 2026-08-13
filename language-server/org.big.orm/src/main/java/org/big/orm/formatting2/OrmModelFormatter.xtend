@@ -20,6 +20,8 @@ import org.eclipse.xtext.formatting2.FormatterPreferenceKeys
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.preferences.MapBasedPreferenceValues
 
+import org.big.orm.ormModel.AttributeOption
+import org.big.orm.ormModel.EntityOption
 import static org.big.orm.ormModel.OrmModelPackage.Literals.*
 
 class OrmModelFormatter extends AbstractFormatter2 {
@@ -95,16 +97,24 @@ class OrmModelFormatter extends AbstractFormatter2 {
 		interior(open, close)[indent]
 		close.append[setNewLines(2,2,2)]
 	}
-	
-	// Format Annotation Strategy: @(Strategy) - Remove spaces inside parentheses
-	def dispatch void format(InheritanceOption element, extension IFormattableDocument document) {
+
+	// Format Options: @(Option) - Remove spaces inside parentheses
+	def dispatch void format(EntityOption element, extension IFormattableDocument document) {
 		element.regionFor.keyword("@(").append[noSpace]
 		element.regionFor.keyword(")").prepend[noSpace]
+	}
+
+	def dispatch void format(AttributeOption element, extension IFormattableDocument document) {
+		element.regionFor.keyword("@(").append[noSpace]
+		element.regionFor.keyword(")").prepend[noSpace].append[newLine]
 	}
 
 	// Format Attributes to ensure Name and Type are on the same line
 	// using surround[oneSpace] to replace newlines with a single space
 	def dispatch void format(DataAttribute attribute, extension IFormattableDocument document) {
+		for (option : attribute.options) {
+			option.format
+		}
 		attribute.regionFor.feature(DATA_ATTRIBUTE__DATATYPE).surround[oneSpace]
 		attribute.regionFor.feature(ATTRIBUTE__TYPE).surround[oneSpace]
 	}

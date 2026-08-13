@@ -37,6 +37,7 @@ mapped_class NamedElement {
 entity Certificate {
     id UUID key
     grade Integer
+    score Float
 }
 
 @(Inheritance.SingleTable)
@@ -48,6 +49,7 @@ entity CourseWithExercise extends Course {
 
 entity GraduateStudentCard extends StudentCard {
     graduationDate String
+    issueDate DateTime
 }
 
 entity Lecturer extends Person {
