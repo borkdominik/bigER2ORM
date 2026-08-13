@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, composite, mapped_column, relationship
 class StudentCard(Base):
     __tablename__ = 'student_card'
 
-    printed_name: Mapped[str] = mapped_column(String(255))
+    printed_name: Mapped[str] = mapped_column(String(100))
 
     card_nr: Mapped[str] = mapped_column("card_nr", String(255), primary_key=True)
     card_version: Mapped[str] = mapped_column("card_version", String(255), primary_key=True)

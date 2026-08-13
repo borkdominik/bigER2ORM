@@ -20,7 +20,7 @@ public class StudentCard {
   @EmbeddedId
   private StudentCardId id;
 
-  @Column(name = "printed_name", nullable = false)
+  @Column(name = "printed_name", nullable = false, length = 100)
   private String printedName;
 
   @OneToOne(mappedBy = "studentCard")

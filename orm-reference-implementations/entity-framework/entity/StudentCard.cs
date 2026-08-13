@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace university.entity
@@ -13,7 +13,7 @@ namespace university.entity
         [Column(TypeName = "Varchar(255)")]
         public string CardVersion { get; set; }
 
-        [Column(TypeName = "Varchar(255)")]
+        [Column(TypeName = "Varchar(100)")]
         public required string PrintedName { get; set; }
 
         public Student? Student { get; set; }

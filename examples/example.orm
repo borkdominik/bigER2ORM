@@ -67,6 +67,7 @@ entity Student extends Person {
 @(Inheritance.JoinedTable)
 entity StudentCard {
     embedded id StudentCardId key
+    @(Attribute.Length = 100)
     printedName String required
 }
 

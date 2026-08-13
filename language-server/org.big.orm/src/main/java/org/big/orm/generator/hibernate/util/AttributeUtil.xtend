@@ -27,7 +27,7 @@ class AttributeUtil {
 		if (a.datatype == DataType.DATETIME) {
 			columnProperties.add('''columnDefinition = "timestamp without time zone"''')
 		}
-		if (a.datatype == DataType.STRING) {
+		if (a.datatype == DataType.STRING && a.stringLength != 255) {
 			columnProperties.add('''length = «a.stringLength»''')
 		}
 		
