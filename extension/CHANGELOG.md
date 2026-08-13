@@ -10,7 +10,20 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - TBD
 
 ### Changed
+- TBD
+
+### Removed
+- TBD
+
+
+## [0.0.4] - 2026-08-13
+
+### Added
+- Added float and datetime to example.orm model
+
+### Changed
 - Fixed remaining bugs in sql alchemy generation for default inheritance strategy
+- Adjusted code generation and reverse engineering evaluation
 
 ### Removed
 - TBD
