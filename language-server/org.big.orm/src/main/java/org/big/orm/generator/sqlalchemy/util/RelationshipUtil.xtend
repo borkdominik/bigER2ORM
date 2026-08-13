@@ -50,13 +50,13 @@ class RelationshipUtil {
 		"«tableName»",
 		Base.metadata,
 		«FOR attributeName : lowUnderSourceIdNames»
-		Column("«lowUnderSourceTableName»_«attributeName»", nullable=False),
+		Column("«lowUnderSourceTableName»_«lowUnderSourceAttributeName»_«attributeName»", nullable=False),
 		«ENDFOR»
 		«FOR attributeName : lowUnderTargetIdNames»
-		Column("«lowUnderTargetTableName»_«attributeName»", nullable=False),
+		Column("«lowUnderTargetTableName»_«lowUnderTargetAttributeName»_«attributeName»", nullable=False),
 		«ENDFOR»
-		ForeignKeyConstraint([«String.join(", ", lowUnderSourceIdNames.map[attributeName | '''"«lowUnderSourceTableName»_«attributeName»"'''])»], [«String.join(", ", lowUnderSourceIdNames.map[attributeName | '''"«lowUnderSourceTableName».«attributeName»"'''])»], name="fk_«tableName»_«lowUnderSourceAttributeName»"),
-		ForeignKeyConstraint([«String.join(", ", lowUnderTargetIdNames.map[attributeName | '''"«lowUnderTargetTableName»_«attributeName»"'''])»], [«String.join(", ", lowUnderTargetIdNames.map[attributeName | '''"«lowUnderTargetTableName».«attributeName»"'''])»], name="fk_«tableName»_«lowUnderTargetAttributeName»")
+		ForeignKeyConstraint([«String.join(", ", lowUnderSourceIdNames.map[attributeName | '''"«lowUnderSourceTableName»_«lowUnderSourceAttributeName»_«attributeName»"'''])»], [«String.join(", ", lowUnderSourceIdNames.map[attributeName | '''"«lowUnderSourceTableName».«attributeName»"'''])»], name="fk_«tableName»_«lowUnderSourceAttributeName»"),
+		ForeignKeyConstraint([«String.join(", ", lowUnderTargetIdNames.map[attributeName | '''"«lowUnderTargetTableName»_«lowUnderTargetAttributeName»_«attributeName»"'''])»], [«String.join(", ", lowUnderTargetIdNames.map[attributeName | '''"«lowUnderTargetTableName».«attributeName»"'''])»], name="fk_«tableName»_«lowUnderTargetAttributeName»")
 	)
 	'''
 	}

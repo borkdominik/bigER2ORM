@@ -13,6 +13,8 @@ import org.eclipse.sprotty.MoveAction
 import org.eclipse.elk.core.options.PortAlignment
 import org.eclipse.elk.core.options.PortConstraints
 import org.eclipse.elk.core.options.PortSide
+import org.eclipse.sprotty.SEdge
+import java.util.ArrayList
 
 class OrmModelLayoutEngine extends ElkLayoutEngine {
 
@@ -39,6 +41,19 @@ class OrmModelLayoutEngine extends ElkLayoutEngine {
 				layout(root, layeredConfigurator, cause)
 			}
 			
+			val selfLoopEdges = new ArrayList<SEdge>()
+			val childrenToRemove = new ArrayList<SEdge>()
+			for (child : root.children) {
+				if (child instanceof SEdge) {
+					if (child.sourceId !== null && child.sourceId.equals(child.targetId)) {
+						selfLoopEdges.add(child)
+						childrenToRemove.add(child)
+					}
+				}
+			}
+			
+			root.children.removeAll(childrenToRemove)
+			
 			val libavoidConfigurator = new SprottyLayoutConfigurator
 			
 			libavoidConfigurator.configureByType('graph')
@@ -53,6 +68,8 @@ class OrmModelLayoutEngine extends ElkLayoutEngine {
 				.setProperty(LibavoidOptions.NUDGE_ORTHOGONAL_TOUCHING_COLINEAR_SEGMENTS, false)
 				
 			layout(root, libavoidConfigurator, cause)
+			
+			root.children.addAll(selfLoopEdges)
 		}
 	}
 }

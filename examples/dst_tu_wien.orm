@@ -1,0 +1,104 @@
+orm_model dst_tu_wien
+
+enum TripStatus {
+    CREATED
+    MATCHED
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
+}
+
+embeddable Money {
+    currency String
+    amount Float
+}
+
+mapped_class PlatformUser {
+    id UUID key
+    firstName String required
+    lastName String required
+    email String required
+    password String required
+    accountNo String
+    bankCode String
+}
+
+entity Rider extends PlatformUser {
+}
+
+entity Driver extends PlatformUser {
+}
+
+entity Preferences {
+    id UUID key
+}
+
+entity Organization {
+    id UUID key
+    name String required
+}
+
+entity Vehicle {
+    id UUID key
+    licensePlate String required
+    type String required
+}
+
+entity Location {
+    id UUID key
+    name String required
+    locationId Integer required
+}
+
+entity TripInfo {
+    id UUID key
+    embedded total Money
+    distance Float
+}
+
+entity Trip {
+    id UUID key
+    created DateTime required
+    updated DateTime required
+    enum status TripStatus
+}
+
+entity Employment joins (Driver["employments"], Organization["employments"]) {
+    since DateTime required
+    active Boolean required
+}
+
+ManyToMany relationship OrganizationParts {
+    source Organization["parts"]
+    target Organization["partOf"]
+}
+
+OneToOne relationship RiderPreferences {
+    source Preferences["rider"]
+    target Rider["preferences"]
+}
+
+OneToOne relationship TripTripInfo {
+    source Trip["tripInfo"]
+    target TripInfo["trip"]
+}
+
+ManyToOne relationship VehicleDriver {
+    source Vehicle["driver"] required
+    target Driver["vehicles"]
+}
+
+ManyToOne relationship TripRider {
+    source Trip["rider"] required
+    target Rider["trips"]
+}
+
+ManyToOne relationship TripDriver {
+    source Trip["driver"]
+    target Driver["trips"]
+}
+
+ManyToOne relationship TripVehicle {
+    source Trip["vehicle"]
+    target Vehicle["trips"]
+}

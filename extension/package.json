@@ -3,7 +3,7 @@
   "displayName": "bigORM Modeling Tool",
   "description": "ORM modeling for various platforms",
   "publisher": "BIGModelingTools",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.90.0"
   },

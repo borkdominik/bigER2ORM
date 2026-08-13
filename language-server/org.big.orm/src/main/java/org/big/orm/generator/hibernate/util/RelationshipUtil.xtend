@@ -63,21 +63,21 @@ class RelationshipUtil {
 	
 		val String lowUnderSourceTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.entity.name)
 		val String lowUnderTargetTableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.entity.name)
-		val String lowUnderSourceAttributeName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.attributeName)
-		val String lowUnderTargetAttributeName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.attributeName)
+		val String lowUnderSourceAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.source.attributeName)
+		val String lowUnderTargetAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, r.target.attributeName)
 		'''
 		@ManyToMany
 		@JoinTable(
 		    name = "«tableName»",
 		    joinColumns = {
 		        «FOR keyAttribute : sourceKeyAttibutes.map[attribute | CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)]»
-		        @JoinColumn(name = "«lowUnderSourceTableName»_«keyAttribute»", referencedColumnName = "«keyAttribute»"),
+		        @JoinColumn(name = "«lowUnderSourceTableName»_«lowUnderSourceAttributeName»_«keyAttribute»", referencedColumnName = "«keyAttribute»"),
 		        «ENDFOR»
 		    },
 		    foreignKey = @ForeignKey(name = "fk_«tableName»_«lowUnderSourceAttributeName»"),
 		    inverseJoinColumns = {
 		        «FOR keyAttribute : targetKeyAttibutes.map[attribute | CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)]»
-		        @JoinColumn(name = "«lowUnderTargetTableName»_«keyAttribute»", referencedColumnName = "«keyAttribute»"),
+		        @JoinColumn(name = "«lowUnderTargetTableName»_«lowUnderTargetAttributeName»_«keyAttribute»", referencedColumnName = "«keyAttribute»"),
 		        «ENDFOR»
 		    },
 		    inverseForeignKey = @ForeignKey(name = "fk_«tableName»_«lowUnderTargetAttributeName»")

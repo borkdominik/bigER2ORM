@@ -91,17 +91,44 @@ public class UniversityContext : DbContext
                 e => e
                     .HasOne<Lecturer>()
                     .WithMany()
-                    .HasForeignKey(["lecturer_id"])
+                    .HasForeignKey(["lecturer_courses_id"])
                     .HasConstraintName("fk_course_lecturer_courses")
                     .OnDelete(DeleteBehavior.NoAction),
                 e => e
                     .HasOne<Course>()
                     .WithMany()
-                    .HasForeignKey(["course_id"])
+                    .HasForeignKey(["course_lecturers_id"])
                     .HasConstraintName("fk_course_lecturer_lecturers")
                     .OnDelete(DeleteBehavior.NoAction)
             )
             .HasNoKey();
+
+        modelBuilder.Entity<Course>()
+            .HasMany(e => e.Prerequisites)
+            .WithMany(e => e.PrerequisiteFor)
+            .UsingEntity<Dictionary<string, object>>(
+                "course_prerequisites",
+                e => e
+                    .HasOne<Course>()
+                    .WithMany()
+                    .HasForeignKey(["course_prerequisite_for_id"])
+                    .HasConstraintName("fk_course_prerequisites_prerequisite_for")
+                    .OnDelete(DeleteBehavior.NoAction),
+                e => e
+                    .HasOne<Course>()
+                    .WithMany()
+                    .HasForeignKey(["course_prerequisites_id"])
+                    .HasConstraintName("fk_course_prerequisites_prerequisites")
+                    .OnDelete(DeleteBehavior.NoAction)
+            )
+            .HasNoKey();
+
+        modelBuilder.Entity<Course>()
+            .HasOne(e => e.ParentCourse)
+            .WithMany(e => e.ChildCourses)
+            .HasForeignKey(e => new { e.ParentCourseId })
+            .HasConstraintName("fk_course_parent_course")
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<CourseWithExercise>()
             .HasOne(e => e.Tutor)

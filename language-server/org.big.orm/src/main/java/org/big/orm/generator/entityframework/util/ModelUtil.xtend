@@ -138,8 +138,8 @@ class ModelUtil {
 		val String lowUnderSourceAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, relationship.source.attributeName)
 		val String lowUnderTargetAttributeName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, relationship.target.attributeName)
 	
-		var List<String> lowUnderSourceIdNames = relationship.source.entity.keyAttributesAsDataAttributes.map[attribute | '''"«lowUnderSourceTableName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)»"''']
-		var List<String> lowUnderTargetIdNames = relationship.target.entity.keyAttributesAsDataAttributes.map[attribute | '''"«lowUnderTargetTableName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)»"''']
+		var List<String> lowUnderSourceIdNames = relationship.source.entity.keyAttributesAsDataAttributes.map[attribute | '''"«lowUnderSourceTableName»_«lowUnderSourceAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)»"''']
+		var List<String> lowUnderTargetIdNames = relationship.target.entity.keyAttributesAsDataAttributes.map[attribute | '''"«lowUnderTargetTableName»_«lowUnderTargetAttributeName»_«CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, attribute.name)»"''']
 		'''
 		modelBuilder.Entity<«relationship.source.entity.name»>()
 			.HasMany(e => e.«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, relationship.source.attributeName)»)

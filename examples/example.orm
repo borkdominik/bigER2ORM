@@ -102,6 +102,16 @@ ManyToMany relationship CourseLecturer {
     target Lecturer["courses"]
 }
 
+ManyToMany relationship CoursePrerequisites {
+    source Course["prerequisites"]
+    target Course["prerequisiteFor"]
+}
+
+ManyToOne relationship CourseParent {
+    source Course["parentCourse"]
+    target Course["childCourses"]
+}
+
 ManyToOne relationship unidirectional CourseWithExerciseStudent {
     source CourseWithExercise["tutor"]
     target Student

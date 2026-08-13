@@ -442,7 +442,20 @@ class JavaModel2OrmModelConverter {
 				} 
 				// continue with standard relationship
 				else {
-					var ormRelationship = model.relationships.findFirst[name.equals(sourceEntity.name+targetEntity.name)]
+					val relationAnnotation = relationship.annotations.findFirst[type.equals("ManyToOne") || type.equals("ManyToMany") || type.equals("OneToOne") || type.equals("OneToMany")]
+					val mappedByOption = relationAnnotation?.options?.findFirst[param.equals("mappedBy")]
+					val String mappedByVal = mappedByOption?.option?.replaceAll('^"|"$', '')
+
+					var Relationship ormRelationship = null
+					if (mappedByVal !== null && !mappedByVal.empty) {
+						ormRelationship = model.relationships.findFirst[source.entity === sourceEntity && target.entity === targetEntity && source.attributeName == mappedByVal]
+					}
+					if (ormRelationship === null) {
+						ormRelationship = model.relationships.findFirst[source.entity === sourceEntity && target.entity === targetEntity && unidirectional]
+					}
+					if (ormRelationship === null) {
+						ormRelationship = model.relationships.findFirst[name.equals(sourceEntity.name+targetEntity.name)]
+					}
 					if (ormRelationship === null ) {
 						System.err.println("could not find existing relationship")
 						return

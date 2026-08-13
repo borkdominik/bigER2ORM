@@ -7,7 +7,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [Unreleased]
 
 ### Added
-- TBD
+- Support for self reference relationships, both in diagram and code generation
 
 ### Changed
 - TBD
