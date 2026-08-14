@@ -4,8 +4,10 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from orm_utils import generate_orm_code
 
 REQUIRED_TECH_DIRS = ("hibernate", "entity-framework", "sql-alchemy")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Eval: validate *.orm projects and run compose per project.")
@@ -33,11 +35,6 @@ def main():
     # If --generate is specified, programmatically generate ORM code
     if args.generate:
         print("Programmatically generating ORM code from .orm files...")
-        gradlew = script_dir.parent / "language-server" / ("gradlew.bat" if sys.platform == "win32" else "gradlew")
-        if not gradlew.exists():
-            print(f"error: gradlew not found at {gradlew}", file=sys.stderr)
-            return 1
-
         targets_to_generate = []
         if args.batch_eval_mode:
             orm_files = sorted(input_folder.glob("*.orm"))
@@ -57,16 +54,7 @@ def main():
 
         for orm_file, target_dir in targets_to_generate:
             print(f"Generating code for {orm_file.name} -> {target_dir}...")
-            cmd = [
-                str(gradlew),
-                "-p", str(script_dir.parent / "language-server"),
-                ":org.big.orm.ide:generateOrmCode",
-                f"-PormFile={orm_file.resolve()}",
-                f"-PoutputDir={target_dir.resolve()}"
-            ]
-            res = subprocess.run(cmd, capture_output=True, text=True)
-            if res.returncode != 0:
-                print(f"error generating code for {orm_file}:\n{res.stderr}\n{res.stdout}", file=sys.stderr)
+            if not generate_orm_code(orm_file, target_dir):
                 return 1
 
     if args.batch_eval_mode:

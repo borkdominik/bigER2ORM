@@ -106,6 +106,7 @@ class OrmModelFormatter extends AbstractFormatter2 {
 
 	def dispatch void format(AttributeOption element, extension IFormattableDocument document) {
 		element.regionFor.keyword("@(").append[noSpace]
+		element.regionFor.keyword("=").prepend[noSpace].append[noSpace]
 		element.regionFor.keyword(")").prepend[noSpace].append[newLine]
 	}
 

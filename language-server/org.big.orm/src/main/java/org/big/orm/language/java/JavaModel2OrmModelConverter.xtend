@@ -434,9 +434,9 @@ class JavaModel2OrmModelConverter {
 				//catch special case of source being a join entity
 				if (sourceEntity.joinEntity) {
 					System.err.println("Special case triggered: " + targetAttributeName)
-					if (sourceEntity.joinSource.attributeName === null) {
+					if (sourceEntity.joinSource.entity === targetEntity) {
 						sourceEntity.joinSource.attributeName = targetAttributeName
-					} else {
+					} else if (sourceEntity.joinTarget.entity === targetEntity) {
 						sourceEntity.joinTarget.attributeName = targetAttributeName
 					}
 				} 

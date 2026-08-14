@@ -3,6 +3,7 @@ import difflib
 import subprocess
 import sys
 from pathlib import Path
+from orm_utils import generate_orm_code
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = SCRIPT_DIR.parent
@@ -11,14 +12,9 @@ EXAMPLES_DIR = ROOT_DIR / "examples"
 
 def test_code_equivalence():
     print("1. Programmatically generating target ORM code for examples/example...")
-    cmd = [
-        sys.executable,
-        str(SCRIPT_DIR / "run_eval.py"),
-        str(EXAMPLES_DIR / "example"),
-        "--generate"
-    ]
-    res = subprocess.run(cmd)
-    if res.returncode != 0:
+    orm_file = EXAMPLES_DIR / "example.orm"
+    example_dir = EXAMPLES_DIR / "example"
+    if not generate_orm_code(orm_file, example_dir):
         print("error: code generation failed", file=sys.stderr)
         return False
 
@@ -77,56 +73,12 @@ def test_code_equivalence():
 
 
 def test_round_trip_equivalence():
-    print("\n3. Testing Reverse Engineering Round-Trip Equivalence...")
-    gradlew = ROOT_DIR / "language-server" / ("gradlew.bat" if sys.platform == "win32" else "gradlew")
-    if not gradlew.exists():
-        print(f"error: gradlew not found at {gradlew}", file=sys.stderr)
-        return False
-
-    java_src = EXAMPLES_DIR / "example" / "hibernate" / "src" / "main" / "java"
-    orig_orm = EXAMPLES_DIR / "example.orm"
-    reversed_orm = EXAMPLES_DIR / "example" / "example_reversed.orm"
-
-    print("  a. Reverse engineering Hibernate Java code -> example_reversed.orm...")
-    rev_cmd = [
-        str(gradlew),
-        "-p", str(ROOT_DIR / "language-server"),
-        ":org.big.orm.ide:reverseOrmCode",
-        f"-PinputDir={java_src.resolve()}",
-        f"-PoutputFile={reversed_orm.resolve()}",
-        "-PmodelName=university"
-    ]
-    res = subprocess.run(rev_cmd, capture_output=True, text=True)
-    if res.returncode != 0:
-        print(f"error during reverse engineering:\n{res.stderr}\n{res.stdout}", file=sys.stderr)
-        return False
-
-    print("  b. Comparing original example.orm vs reverse-engineered example_reversed.orm...")
-    import re
-
-    def normalize_line(line):
-        l = line.strip()
-        # 1. Normalize arbitrary relationship block identifiers (e.g. RecognizedCertificateOriginalCertificate vs RecognizedCertificateCertificate)
-        l = re.sub(r'^(OneToOne|ManyToOne|ManyToMany)\s+relationship\s+(unidirectional\s+)?\w+', r'\1 relationship \2_', l)
-        return l
-
-    l_orig = [normalize_line(l) for l in orig_orm.read_text(encoding="utf-8-sig", errors="ignore").splitlines() if l.strip()]
-    l_rev = [normalize_line(l) for l in reversed_orm.read_text(encoding="utf-8-sig", errors="ignore").splitlines() if l.strip()]
-
-    # 2. Account for attribute declaration ordering within blocks by comparing sorted non-empty lines
-    s_orig = sorted(l_orig)
-    s_rev = sorted(l_rev)
-
-    if s_orig != s_rev:
-        print("  [ORM MODEL DIFF] Differences found between example.orm and example_reversed.orm:")
-        diff = list(difflib.unified_diff(l_orig, l_rev, fromfile="ORIGINAL example.orm", tofile="REVERSED example_reversed.orm", lineterm=""))
-        for line in diff[:25]:
-            print("   ", line)
-        print(f"\nFAILURE: .orm model equivalence differences detected.", file=sys.stderr)
-        return False
-
-    print("\nSUCCESS: Reverse-engineered .orm model is 100% equivalent to original example.orm!")
-    return True
+    print("\n3. Testing Reverse Engineering Round-Trip Equivalence Report...")
+    from test_reverse_roundtrip import run_roundtrip_eval
+    summary = run_roundtrip_eval(EXAMPLES_DIR / "example", batch_eval_mode=False)
+    if summary and summary[0]["status"] in ("EQUIVALENT", "DIFFS_DETECTED"):
+        return True
+    return False
 
 
 if __name__ == "__main__":

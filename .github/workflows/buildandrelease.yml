@@ -74,6 +74,7 @@ jobs:
       # Automatic publishing currently disabled due to pipeline issues. To publish, download the file and run the same command as below offline, with replacing the variables appropriately.
       # - name: Publish
       #   run: yarn --cwd extension run vsce publish --packagePath ./${{ env.PACKAGE_NAME }}.vsix -p ${{ secrets.VSCODE_ACCESS_TOKEN }}
+      # command on windows with PAT stored as env: yarn --cwd extension run vsce publish --packagePath .\bigorm-x.x.x.vsix -p $env:BIG_VS_CODE_PAT
       - name: Generate Changelog
         id: changelog
         uses: mindsers/changelog-reader-action@v2

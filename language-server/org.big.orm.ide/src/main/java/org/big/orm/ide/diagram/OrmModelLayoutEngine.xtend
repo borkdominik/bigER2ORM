@@ -42,17 +42,16 @@ class OrmModelLayoutEngine extends ElkLayoutEngine {
 			}
 			
 			val selfLoopEdges = new ArrayList<SEdge>()
-			val childrenToRemove = new ArrayList<SEdge>()
 			for (child : root.children) {
 				if (child instanceof SEdge) {
 					if (child.sourceId !== null && child.sourceId.equals(child.targetId)) {
+						child.routingPoints.clear()
 						selfLoopEdges.add(child)
-						childrenToRemove.add(child)
 					}
 				}
 			}
 			
-			root.children.removeAll(childrenToRemove)
+			root.children.removeAll(selfLoopEdges)
 			
 			val libavoidConfigurator = new SprottyLayoutConfigurator
 			

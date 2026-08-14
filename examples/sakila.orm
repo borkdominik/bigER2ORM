@@ -10,26 +10,31 @@ enum Rating {
 
 entity Actor {
     id Integer key
-    @(Attribute.Length=45) firstName String required
-    @(Attribute.Length=45) lastName String required
+    @(Attribute.Length=45)
+    firstName String required
+    @(Attribute.Length=45)
+    lastName String required
     lastUpdate DateTime
 }
 
 entity Category {
     id Integer key
-    @(Attribute.Length=25) name String required
+    @(Attribute.Length=25)
+    name String required
     lastUpdate DateTime
 }
 
 entity Language {
     id Integer key
-    @(Attribute.Length=20) name String required
+    @(Attribute.Length=20)
+    name String required
     lastUpdate DateTime
 }
 
 entity Film {
     id Integer key
-    @(Attribute.Length=128) title String required
+    @(Attribute.Length=128)
+    title String required
     description String
     releaseYear Integer
     rentalDuration Integer required
@@ -51,24 +56,31 @@ entity FilmCategory joins (Film["filmCategories"], Category["films"]) {
 
 entity Address {
     id Integer key
-    @(Attribute.Length=50) addressLine String required
-    @(Attribute.Length=50) addressTwo String
-    @(Attribute.Length=20) district String required
-    @(Attribute.Length=10) postalCode String
-    @(Attribute.Length=20) phone String required
+    @(Attribute.Length=50)
+    addressLine String required
+    @(Attribute.Length=50)
+    addressTwo String
+    @(Attribute.Length=20)
+    district String required
+    @(Attribute.Length=10)
+    postalCode String
+    @(Attribute.Length=20)
+    phone String required
     location String required
     lastUpdate DateTime
 }
 
 entity City {
     id Integer key
-    @(Attribute.Length=50) name String required
+    @(Attribute.Length=50)
+    name String required
     lastUpdate DateTime
 }
 
 entity Country {
     id Integer key
-    @(Attribute.Length=50) name String required
+    @(Attribute.Length=50)
+    name String required
     lastUpdate DateTime
 }
 
@@ -79,20 +91,25 @@ entity Store {
 
 entity Staff {
     id Integer key
-    @(Attribute.Length=45) firstName String required
-    @(Attribute.Length=45) lastName String required
+    @(Attribute.Length=45)
+    firstName String required
+    @(Attribute.Length=45)
+    lastName String required
     picture String
     email String
     active Boolean required
-    @(Attribute.Length=16) username String required
+    @(Attribute.Length=16)
+    username String required
     password String
     lastUpdate DateTime
 }
 
 entity Customer {
     id Integer key
-    @(Attribute.Length=45) firstName String required
-    @(Attribute.Length=45) lastName String required
+    @(Attribute.Length=45)
+    firstName String required
+    @(Attribute.Length=45)
+    lastName String required
     email String
     active Boolean required
     createDate DateTime required
@@ -120,7 +137,8 @@ entity Payment {
 
 entity FilmText {
     id Integer key
-    @(Attribute.Length=128) title String required
+    @(Attribute.Length=128)
+    title String required
     description String
 }
 
@@ -218,3 +236,4 @@ OneToOne relationship unidirectional FilmFilmText {
     source FilmText["film"]
     target Film
 }
+
