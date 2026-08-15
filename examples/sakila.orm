@@ -14,21 +14,21 @@ entity Actor {
     firstName String required
     @(Attribute.Length=45)
     lastName String required
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Category {
     id Integer key
     @(Attribute.Length=25)
     name String required
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Language {
     id Integer key
     @(Attribute.Length=20)
     name String required
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Film {
@@ -43,15 +43,15 @@ entity Film {
     replacementCost Float required
     enum rating Rating
     specialFeatures String
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity FilmActor joins (Film["filmActors"], Actor["filmActors"]) {
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity FilmCategory joins (Film["filmCategories"], Category["films"]) {
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Address {
@@ -67,26 +67,26 @@ entity Address {
     @(Attribute.Length=20)
     phone String required
     location String required
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity City {
     id Integer key
     @(Attribute.Length=50)
     name String required
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Country {
     id Integer key
     @(Attribute.Length=50)
     name String required
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Store {
     id Integer key
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Staff {
@@ -101,7 +101,7 @@ entity Staff {
     @(Attribute.Length=16)
     username String required
     password String
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Customer {
@@ -113,33 +113,26 @@ entity Customer {
     email String
     active Boolean required
     createDate DateTime required
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Inventory {
     id Integer key
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Rental {
     id Integer key
     rentalDate DateTime required
     returnDate DateTime
-    lastUpdate DateTime
+    lastUpdate DateTime required
 }
 
 entity Payment {
     id Integer key
     amount Float required
     paymentDate DateTime required
-    lastUpdate DateTime
-}
-
-entity FilmText {
-    id Integer key
-    @(Attribute.Length=128)
-    title String required
-    description String
+    lastUpdate DateTime required
 }
 
 ManyToOne relationship FilmLanguage {
@@ -162,11 +155,6 @@ ManyToOne relationship InventoryStore {
     target Store["inventories"]
 }
 
-ManyToOne relationship StaffAddress {
-    source Staff["address"] required
-    target Address["staffMembers"]
-}
-
 ManyToOne relationship StaffStore {
     source Staff["store"] required
     target Store["staffMembers"]
@@ -180,6 +168,11 @@ ManyToOne relationship StoreAddress {
 OneToOne relationship StoreManager {
     source Store["managerStaff"]
     target Staff["managedStore"]
+}
+
+ManyToOne relationship StaffAddress {
+    source Staff["address"] required
+    target Address["staffMembers"]
 }
 
 ManyToOne relationship CustomerStore {
@@ -231,9 +224,3 @@ ManyToOne relationship PaymentRental {
     source Payment["rental"]
     target Rental["payments"]
 }
-
-OneToOne relationship unidirectional FilmFilmText {
-    source FilmText["film"]
-    target Film
-}
-

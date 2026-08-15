@@ -1,0 +1,3 @@
+[submodule "orm-reference-implementations/database/jooq-sakila"]
+	path = orm-reference-implementations/database/jooq-sakila
+	url = https://github.com/jOOQ/sakila.git

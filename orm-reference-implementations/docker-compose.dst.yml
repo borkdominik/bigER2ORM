@@ -1,0 +1,31 @@
+services:
+  postgres:
+    environment:
+      - POSTGRES_MULTIPLE_DATABASES=java,python,csharp,dst_reference
+
+  dst-reference-init:
+    image: maven:3.8.5-openjdk-17
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /app
+    volumes:
+      - ../../orm-reference-implementations/dst/dst21.assignment1.berndstainer01634260/ass1-jpa/src/main/java:/app/dst-src:ro
+      - ../../orm-reference-implementations/dst/dst21.assignment1.berndstainer01634260/ass1-jpa/src/main/resources:/app/dst-res:ro
+      - ../../orm-reference-implementations/dst-runner/pom.xml:/app/pom.xml:ro
+      - ../../orm-reference-implementations/dst-runner/src/main/java/GenerateDatabase.java:/app/runner-src/GenerateDatabase.java:ro
+      - ../../orm-reference-implementations/dst-runner/src/main/resources/META-INF/persistence.xml:/app/runner-res/persistence.xml:ro
+    command: >
+      sh -lc "
+        mkdir -p /app/src/main/java /app/src/main/resources/META-INF &&
+        cp -r /app/dst-src/* /app/src/main/java/ &&
+        cp -r /app/runner-src/* /app/src/main/java/ &&
+        cp -r /app/dst-res/* /app/src/main/resources/ &&
+        cp /app/runner-res/persistence.xml /app/src/main/resources/META-INF/persistence.xml &&
+        mvn -q -DskipTests compile exec:java -Dexec.mainClass=GenerateDatabase
+      "
+
+  migra-runner:
+    depends_on:
+      dst-reference-init:
+        condition: service_completed_successfully

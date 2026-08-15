@@ -27,6 +27,9 @@ entity Rider extends PlatformUser {
 }
 
 entity Driver extends PlatformUser {
+    name String
+    tel String
+    avgRating Float
 }
 
 entity Preferences {
@@ -42,6 +45,7 @@ entity Vehicle {
     id UUID key
     licensePlate String required
     type String required
+    color String
 }
 
 entity Location {
@@ -60,7 +64,13 @@ entity Trip {
     id UUID key
     created DateTime required
     updated DateTime required
-    enum status TripStatus
+    enum state TripStatus
+}
+
+entity Match {
+    id UUID key
+    date DateTime
+    embedded fare Money
 }
 
 entity Employment joins (Driver["employments"], Organization["employments"]) {
@@ -83,6 +93,36 @@ OneToOne relationship TripTripInfo {
     target TripInfo["trip"]
 }
 
+OneToOne relationship TripPickup {
+    source Trip["pickup"]
+    target Location["pickupTrip"]
+}
+
+OneToOne relationship TripDestination {
+    source Trip["destination"]
+    target Location["destinationTrip"]
+}
+
+ManyToMany relationship TripStops {
+    source Trip["stops"]
+    target Location["stopsTrip"]
+}
+
+OneToOne relationship MatchTrip {
+    source Match["trip"]
+    target Trip["match"]
+}
+
+ManyToOne relationship MatchDriver {
+    source Match["driver"] required
+    target Driver["matches"]
+}
+
+ManyToOne relationship MatchVehicle {
+    source Match["vehicle"] required
+    target Vehicle["matches"]
+}
+
 ManyToOne relationship VehicleDriver {
     source Vehicle["driver"] required
     target Driver["vehicles"]
@@ -91,14 +131,4 @@ ManyToOne relationship VehicleDriver {
 ManyToOne relationship TripRider {
     source Trip["rider"] required
     target Rider["trips"]
-}
-
-ManyToOne relationship TripDriver {
-    source Trip["driver"]
-    target Driver["trips"]
-}
-
-ManyToOne relationship TripVehicle {
-    source Trip["vehicle"]
-    target Vehicle["trips"]
 }

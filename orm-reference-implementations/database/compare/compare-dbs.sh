@@ -6,6 +6,9 @@ DB1="postgresql://postgres:postgres@postgres:5432/csharp"
 DB2="postgresql://postgres:postgres@postgres:5432/java"
 DB3="postgresql://postgres:postgres@postgres:5432/python"
 
+DB_REF_SAKILA="postgresql://postgres:postgres@postgres:5432/sakila_reference"
+DB_REF_DST="postgresql://postgres:postgres@postgres:5432/dst_reference"
+
 OUTDIR="/app/schema-diffs"
 
 # IMPORTANT:
@@ -21,11 +24,32 @@ mkdir -p "$OUTDIR"
 # remove previous artifacts but keep the dir
 rm -rf "$OUTDIR"/*
 
+# Base inter-framework pairs
 pairs="
 $DB1|$DB2
 $DB1|$DB3
 $DB2|$DB3
 "
+
+# Probe if sakila_reference DB exists using migra directly
+if migra "$DB_REF_SAKILA" "$DB1" $MIGRA_FLAGS >/dev/null 2>&1; then
+  echo "sakila_reference database detected. Including Sakila reference comparisons..."
+  pairs="$pairs
+$DB_REF_SAKILA|$DB1
+$DB_REF_SAKILA|$DB2
+$DB_REF_SAKILA|$DB3
+"
+fi
+
+# Probe if dst_reference DB exists using migra directly
+if migra "$DB_REF_DST" "$DB1" $MIGRA_FLAGS >/dev/null 2>&1; then
+  echo "dst_reference database detected. Including DST reference comparisons..."
+  pairs="$pairs
+$DB_REF_DST|$DB1
+$DB_REF_DST|$DB2
+$DB_REF_DST|$DB3
+"
+fi
 
 get_dbname() {
   # capture chars after the last '/' up to '?' (if present)

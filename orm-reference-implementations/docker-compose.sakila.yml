@@ -1,0 +1,20 @@
+services:
+  postgres:
+    environment:
+      - POSTGRES_MULTIPLE_DATABASES=java,python,csharp,sakila_reference
+
+  sakila-init:
+    image: postgres:16.10-alpine
+    environment:
+      - PGPASSWORD=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../../orm-reference-implementations/database/jooq-sakila/postgres-sakila-db/postgres-sakila-schema.sql:/app/postgres-sakila-schema.sql
+    command: sh -lc "psql -h postgres -U postgres -d sakila_reference -f /app/postgres-sakila-schema.sql"
+
+  migra-runner:
+    depends_on:
+      sakila-init:
+        condition: service_completed_successfully
