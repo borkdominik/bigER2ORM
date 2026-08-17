@@ -9,7 +9,6 @@ import java.util.List
 import org.big.orm.ormModel.Relationship
 import org.big.orm.ormModel.DataAttribute
 import org.big.orm.ormModel.DataType
-import org.big.orm.ormModel.AttributeType
 import org.big.orm.ormModel.InheritableElement
 import java.util.ArrayList
 import org.big.orm.ormModel.OrmModel

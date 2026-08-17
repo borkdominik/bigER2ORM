@@ -3,9 +3,9 @@ package org.big.orm.ide.generator
 import java.io.File
 import java.util.ArrayList
 import org.big.orm.OrmModelStandaloneSetup
-import org.big.orm.language.JavaModelStandaloneSetup
+import org.big.orm.language.java.JavaModelStandaloneSetup
 import org.big.orm.language.java.JavaModel2OrmModelConverter
-import org.big.orm.language.javaModel.JavaModel
+import org.big.orm.language.java.javaModel.JavaModel
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.SaveOptions

@@ -49,7 +49,7 @@ class RelationshipUtil {
 	def compileManyToOneForSource(Relationship r) {
 		val Boolean isJoinEntity = (r.source.entity instanceof Entity) && (r.source.entity as Entity).joinEntity
 		'''
-		«IF isJoinEntity»@MapsId("«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, r.target.entity.name)»Id")
+		«IF isJoinEntity»@MapsId("«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, r.target.entity.name)»«CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, r.target.entity.keyAttribute.name)»")
 		«ENDIF»@ManyToOne«IF r.sourceRequired»(optional = false)«ENDIF»
 		«compileJoinColumns(r)»
 		private «r.target.entity.name» «r.source.attributeName»;
@@ -94,7 +94,7 @@ class RelationshipUtil {
 	
 	def compileOneToOneForSource(Relationship r)
 	'''
-	// Unique constraint name can't be set: https://hibernate.atlassian.net/browse/HHH-19006
+	// LIMITATION: Unique constraint name can't be set: https://hibernate.atlassian.net/browse/HHH-19006
 	// Once finished refactor creation to be equivalent
 	@OneToOne
 	«r.compileJoinColumns»

@@ -1,4 +1,4 @@
-package org.big.orm.language.ide;
+package org.big.orm.language.java.ide;
 
 import org.eclipse.xtext.resource.impl.DefaultResourceServiceProvider;
 import org.eclipse.xtext.validation.IResourceValidator;
@@ -9,5 +9,5 @@ public class NonValidatingResourceServiceProvider extends DefaultResourceService
     public IResourceValidator getResourceValidator() {
         return IResourceValidator.NULL;
     }
-	
+    
 }

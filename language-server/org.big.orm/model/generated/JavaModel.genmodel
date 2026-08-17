@@ -4,7 +4,7 @@
     modelPluginID="org.big.orm" forceOverwrite="true" modelName="JavaModel" updateClasspath="false"
     rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" complianceLevel="11.0"
     copyrightFields="false" runtimeVersion="2.29">
-  <genPackages prefix="JavaModel" basePackage="org.big.orm.language" disposableProviderFactory="true"
+  <genPackages prefix="JavaModel" basePackage="org.big.orm.language.java" disposableProviderFactory="true"
       fileExtensions="java" ecorePackage="JavaModel.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="JavaModel.ecore#//Modifier">
       <genEnumLiterals ecoreEnumLiteral="JavaModel.ecore#//Modifier/Annotation"/>

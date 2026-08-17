@@ -42,17 +42,17 @@ class InheritableUtil {
 	«IF e instanceof MappedClass»@declarative_mixin«ENDIF»
 	class «e.name»«e.compileInheritanceDefinition»:
 		«IF e instanceof Entity»
-		«IF (e as Entity).rootElement === e || !(e as Entity).isSingleTable»
+		«IF e.rootElement === e || !e.isSingleTable»
 		__tablename__ = '«CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, e.name)»'
 		
 		«ELSE»
-		__tablename__ = «(e as Entity).rootElement.name».__tablename__
+		__tablename__ = «e.rootElement.name».__tablename__
 		«ENDIF»
-		«IF (e as Entity).inheritanceStrategy === InheritanceStrategy.TABLE_PER_CLASS»
-		«(e as Entity).compileTablePerClassInheritedAttributes»
+		«IF e.inheritanceStrategy === InheritanceStrategy.TABLE_PER_CLASS»
+		«e.compileTablePerClassInheritedAttributes»
 		«ENDIF»
-		«IF (e as Entity).inheritanceStrategy === InheritanceStrategy.JOINED_TABLE»
-		«(e as Entity).compileJoinedTableInheritedAttributes»
+		«IF e.inheritanceStrategy === InheritanceStrategy.JOINED_TABLE»
+		«e.compileJoinedTableInheritedAttributes»
 		«ENDIF»
 		«ENDIF»
 		«FOR a : e.attributes.filter(DataAttribute)»
@@ -66,7 +66,7 @@ class InheritableUtil {
 		«a.compileToSqlAlchemyAttribute(null)»
 		«ENDFOR»
 		«IF e instanceof Entity»
-		«(e as Entity).compileEntityBody»
+		«e.compileEntityBody»
 		«ENDIF»
 	'''
 	
@@ -154,7 +154,7 @@ class InheritableUtil {
 	private def CharSequence compileTablePerClassInheritedAttributes (Entity e) {
 		if (e.extends !== null) {
 			'''
-			# TODO: Currently inheriting all attributes, as inheritance is buggy with ConcreteClasses
+			# LIMITATION: Currently inheriting all attributes, as inheritance is buggy with ConcreteClasses
 			«FOR a : e.extends.combineInheritedAttributes»
 			«a»
 			«ENDFOR»

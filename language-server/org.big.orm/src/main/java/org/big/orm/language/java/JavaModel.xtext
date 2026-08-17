@@ -1,4 +1,4 @@
-grammar org.big.orm.language.JavaModel with org.eclipse.xtext.common.Terminals
+grammar org.big.orm.language.java.JavaModel with org.eclipse.xtext.common.Terminals
 
 generate javaModel "http://www.big.org/orm/language/java/JavaModel"
 
@@ -37,11 +37,14 @@ AnnotationOptionElement:
 	DOT_ID | STRING | INT
 ;
 
-terminal DOT_ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'.'|'<'|'>')*;
-terminal ARRAY_ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'.'|'<'|'>'|'['|']')*;
+TypeReference:
+	DOT_ID ('<' DOT_ID (',' DOT_ID)* '>')? ('[' ']')*
+;
+
+terminal DOT_ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'.')*;
 
 Statement:
-	(modifiers+=Modifier)* type=DOT_ID name=DOT_ID ";"
+	(modifiers+=Modifier)* type=TypeReference name=DOT_ID ";"
 ;
 
 JavaClass:
@@ -59,13 +62,13 @@ JavaEnum:
 ;
 
 Method:
-	(modifiers+=Modifier)* type=ID name=DOT_ID "(" (arguments+=Argument ("," arguments+=Argument)*)? ")" "{"
+	(modifiers+=Modifier)* type=TypeReference name=DOT_ID "(" (arguments+=Argument ("," arguments+=Argument)*)? ")" "{"
 		(elements+=JavaElement)*
 	"}"
 ;
 
 Argument:
-	argumentType=ARRAY_ID argumentName+=DOT_ID
+	argumentType=TypeReference argumentName+=DOT_ID
 ;
 
 enum Modifier: 

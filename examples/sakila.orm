@@ -9,7 +9,7 @@ enum Rating {
 }
 
 entity Actor {
-    id Integer key
+    actorId Integer key
     @(Attribute.Length=45)
     firstName String required
     @(Attribute.Length=45)
@@ -18,21 +18,21 @@ entity Actor {
 }
 
 entity Category {
-    id Integer key
+    categoryId Integer key
     @(Attribute.Length=25)
     name String required
     lastUpdate DateTime required
 }
 
 entity Language {
-    id Integer key
+    languageId Integer key
     @(Attribute.Length=20)
     name String required
     lastUpdate DateTime required
 }
 
 entity Film {
-    id Integer key
+    filmId Integer key
     @(Attribute.Length=128)
     title String required
     description String
@@ -55,7 +55,7 @@ entity FilmCategory joins (Film["filmCategories"], Category["films"]) {
 }
 
 entity Address {
-    id Integer key
+    addressId Integer key
     @(Attribute.Length=50)
     addressLine String required
     @(Attribute.Length=50)
@@ -71,26 +71,26 @@ entity Address {
 }
 
 entity City {
-    id Integer key
+    cityId Integer key
     @(Attribute.Length=50)
     name String required
     lastUpdate DateTime required
 }
 
 entity Country {
-    id Integer key
+    countryId Integer key
     @(Attribute.Length=50)
     name String required
     lastUpdate DateTime required
 }
 
 entity Store {
-    id Integer key
+    storeId Integer key
     lastUpdate DateTime required
 }
 
 entity Staff {
-    id Integer key
+    staffId Integer key
     @(Attribute.Length=45)
     firstName String required
     @(Attribute.Length=45)
@@ -105,7 +105,7 @@ entity Staff {
 }
 
 entity Customer {
-    id Integer key
+    customerId Integer key
     @(Attribute.Length=45)
     firstName String required
     @(Attribute.Length=45)
@@ -117,19 +117,19 @@ entity Customer {
 }
 
 entity Inventory {
-    id Integer key
+    inventoryId Integer key
     lastUpdate DateTime required
 }
 
 entity Rental {
-    id Integer key
+    rentalId Integer key
     rentalDate DateTime required
     returnDate DateTime
     lastUpdate DateTime required
 }
 
 entity Payment {
-    id Integer key
+    paymentId Integer key
     amount Float required
     paymentDate DateTime required
     lastUpdate DateTime required

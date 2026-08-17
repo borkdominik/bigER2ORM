@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, composite, mapped_column, relationship
 class Student(Person):
     __tablename__ = 'student'
 
-    # TODO: Currently inheriting all attributes, as inheritance is buggy with ConcreteClasses
+    # LIMITATION: Currently inheriting all attributes, as inheritance is buggy with ConcreteClasses
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=True)
     address: Mapped[Address] = composite(

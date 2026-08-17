@@ -32,22 +32,22 @@ $DB2|$DB3
 "
 
 # Probe if sakila_reference DB exists using migra directly
-if migra "$DB_REF_SAKILA" "$DB1" $MIGRA_FLAGS >/dev/null 2>&1; then
+if migra "$DB1" "$DB_REF_SAKILA" $MIGRA_FLAGS >/dev/null 2>&1; then
   echo "sakila_reference database detected. Including Sakila reference comparisons..."
   pairs="$pairs
-$DB_REF_SAKILA|$DB1
-$DB_REF_SAKILA|$DB2
-$DB_REF_SAKILA|$DB3
+$DB1|$DB_REF_SAKILA
+$DB2|$DB_REF_SAKILA
+$DB3|$DB_REF_SAKILA
 "
 fi
 
 # Probe if dst_reference DB exists using migra directly
-if migra "$DB_REF_DST" "$DB1" $MIGRA_FLAGS >/dev/null 2>&1; then
+if migra "$DB1" "$DB_REF_DST" $MIGRA_FLAGS >/dev/null 2>&1; then
   echo "dst_reference database detected. Including DST reference comparisons..."
   pairs="$pairs
-$DB_REF_DST|$DB1
-$DB_REF_DST|$DB2
-$DB_REF_DST|$DB3
+$DB1|$DB_REF_DST
+$DB2|$DB_REF_DST
+$DB3|$DB_REF_DST
 "
 fi
 

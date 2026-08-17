@@ -11,6 +11,7 @@ import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.EnumAttribute
 import java.util.List
 import org.big.orm.ormModel.DataAttribute
+import org.big.orm.ormModel.EmbeddedAttribute
 
 @Singleton
 class InheritableUtil {
@@ -34,6 +35,9 @@ class InheritableUtil {
    		«IF e instanceof Entity && (e as Entity).joinEntity»«(e as Entity).compilePrimaryKeyAnnotationForJoinEntity»«ENDIF»
    		public«IF e instanceof MappedClass» abstract«ENDIF» class «e.name»«IF e.extends !== null» : «e.extends.name»«ENDIF»
    		{
+   			«IF !e.attributes.filter(EmbeddedAttribute).empty»
+   			// LIMITATION: Owned types cannot be used in Table-per-Class inheritance hierarchies, embeddables must be mapped as flattened properties: https://github.com/dotnet/efcore/issues/32028
+   			«ENDIF»
    			«FOR attribute : e.attributes.filter[a | a.type === AttributeType.ID].toList.allAttributesAsDataAttributes SEPARATOR "\n"»
    			«attribute.compileToEntityFrameworkAttribute(true)»
    			«ENDFOR»«IF !e.attributes.filter[a | a.type === AttributeType.ID].toList.allAttributesAsDataAttributes.empty»

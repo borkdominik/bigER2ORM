@@ -20,7 +20,7 @@ def run_single_roundtrip_report(orm_file: Path, project_dir: Path) -> dict:
     sort_orm_file(orm_file, sorted_orig)
 
     print("1. Generating Java ORM code...")
-    if not generate_orm_code(orm_file, project_dir, language="java"):
+    if not generate_orm_code(orm_file, project_dir, language="Hibernate"):
         return {"model": orm_file.name, "status": "GEN_ERROR"}
 
     print(f"2. Reverse engineering Java source -> {reversed_orm.name}...")

@@ -32,7 +32,7 @@ public class UniversityContext : DbContext
 
         // INHERTIANCE
 
-        // Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
+        // LIMITATION: Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
         modelBuilder.Entity<Certificate>().UseTptMappingStrategy();
 
         modelBuilder.Entity<RecognizedCertificate>()
@@ -54,7 +54,7 @@ public class UniversityContext : DbContext
 
         modelBuilder.Entity<Person>().UseTpcMappingStrategy();
 
-        // Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
+        // LIMITATION: Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
         modelBuilder.Entity<StudentCard>().UseTptMappingStrategy();
 
         modelBuilder.Entity<GraduateStudentCard>()

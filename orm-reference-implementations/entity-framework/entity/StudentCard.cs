@@ -7,6 +7,7 @@ namespace university.entity
     [PrimaryKey(nameof(CardNr), nameof(CardVersion))]
     public class StudentCard
     {
+        // LIMITATION: Owned types cannot be used in Table-per-Class inheritance hierarchies, embeddables must be mapped as flattened properties: https://github.com/dotnet/efcore/issues/32028
         [Column(TypeName = "Varchar(255)")]
         public string CardNr { get; set; }
 

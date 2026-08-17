@@ -99,9 +99,6 @@ def main():
             break
         time.sleep(2)
 
-    print("\n--- Docker Container Logs ---")
-    subprocess.call(["docker", "compose", "--project-directory", str(input_folder)] + compose_args + ["logs"], cwd=str(input_folder))
-
     subprocess.call(["docker", "compose", "--project-directory", str(input_folder)] + compose_args + ["down", "-v"], cwd=str(input_folder))
 
     if exit_code == 0:

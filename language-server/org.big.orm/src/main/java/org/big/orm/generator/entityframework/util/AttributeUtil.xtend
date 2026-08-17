@@ -6,7 +6,6 @@ import org.big.orm.ormModel.AttributeType
 import com.google.inject.Singleton
 import org.big.orm.ormModel.DataType
 import org.big.orm.ormModel.EnumAttribute
-import org.big.orm.ormModel.LengthOption
 
 import com.google.inject.Inject
 import org.big.orm.generator.common.CommonUtil

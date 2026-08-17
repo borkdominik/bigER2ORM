@@ -70,7 +70,7 @@ class ModelUtil {
 	
 	def compileJoinedTableInheritance(Entity rootEntity, List<Entity> childEntities) {
 		'''
-		// Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
+		// LIMITATION: Table-per-Type doesn't support renaming primary keys: https://github.com/dotnet/efcore/issues/19970
 		modelBuilder.Entity<«rootEntity.name»>().UseTptMappingStrategy();
 		
 		«FOR childEntity: childEntities SEPARATOR "\n"»

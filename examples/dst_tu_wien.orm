@@ -10,60 +10,67 @@ enum TripStatus {
 
 embeddable Money {
     currency String
-    amount Float
+    value Float
 }
 
 mapped_class PlatformUser {
     id UUID key
-    firstName String required
-    lastName String required
-    email String required
-    password String required
-    accountNo String
-    bankCode String
+    name String
+    tel String required
+    avgrating Float
 }
 
 entity Rider extends PlatformUser {
+    email String required
+    password String required
+    accountno String
+    bankcode String
 }
 
 entity Driver extends PlatformUser {
-    name String
-    tel String
-    avgRating Float
 }
 
 entity Preferences {
     id UUID key
 }
 
+entity PreferencesData {
+    id UUID key
+    dataKey String required
+    data String
+}
+
 entity Organization {
     id UUID key
-    name String required
+    name String
 }
 
 entity Vehicle {
     id UUID key
-    licensePlate String required
-    type String required
+    license String
+    type String
     color String
 }
 
 entity Location {
     id UUID key
-    name String required
-    locationId Integer required
+    name String
+    locationid Integer
 }
 
-entity TripInfo {
+entity Tripinfo {
     id UUID key
-    embedded total Money
+    completed DateTime
     distance Float
+    embedded total Money
+    driverrating Integer
+    riderrating Integer
 }
 
 entity Trip {
     id UUID key
-    created DateTime required
-    updated DateTime required
+    created DateTime
+    updated DateTime
     enum state TripStatus
 }
 
@@ -74,23 +81,33 @@ entity Match {
 }
 
 entity Employment joins (Driver["employments"], Organization["employments"]) {
-    since DateTime required
-    active Boolean required
+    since DateTime
+    active Boolean
 }
 
 ManyToMany relationship OrganizationParts {
-    source Organization["parts"]
-    target Organization["partOf"]
+    source Organization["partsorganization"]
+    target Organization["partoforganization"]
+}
+
+ManyToMany relationship OrganizationVehicle {
+    source Organization["organizations"]
+    target Vehicle["vehicles"]
 }
 
 OneToOne relationship RiderPreferences {
-    source Preferences["rider"]
-    target Rider["preferences"]
+    source Rider["preferences"]
+    target Preferences["rider"]
 }
 
-OneToOne relationship TripTripInfo {
-    source Trip["tripInfo"]
-    target TripInfo["trip"]
+ManyToOne relationship PreferencesDataPreferences {
+    source PreferencesData["preferences"] required
+    target Preferences["data"]
+}
+
+OneToOne relationship TripTripinfo {
+    source Tripinfo["trip"]
+    target Trip["tripInfo"]
 }
 
 OneToOne relationship TripPickup {
@@ -103,7 +120,7 @@ OneToOne relationship TripDestination {
     target Location["destinationTrip"]
 }
 
-ManyToMany relationship TripStops {
+ManyToMany relationship TripLocation {
     source Trip["stops"]
     target Location["stopsTrip"]
 }
@@ -123,12 +140,13 @@ ManyToOne relationship MatchVehicle {
     target Vehicle["matches"]
 }
 
-ManyToOne relationship VehicleDriver {
-    source Vehicle["driver"] required
-    target Driver["vehicles"]
+ManyToOne relationship DriverVehicle {
+    source Driver["vehicle"] required
+    target Vehicle["drivers"]
 }
 
 ManyToOne relationship TripRider {
-    source Trip["rider"] required
+    source Trip["rider"]
     target Rider["trips"]
 }
+

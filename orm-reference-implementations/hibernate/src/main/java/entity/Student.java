@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 public class Student extends Person {
 
-  // Unique constraint name can't be set: https://hibernate.atlassian.net/browse/HHH-19006
+  // LIMITATION: Unique constraint name can't be set: https://hibernate.atlassian.net/browse/HHH-19006
   // Once finished refactor creation to be equivalent
   @OneToOne
   @JoinColumns(value = {

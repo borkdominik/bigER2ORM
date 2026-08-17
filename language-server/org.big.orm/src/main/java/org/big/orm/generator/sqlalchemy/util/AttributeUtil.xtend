@@ -11,7 +11,6 @@ import java.util.List
 import org.big.orm.ormModel.DataType
 import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.EnumAttribute
-import org.big.orm.ormModel.LengthOption
 
 import com.google.inject.Inject
 import org.big.orm.generator.common.CommonUtil

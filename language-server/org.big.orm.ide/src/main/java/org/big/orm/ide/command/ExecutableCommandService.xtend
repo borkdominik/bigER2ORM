@@ -22,7 +22,7 @@ import org.eclipse.xtext.generator.trace.TraceFileNameProvider
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.google.gson.Gson
-import org.big.orm.language.javaModel.JavaModel
+import org.big.orm.language.java.javaModel.JavaModel
 import org.apache.commons.io.FileUtils
 import java.io.File
 import org.big.orm.language.java.JavaModel2OrmModelConverter

@@ -11,7 +11,6 @@ import org.big.orm.ormModel.EnumAttribute
 import org.big.orm.ormModel.DataType
 import com.google.inject.Inject
 import org.big.orm.generator.common.CommonUtil
-import org.big.orm.ormModel.LengthOption
 
 @Singleton
 class AttributeUtil {

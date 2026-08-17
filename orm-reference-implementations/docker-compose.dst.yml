@@ -15,6 +15,7 @@ services:
       - ../../orm-reference-implementations/dst-runner/pom.xml:/app/pom.xml:ro
       - ../../orm-reference-implementations/dst-runner/src/main/java/GenerateDatabase.java:/app/runner-src/GenerateDatabase.java:ro
       - ../../orm-reference-implementations/dst-runner/src/main/resources/META-INF/persistence.xml:/app/runner-res/persistence.xml:ro
+      - ../../orm-reference-implementations/dst-runner/src/main/resources/META-INF/orm.xml:/app/runner-res/orm.xml:ro
     command: >
       sh -lc "
         mkdir -p /app/src/main/java /app/src/main/resources/META-INF &&
@@ -22,6 +23,7 @@ services:
         cp -r /app/runner-src/* /app/src/main/java/ &&
         cp -r /app/dst-res/* /app/src/main/resources/ &&
         cp /app/runner-res/persistence.xml /app/src/main/resources/META-INF/persistence.xml &&
+        cp /app/runner-res/orm.xml /app/src/main/resources/META-INF/orm.xml &&
         mvn -q -DskipTests compile exec:java -Dexec.mainClass=GenerateDatabase
       "
 

@@ -9,7 +9,6 @@ import org.big.orm.ormModel.DataAttribute
 import org.big.orm.ormModel.EmbeddedAttribute
 import org.big.orm.ormModel.Entity
 import org.big.orm.ormModel.EnumAttribute
-import org.big.orm.ormModel.InheritanceOption
 import org.big.orm.ormModel.ModelElement
 import org.big.orm.ormModel.OrmEnum
 import org.big.orm.ormModel.OrmModel

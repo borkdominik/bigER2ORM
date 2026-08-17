@@ -1,13 +1,13 @@
 package org.big.orm.language.java
 
 import org.big.orm.ormModel.OrmModel
-import org.big.orm.language.javaModel.JavaModel
+import org.big.orm.language.java.javaModel.JavaModel
 import java.util.List
 import org.big.orm.ormModel.OrmModelFactory
-import org.big.orm.language.javaModel.JavaElement
+import org.big.orm.language.java.javaModel.JavaElement
 import java.util.ArrayList
-import org.big.orm.language.javaModel.JavaClass
-import org.big.orm.language.javaModel.Statement
+import org.big.orm.language.java.javaModel.JavaClass
+import org.big.orm.language.java.javaModel.Statement
 import org.big.orm.ormModel.DataType
 import org.big.orm.ormModel.DataAttribute
 import org.big.orm.ormModel.Entity
@@ -20,7 +20,8 @@ import org.big.orm.ormModel.RelationshipType
 import org.big.orm.ormModel.RelationEntity
 import org.big.orm.ormModel.MappedClass
 import org.big.orm.ormModel.OrmEnum
-import org.big.orm.language.javaModel.JavaEnum
+import org.big.orm.language.java.javaModel.JavaEnum
+import org.big.orm.language.java.javaModel.Modifier
 import org.big.orm.ormModel.EnumValue
 import org.big.orm.ormModel.Attribute
 import org.big.orm.ormModel.EnumAttribute
@@ -267,16 +268,20 @@ class JavaModel2OrmModelConverter {
 		// PRIMARY AND ENUM ATTRIBUTES
 
 		var primaryElements = elements
-			.filter[annotations.filter[type.equals("Embedded") || type.equals("EmbeddedId")].empty]
-			.filter[!annotations.filter[type.equals("Column")].empty]
+			.filter[annotations.filter[type.equals("Embedded") || type.equals("EmbeddedId") || type.equals("Transient") || type.equals("ElementCollection")].empty]
+			.filter[!(element as Statement).modifiers.contains(Modifier.TRANSIENT) && !(element as Statement).modifiers.contains(Modifier.STATIC)]
+			.filter[!(element as Statement).type.contains("<")]
 		
 		
 		primaryElements.forEach[element | 
 			// Check if nullable
 			var Boolean nullable = true
 			val columnAnnotation = element.annotations.findFirst[it.type.equals("Column")]
-			val nullableOption = columnAnnotation.options.findFirst[param.equals("nullable")]
+			val nullableOption = columnAnnotation?.options?.findFirst[param.equals("nullable")]
 			if (nullableOption !== null && nullableOption.option.equals("false")) {
+				nullable = false
+			}
+			if (!element.annotations.filter[type.equals("NotNull")].empty) {
 				nullable = false
 			}
 			
@@ -295,12 +300,13 @@ class JavaModel2OrmModelConverter {
 			} else {
 				// CREATE PRIMARY ATTRIBUTE
 				val DataAttribute attribute = OrmModelFactory.eINSTANCE.createDataAttribute
-				attribute.datatype = switch ((element.element as Statement).type){
+				val rawType = (element.element as Statement).type.trim
+				attribute.datatype = switch (rawType){
 					case "UUID": DataType.UUID
-					case "Boolean": DataType.BOOLEAN
-					case "Integer": DataType.INT
-					case "Double": DataType.FLOAT
-					case "LocalDateTime": DataType.DATETIME
+					case "Boolean", case "boolean": DataType.BOOLEAN
+					case "Integer", case "int", case "Long", case "long", case "Short", case "short", case "Byte", case "byte": DataType.INT
+					case "Double", case "double", case "Float", case "float", case "BigDecimal": DataType.FLOAT
+					case "LocalDateTime", case "Date", case "Timestamp", case "LocalDate", case "Instant": DataType.DATETIME
 					default: DataType.STRING
 				}
 				if (!element.annotations.filter[it.type.equals("Id")].empty){
