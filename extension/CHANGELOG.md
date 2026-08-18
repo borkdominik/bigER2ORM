@@ -15,7 +15,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Removed
 - TBD
 
-## [Unreleased]
+## [0.0.5] - 2026-08-18
 
 ### Added
 - Support for self reference relationships, both in diagram and code generation
