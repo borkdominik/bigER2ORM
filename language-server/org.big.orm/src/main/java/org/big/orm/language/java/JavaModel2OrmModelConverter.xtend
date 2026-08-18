@@ -33,6 +33,7 @@ class JavaModel2OrmModelConverter {
 	var OrmModel model = null
 	var List<JavaClass> joinClasses = null
 	var List<JavaClass> joinClassEmbeddedIds = null
+	public val List<String> mappingWarnings = new ArrayList<String>()
 	
 	def OrmModel generateOrmModelFromJavaModels(String name, List<JavaModel> javaModels){
 		
@@ -41,6 +42,7 @@ class JavaModel2OrmModelConverter {
 		model.name = name
 		joinClasses = new ArrayList<JavaClass>
 		joinClassEmbeddedIds = new ArrayList<JavaClass>
+		mappingWarnings.clear()
 		
 		setJoinClassesAndEmbeddables(javaModels)
 		
@@ -341,15 +343,18 @@ class JavaModel2OrmModelConverter {
 		var embeddedElements = elements.filter[!annotations.filter[type.equals("Embedded") || type.equals("EmbeddedId")].empty]
 		
 		embeddedElements.forEach[element | 
-			var EmbeddedAttribute attribute = OrmModelFactory.eINSTANCE.createEmbeddedAttribute
-			val embeddable = Iterables.getFirst(model.elements.filter(Embeddable).filter[name.equals((element.element as Statement).type)], null)
+			val typeName = (element.element as Statement).type
+			val embeddable = Iterables.getFirst(model.elements.filter(Embeddable).filter[name.equals(typeName)], null)
 			if (embeddable !== null){
+				var EmbeddedAttribute attribute = OrmModelFactory.eINSTANCE.createEmbeddedAttribute
 				attribute.embeddedType = embeddable
 				if (!element.annotations.filter[type.equals("Id") || type.equals("EmbeddedId")].empty){
 					attribute.type = AttributeType.ID
 				}
 				attribute.name = (element.element as Statement).name
 				ret.add(attribute)
+			} else {
+				mappingWarnings.add('''embeddable '«typeName»' for «javaClass.name».«(element.element as Statement).name» not found''')
 			}
 
 		]
@@ -406,6 +411,8 @@ class JavaModel2OrmModelConverter {
 						ormRelationship.unidirectional = true
 						ormRelationship.sourceRequired = sourceRequired
 						ret.add(ormRelationship)
+					} else if (targetEntity === null && !joinClasses.contains(clazz)) {
+						mappingWarnings.add('''target entity '«targetEntityName»' for «sourceEntity.name».«sourceAttributeName» not found''')
 					}
 				}
 			]

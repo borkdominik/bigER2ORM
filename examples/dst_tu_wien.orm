@@ -22,7 +22,7 @@ mapped_class PlatformUser {
 
 entity Rider extends PlatformUser {
     email String required
-    password String required
+    password String
     accountNo String
     bankCode String
 }

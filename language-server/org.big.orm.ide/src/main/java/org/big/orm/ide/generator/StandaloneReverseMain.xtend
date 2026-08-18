@@ -63,6 +63,16 @@ class StandaloneReverseMain {
 		
 		outputFile.parentFile?.mkdirs()
 		outResource.save(SaveOptions.newBuilder.format.options.toOptionsMap)
+		
+		if (!javaConverter.mappingWarnings.empty) {
+			val sb = new StringBuilder("\n\n// non-reversable:")
+			javaConverter.mappingWarnings.forEach[w |
+				sb.append("\n// - ").append(w)
+			]
+			sb.append("\n")
+			FileUtils.writeStringToFile(outputFile, sb.toString, "UTF-8", true)
+		}
+		
 		System.out.println("Reverse engineered ORM model written to: " + outputFile.absolutePath)
 	}
 }

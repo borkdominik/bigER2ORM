@@ -6,3 +6,4 @@ default_inheritance_example/
 dst_tu_wien/
 *_limitations.md
 test.erd
+dst_reversed.orm

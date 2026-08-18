@@ -7,10 +7,21 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [Unreleased]
 
 ### Added
-- Support for self reference relationships, both in diagram and code generation
+- TBD
 
 ### Changed
 - TBD
+
+### Removed
+- TBD
+
+## [Unreleased]
+
+### Added
+- Support for self reference relationships, both in diagram and code generation
+
+### Changed
+- Adjust eval scripts, for better overview on database differences for complex models
 
 ### Removed
 - TBD
