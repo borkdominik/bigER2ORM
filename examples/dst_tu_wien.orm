@@ -17,14 +17,14 @@ mapped_class PlatformUser {
     id UUID key
     name String
     tel String required
-    avgrating Float
+    avgRating Float
 }
 
 entity Rider extends PlatformUser {
     email String required
     password String required
-    accountno String
-    bankcode String
+    accountNo String
+    bankCode String
 }
 
 entity Driver extends PlatformUser {
@@ -55,16 +55,16 @@ entity Vehicle {
 entity Location {
     id UUID key
     name String
-    locationid Integer
+    locationId Integer
 }
 
-entity Tripinfo {
+entity TripInfo {
     id UUID key
     completed DateTime
     distance Float
     embedded total Money
-    driverrating Integer
-    riderrating Integer
+    driverRating Integer
+    riderRating Integer
 }
 
 entity Trip {
@@ -105,8 +105,8 @@ ManyToOne relationship PreferencesDataPreferences {
     target Preferences["data"]
 }
 
-OneToOne relationship TripTripinfo {
-    source Tripinfo["trip"]
+OneToOne relationship TripTripInfo {
+    source TripInfo["trip"]
     target Trip["tripInfo"]
 }
 

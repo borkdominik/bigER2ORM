@@ -5,6 +5,7 @@ import sys
 import time
 from pathlib import Path
 from orm_utils import generate_orm_code
+from classify_schema_diffs import classify_schema_diffs
 
 REQUIRED_TECH_DIRS = ("hibernate", "entity-framework", "sql-alchemy")
 
@@ -24,6 +25,9 @@ def main():
         input_folder = args.input_folder.resolve()
     else:
         input_folder = (root_dir / "examples" / "dst_tu_wien").resolve()
+
+    if args.generate:
+        input_folder.mkdir(parents=True, exist_ok=True)
 
     if not input_folder.is_dir():
         print(f"error: DST project folder not found at {input_folder}", file=sys.stderr)
@@ -103,6 +107,8 @@ def main():
 
     if exit_code == 0:
         diff_dir = input_folder / "schema-diffs"
+        if diff_dir.is_dir():
+            classify_schema_diffs(diff_dir)
         print(f"\nSUCCESS: DST project evaluation OK! Diff files saved in {diff_dir}")
         return 0
     else:

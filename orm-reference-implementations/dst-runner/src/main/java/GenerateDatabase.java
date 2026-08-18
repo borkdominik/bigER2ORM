@@ -1,5 +1,5 @@
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 public class GenerateDatabase {
     public static void main(String[] args) {

@@ -5,6 +5,7 @@ import sys
 import time
 from pathlib import Path
 from orm_utils import generate_orm_code
+from classify_schema_diffs import classify_schema_diffs
 
 REQUIRED_TECH_DIRS = ("hibernate", "entity-framework", "sql-alchemy")
 
@@ -141,6 +142,11 @@ def main():
         if exit_code != 0:
             print(f"error: project {proj.name} failed (exit {exit_code})", file=sys.stderr)
             return exit_code
+
+        # Classify and annotate schema diffs locally (no Docker needed)
+        diff_dir = proj / "schema-diffs"
+        if diff_dir.is_dir():
+            classify_schema_diffs(diff_dir)
 
         print(f"project {proj.name} OK")
 

@@ -5,6 +5,7 @@ import sys
 import time
 from pathlib import Path
 from orm_utils import generate_orm_code
+from classify_schema_diffs import classify_schema_diffs
 
 REQUIRED_TECH_DIRS = ("hibernate", "entity-framework", "sql-alchemy")
 
@@ -105,7 +106,11 @@ def main():
         print(f"error: Sakila evaluation failed (exit {exit_code})", file=sys.stderr)
         return exit_code
 
-    print(f"SUCCESS: Sakila project evaluation OK! Diff files saved in {input_folder / 'schema-diffs'}")
+    diff_dir = input_folder / "schema-diffs"
+    if diff_dir.is_dir():
+        classify_schema_diffs(diff_dir)
+
+    print(f"SUCCESS: Sakila project evaluation OK! Diff files saved in {diff_dir}")
     return 0
 
 
