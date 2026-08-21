@@ -7,3 +7,5 @@ dst_tu_wien/
 *_limitations.md
 test.erd
 dst_reversed.orm
+dst_tu_wien.orm
+dst_model.orm
